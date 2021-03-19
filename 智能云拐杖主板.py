@@ -8,7 +8,7 @@ import radio
 import time
 import requests
 
-#p1心率传感器（模拟值需测试），p13rgb灯，p14灯带1，p15灯带2，p16“回家”按钮
+#p1心率传感器（模拟值需测试），p13rgb灯，p14灯带1，p15灯带2，p16“回家”按钮，p0MP3模块
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#变量设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
