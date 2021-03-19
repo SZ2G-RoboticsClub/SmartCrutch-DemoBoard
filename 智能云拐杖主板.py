@@ -30,17 +30,13 @@ import requests
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
 mp3 = MP3(Pin.P0)
-
-
 p13 = MPythonPin(13, PinMode.OUT)
 p1 = MPythonPin(1, PinMode.ANALOG)
 
-radio.on()                 #无线电广播功能打开
+radio.on()                    #无线电广播功能打开
 radio.config(channel=13)
 
-#global i, j, k, m, n
-
-def get_tilt_angle(_axis):                                    #加速度计设定(ok)
+def get_tilt_angle(_axis):                                    #加速度计设定
     _Ax = accelerometer.get_x()
     _Ay = accelerometer.get_y()
     _Az = accelerometer.get_z()
@@ -137,9 +133,9 @@ def common():                                                 #平常状态
     oled.show()
     liushuideng()
        
-def timer1_tick(_):                                           #发送心跳pulse到服务端
+def pulse_send(_):                                            #发送心跳pulse到服务端(定时器回调函数)
     global pulse
-    pulse = ((1024 - 0) / (4095 - 0)) * (p1.read_analog() - 0) + 0    #要测试心率映射值
+    pulse = int(((1024 - 0) / (4095 - 0)) * (p1.read_analog() - 0) + 0)    #要测试心率映射值
     radio.send(str(pulse))
 
 def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
@@ -197,6 +193,10 @@ receive = #获取app的地址
 phone = #获取qpp的电话
 dizhi = list(receive)
 mp3.volume = 30
+
+#心率每小时定时发送
+tim1.init(period=3600000, mode=Timer.PERIODIC, callback=pulse_send)
+
 while True:
     common()
     #光感手电
@@ -204,14 +204,11 @@ while True:
         p13.write_digital(1)
     else:
         p13.write_digital(0)
-    
-    #心率每小时定时发送
-    tim1.init(period=3600000, mode=Timer.PERIODIC, callback=timer1_tick)
-    
+
     #跌倒报警
     if get_tilt_angle('Y') > 250 and get_tilt_angle('Y') < 300 or get_tilt_angle('Y') > 50 and get_tilt_angle('Y') < 110:
         if get_tilt_angle('X') > -50 and get_tilt_angle('X') < 20 or get_tilt_angle('X') > 170 and get_tilt_angle('X') < 230:
-            timestart = time.ticks_ms()                   #计时10s，如果10s内重力方向没起来或起来了但无正常加速度，则：
+            timestart = time.ticks_ms()                   #计时7s，7s灯带先变红，如果7s内重力方向没起来或起来了但无正常加速度，则：
             if time.ticks_ms() - timestart == 10000 and _A:
                 fall = 1                          #判定摔倒
             #30s还没起来，拨电话（SIM）卡     
@@ -224,9 +221,11 @@ while True:
         help()
         light()
         sound()
-        #发送消息&定位到app
+        radio.send('call')
+        #发送消息&定位到app并发警报声
+    elif fall == 0:
+        common()
             
-
     #“我想回家，请帮帮我！”
     if p16.read_digital() == 1:              #防止老人按很多次
         a = a + 1
