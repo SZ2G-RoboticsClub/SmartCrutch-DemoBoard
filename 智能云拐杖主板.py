@@ -9,12 +9,13 @@ import radio
 import time
 import requests
 
+#p0：MP3模块
 #p1：心率传感器（模拟值需测试）
+#p2：已回家按钮
 #p13：rgb灯
 #p14 灯带1
 #p15：灯带2
 #p16：“回家”按钮
-#p0：MP3模块
 
 #song1 = “我想回家，请帮帮我！”
 #
@@ -153,7 +154,7 @@ def liushuideng():                                            #平常状态之�
     time.sleep(0.25)
     move = move + 1
 
-def home():                                                   #“回家”住址自动换行显示
+def home():                                                   #“回家”住址自动换行显示(ok)
     if len(dizhi) < 10:
         oled.fill(0)
         oled.DispChar('住址：', 0, 0, 0)
@@ -188,13 +189,15 @@ dizhi = list(receive)
 mp3.volume = 30
 while True:
     common()
-    #手电
+    #光感手电
     if light.read() < 50:
         p13.write_digital(1)
     else:
         p13.write_digital(0)
+    
     #心率每小时定时发送
     tim1.init(period=3600000, mode=Timer.PERIODIC, callback=timer1_tick)
+    
     #跌倒报警
     if get_tilt_angle('Y') > 250 and get_tilt_angle('Y') < 300 or get_tilt_angle('Y') > 50 and get_tilt_angle('Y') < 110:
         if get_tilt_angle('X') > -50 and get_tilt_angle('X') < 20 or get_tilt_angle('X') > 170 and get_tilt_angle('X') < 230:
@@ -210,16 +213,19 @@ while True:
         else:           #起来了，则停止
             music.stop()
             common()
-    #按“回家”按钮，语音叫路人带他回家并报给路人家的地址
-    if p16.read_digital() == 1:
+    
+    #“我想回家，请帮帮我！”
+    if p16.read_digital() == 1:              #防止老人按很多次
         a = a + 1
-    #AI摄像头说：“我想回家，请帮帮我！”
-    if a % 2 == 1:
+    if p2.read_digital() == 1:               #方便老人
+        a = 0
+    if a != 0 :                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
         home()
         mp3.singleLoop(1)
         mp3.play_song(1)
-    elif a % 2 == 0:
+    elif a == 0 :                       #按下“已回家”按钮，停止
         mp3.singleLoop(0)
         mp3.stop()#停止说话
         common()
+    
     #拐杖记录仪（AI摄像头）
