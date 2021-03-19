@@ -1,5 +1,6 @@
 from machine import Timer
 from mpython import *
+from bluebit import *
 import smartcamera
 import math
 import music
@@ -8,10 +9,19 @@ import radio
 import time
 import requests
 
-#p1心率传感器（模拟值需测试），p13rgb灯，p14灯带1，p15灯带2，p16“回家”按钮，p0MP3模块
+#p1：心率传感器（模拟值需测试）
+#p13：rgb灯
+#p14 灯带1
+#p15：灯带2
+#p16：“回家”按钮
+#p0：MP3模块
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#变量设定
+#song1 = “我想回家，请帮帮我！”
+#
+
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#变量与引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
+mp3 = MP3(Pin.P0)
 a = 0
 move = 0
 
@@ -23,7 +33,7 @@ radio.config(channel=13)
 
 #global i, j, k, m, n,
 
-def get_tilt_angle(_axis):                                    #加速度计设定
+def get_tilt_angle(_axis):                                    #加速度计设定(ok)
     _Ax = accelerometer.get_x()
     _Ay = accelerometer.get_y()
     _Az = accelerometer.get_z()
@@ -41,7 +51,7 @@ def get_tilt_angle(_axis):                                    #加速度计设�
         else: return math.degrees(math.atan2(_T , _Az)) - 180
     return 0
 
-def light():                                               #倒地报警闪灯
+def light():                                                  #倒地闪红蓝报警灯(ok)
     my_rgb1.fill( (255, 0, 0) )
     my_rgb2.fill( (255, 0, 0) )
     my_rgb1.write()
@@ -103,19 +113,17 @@ def light():                                               #倒地报警闪灯
     my_rgb2.write()
     sleep_ms(50)
 
-def help():                                                 #呼叫路人来帮忙
-    '''oled.fill(0)
+def help():                                                   #呼叫路人来帮忙(ok)
+    oled.fill(0)
     oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
-    oled.DispChar('联系电话：110 120', 15, 40)
-    oled.show()'''
+    oled.show()
     sound()
     pass
-    #AI摄像头报警发声（或说我摔倒了，请帮帮我）
     
-def sound():                                               #AI摄像头发警报声
-    pass
+def sound():                                                  #MP3发警报声(ok)
+    music.play(music.POWER_UP, wait=False, loop=True)
 
-def common():                                              #平常状态
+def common():                                                 #平常状态
     oled.fill(0)
     oled.DispChar('智能云拐杖', 24, 16)
     oled.DispChar('开', 56, 32)
@@ -127,7 +135,7 @@ def timer1_tick(_):                                           #发送心跳pulse
     pulse = ((1024 - 0) / (4095 - 0)) * (p1.read_analog() - 0) + 0    #要测试心率映射值
     radio.send(str(pulse))
 
-def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定
+def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
     for i in range(_num):
         t = 7 * i / _num
@@ -137,7 +145,7 @@ def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之�
         b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
         _neopixel[(i + _offset) % _num] = (r, g, b)
 
-def liushuideng():                                            #平常状态之流水彩虹灯
+def liushuideng():                                            #平常状态之流水彩虹灯(ok)
     make_rainbow(my_rgb1, 23, 80, move)
     make_rainbow(my_rgb2, 23, 80, move)
     my_rgb1.write()
@@ -177,6 +185,7 @@ tim1 = Timer(1)
 receive = #获取app的地址
 phone = #获取qpp的电话
 dizhi = list(receive)
+mp3.volume = 30
 while True:
     common()
     #手电
@@ -204,10 +213,13 @@ while True:
     #按“回家”按钮，语音叫路人带他回家并报给路人家的地址
     if p16.read_digital() == 1:
         a = a + 1
-    if a % 2 == 1:          
-        #AI摄像头说：“我想回家，请帮帮我！”
+    #AI摄像头说：“我想回家，请帮帮我！”
+    if a % 2 == 1:
         home()
+        mp3.singleLoop(1)
+        mp3.play_song(1)
     elif a % 2 == 0:
-        #停止说话
+        mp3.singleLoop(0)
+        mp3.stop()#停止说话
         common()
     #拐杖记录仪（AI摄像头）
