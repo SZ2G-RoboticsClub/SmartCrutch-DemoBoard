@@ -18,13 +18,19 @@ import requests
 #p16：“回家”按钮
 
 #song1 = “我想回家，请帮帮我！”
-#
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#变量与引脚设定
+#摔倒判断：
+# 1.角度  
+# 2.测试加速度大小：
+#    正常状态（走路或站立）：
+#    x轴加速度区间[0.5429,0.8710]
+#    y轴加速度区间[-0.8710,0.5703]
+#    z轴加速度区间[0.1320,0.6562]
+
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
 mp3 = MP3(Pin.P0)
-a = 0
-move = 0
+
 
 p13 = MPythonPin(13, PinMode.OUT)
 p1 = MPythonPin(1, PinMode.ANALOG)
@@ -32,7 +38,7 @@ p1 = MPythonPin(1, PinMode.ANALOG)
 radio.on()                 #无线电广播功能打开
 radio.config(channel=13)
 
-#global i, j, k, m, n,
+#global i, j, k, m, n
 
 def get_tilt_angle(_axis):                                    #加速度计设定(ok)
     _Ax = accelerometer.get_x()
@@ -175,6 +181,10 @@ def home():                                                   #“回家”住�
         oled.show()
                        #app上地址要小于30个字
 
+a = 0
+move = 0
+timestart = 0
+fall = 0
 smartcamera = smartcamera.SmartCamera(tx=Pin.P2, rx=Pin.P7)         #AI摄像头开启
 smart_camera.sensor.reset()
 smart_camera.sensor.set_framesize(smart_camera.sensor.VGA)
@@ -201,29 +211,32 @@ while True:
     #跌倒报警
     if get_tilt_angle('Y') > 250 and get_tilt_angle('Y') < 300 or get_tilt_angle('Y') > 50 and get_tilt_angle('Y') < 110:
         if get_tilt_angle('X') > -50 and get_tilt_angle('X') < 20 or get_tilt_angle('X') > 170 and get_tilt_angle('X') < 230:
-        #计时10s，如果10s内重力方向没起来或起来了但无正常加速度，则：
-            help()
-            light()
-            sound()
-            #或：music.play(music.POWER_UP, wait=False, loop=True)
-            #发送消息&定位到app
-
-            #30s还没起来，拨电话（SIM）卡
-         
+            timestart = time.ticks_ms()                   #计时10s，如果10s内重力方向没起来或起来了但无正常加速度，则：
+            if time.ticks_ms() - timestart == 10000 and _A:
+                fall = 1                          #判定摔倒
+            #30s还没起来，拨电话（SIM）卡     
         else:           #起来了，则停止
+            fall = 0
             music.stop()
+            timestart = 0
             common()
-    
+    if fall == 1:
+        help()
+        light()
+        sound()
+        #发送消息&定位到app
+            
+
     #“我想回家，请帮帮我！”
     if p16.read_digital() == 1:              #防止老人按很多次
         a = a + 1
     if p2.read_digital() == 1:               #方便老人
         a = 0
-    if a != 0 :                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
+    if a != 0:                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
         home()
         mp3.singleLoop(1)
         mp3.play_song(1)
-    elif a == 0 :                       #按下“已回家”按钮，停止
+    elif a == 0:                       #按下“已回家”按钮，停止
         mp3.singleLoop(0)
         mp3.stop()#停止说话
         common()
