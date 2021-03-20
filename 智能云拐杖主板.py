@@ -5,9 +5,10 @@ import smartcamera
 import math
 import music
 import neopixel
-import radio
 import time
-import requests
+import usocket
+import urequests
+import json
 
 #p0：MP3模块
 #p1：心率传感器（模拟值需测试）
@@ -16,6 +17,7 @@ import requests
 #p14 灯带1
 #p15：灯带2
 #p16：“回家”按钮
+#用http传输
 
 #song1 = “我想回家，请帮帮我！”
 
@@ -206,13 +208,26 @@ while True:
         p13.write_digital(0)
 
     #跌倒报警
-    if get_tilt_angle('Y') > 250 and get_tilt_angle('Y') < 300 or get_tilt_angle('Y') > 50 and get_tilt_angle('Y') < 110:
-        if get_tilt_angle('X') > -50 and get_tilt_angle('X') < 20 or get_tilt_angle('X') > 170 and get_tilt_angle('X') < 230:
-            timestart = time.ticks_ms()                   #计时7s，7s灯带先变红，如果7s内重力方向没起来或起来了但无正常加速度，则：
-            if time.ticks_ms() - timestart == 10000 and _A:
-                fall = 1                          #判定摔倒
-            #30s还没起来，拨电话（SIM）卡     
-        else:           #起来了，则停止
+    if :
+        if :
+            timestart = time.ticks_ms()                   #计时10s，10s灯带先变红，如果10s内重力方向没起来或起来了但无正常加速度，则：
+            rgb.fill((int(255), int(0), int(0)))
+            rgb.write()
+            time.sleep_ms(1)
+            if time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 没起来:
+                fall = 1
+            elif time.ticks_ms() - timestart <= 10000 and 起来了:
+                fall = 0
+                rgb.fill( (0, 0, 0) )
+                rgb.write()
+                time.sleep_ms(1)
+            elif time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 起来了:
+                fall = 0
+            if time.ticks_ms() - timestart >= 30000 and 没起来:
+                fall = 2
+            elif time.ticks_ms() - timestart >= 30000 and 起来了:
+                fall = 0
+        else:
             fall = 0
             music.stop()
             timestart = 0
@@ -223,6 +238,8 @@ while True:
         sound()
         radio.send('call')
         #发送消息&定位到app并发警报声
+    elif fall == 2:
+        #拨打电话（SIM卡）
     elif fall == 0:
         common()
             
@@ -233,8 +250,13 @@ while True:
         a = 0
     if a != 0:                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
         home()
+        rgb.fill((int(255), int(0), int(0)))
+        rgb.write()
+        time.sleep_ms(1)
         mp3.singleLoop(1)
         mp3.play_song(1)
+        if True：                           #AI摄像头识别到人距离小于46cm时间超过5s
+            mp3.stop()
     elif a == 0:                       #按下“已回家”按钮，停止
         mp3.singleLoop(0)
         mp3.stop()#停止说话
