@@ -1,0 +1,59 @@
+API document
+
+# DemoBoard
+
+## 心跳包
+url: api/demoboard/heartbeat
+type: post
+headers:
+  - uuid: str 掌控板标识码
+data:
+  - battery: int 电量百分比
+  - status: str 状态信息  ("ok", "emergency", "suspect", "error")
+  - location: dict 位置信息
+    {status: str 定位方式 ("gps", "null", "disabled")
+     longitude: float 经度,
+     latitude: float 纬度}
+response:
+  - status: str 状态信息 ("ok", "error")
+
+** 使用长连接，每5sec发送一次
+
+## 心率
+url: url/demoboard/heartrate
+type: post
+headers:
+  - uuid: str 掌控板标识码
+data:
+  - status: str 状态信息 ("ok", "disabled", "error")
+  - rate: int 每分钟心率，若未检测到无此项
+response:
+  - status: str 状态信息 ("ok", "error")
+
+
+
+# Android App
+
+## 登陆
+url: url/app/login
+type: post
+headers:
+  None
+data:
+  - username: str 账号
+  - password: srt 密码
+response:
+  - status: str 状态信息 ("ok", "invalid", "error")
+  - token: str 用户登陆标识码
+  - err_msg: str 错误消息
+
+## 获取拐杖状态
+url: url/app/get_status
+type: get
+headers:
+  - token: str 用户登陆标识码
+response:
+  - status: str 服务器状态信息 ("ok", "error")
+  - err_msg: str 服务器错误消息
+  - crutch_status: dict
+
