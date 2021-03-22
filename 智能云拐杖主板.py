@@ -179,10 +179,11 @@ def home():                                                   #“回家”住�
         oled.show()
                        #app上地址要小于30个字
 
-a = 0
+backhome = 0
 move = 0
 timestart = 0
 fall = 0
+down = 0
 smartcamera = smartcamera.SmartCamera(tx=Pin.P2, rx=Pin.P7)         #AI摄像头开启
 smart_camera.sensor.reset()
 smart_camera.sensor.set_framesize(smart_camera.sensor.VGA)
@@ -209,45 +210,48 @@ while True:
 
     #跌倒报警
     if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
-        timestart = time.ticks_ms()                   #计时10s，10s灯带先变红，如果10s内重力方向没起来或起来了但无正常加速度，则：
-        rgb.fill((int(255), int(0), int(0)))
-        rgb.write()
-        time.sleep_ms(1)
-        if time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 没起来:
-            fall = 1
-        elif time.ticks_ms() - timestart <= 10000 and 起来了:
-            fall = 0
-            rgb.fill( (0, 0, 0) )
-            rgb.write()
-            time.sleep_ms(1)
-        elif time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 起来了:
-            fall = 0
-        if time.ticks_ms() - timestart >= 30000 and 没起来:
-            fall = 2
-        elif time.ticks_ms() - timestart >= 30000 and 起来了:
-            fall = 0
+        down = 1
     else:
+        down = 0
+    
+    if down = 1:
+        timestart = time.ticks_ms()          #计时10s，10s内灯带先变红
+        my_rgb1.brightness(100 / 100)
+        my_rgb2.brightness(100 / 100)
+        my_rgb1.fill( (255, 0, 0) )
+        my_rgb2.fill( (255, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        #10s内没起来
+        if time.ticks_ms() - timestart > 10000:
+            fall = 1
+        #30s内没起来
+        if time.ticks_ms() - timestart >= 30000:
+            fall = 2
+    elif down = 0:
         fall = 0
-        music.stop()
         timestart = 0
-        common()
+    
     if fall == 1:
         help()
         light()
         sound()
-        radio.send('call')
-        #发送消息&定位到app并发警报声
+                #发送消息&定位到app并发警报声
     elif fall == 2:
-        #拨打电话（SIM卡）
+        help()
+        light()
+        sound()
+                #拨打电话（SIM卡）
     elif fall == 0:
         common()
+        music.stop()
             
     #“我想回家，请帮帮我！”
     if p16.read_digital() == 1:              #防止老人按很多次
         a = a + 1
     if p2.read_digital() == 1:               #方便老人
         a = 0
-    if a != 0:                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
+    if backhome != 0:                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
         home()
         rgb.fill((int(255), int(0), int(0)))
         rgb.write()
@@ -256,7 +260,7 @@ while True:
         mp3.play_song(1)
         if True：                           #AI摄像头识别到人距离小于46cm时间超过5s
             mp3.stop()
-    elif a == 0:                       #按下“已回家”按钮，停止
+    elif backhome == 0:                       #按下“已回家”按钮，停止
         mp3.singleLoop(0)
         mp3.stop()#停止说话
         common()
