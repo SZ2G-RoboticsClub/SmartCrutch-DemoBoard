@@ -38,7 +38,7 @@ p1 = MPythonPin(1, PinMode.ANALOG)
 radio.on()                    #无线电广播功能打开
 radio.config(channel=13)
 
-def get_tilt_angle(_axis):                                    #加速度计设定
+def get_tilt_angle(_axis):                                    #加速度计设定(ok)
     _Ax = accelerometer.get_x()
     _Ay = accelerometer.get_y()
     _Az = accelerometer.get_z()
@@ -208,30 +208,29 @@ while True:
         p13.write_digital(0)
 
     #跌倒报警
-    if :
-        if :
-            timestart = time.ticks_ms()                   #计时10s，10s灯带先变红，如果10s内重力方向没起来或起来了但无正常加速度，则：
-            rgb.fill((int(255), int(0), int(0)))
+    if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
+        timestart = time.ticks_ms()                   #计时10s，10s灯带先变红，如果10s内重力方向没起来或起来了但无正常加速度，则：
+        rgb.fill((int(255), int(0), int(0)))
+        rgb.write()
+        time.sleep_ms(1)
+        if time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 没起来:
+            fall = 1
+        elif time.ticks_ms() - timestart <= 10000 and 起来了:
+            fall = 0
+            rgb.fill( (0, 0, 0) )
             rgb.write()
             time.sleep_ms(1)
-            if time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 没起来:
-                fall = 1
-            elif time.ticks_ms() - timestart <= 10000 and 起来了:
-                fall = 0
-                rgb.fill( (0, 0, 0) )
-                rgb.write()
-                time.sleep_ms(1)
-            elif time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 起来了:
-                fall = 0
-            if time.ticks_ms() - timestart >= 30000 and 没起来:
-                fall = 2
-            elif time.ticks_ms() - timestart >= 30000 and 起来了:
-                fall = 0
-        else:
+        elif time.ticks_ms() - timestart > 10000 and time.ticks_ms() - timestart < 30000 and 起来了:
             fall = 0
-            music.stop()
-            timestart = 0
-            common()
+        if time.ticks_ms() - timestart >= 30000 and 没起来:
+            fall = 2
+        elif time.ticks_ms() - timestart >= 30000 and 起来了:
+            fall = 0
+    else:
+        fall = 0
+        music.stop()
+        timestart = 0
+        common()
     if fall == 1:
         help()
         light()
