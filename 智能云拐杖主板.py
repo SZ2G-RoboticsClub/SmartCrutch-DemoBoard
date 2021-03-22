@@ -22,12 +22,7 @@ import json
 #song1 = “我想回家，请帮帮我！”
 
 #摔倒判断：
-# 1.角度  
-# 2.测试加速度大小：
-#    正常状态（走路或站立）：
-#    x轴加速度区间[0.5429,0.8710]
-#    y轴加速度区间[-0.8710,0.5703]
-#    z轴加速度区间[0.1320,0.6562]
+# 角度
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
@@ -128,7 +123,7 @@ def help():                                                   #呼叫路人来�
 def sound():                                                  #MP3发警报声(ok)
     music.play(music.POWER_UP, wait=False, loop=True)
 
-def common():                                                 #平常状态
+def common():                                                 #平常状态(ok)
     oled.fill(0)
     oled.DispChar('智能云拐杖', 24, 16)
     oled.DispChar('开', 56, 32)
@@ -136,9 +131,9 @@ def common():                                                 #平常状态
     liushuideng()
        
 def pulse_send(_):                                            #发送心跳pulse到服务端(定时器回调函数)
-    global pulse
+    '''global pulse
     pulse = int(((1024 - 0) / (4095 - 0)) * (p1.read_analog() - 0) + 0)    #要测试心率映射值
-    radio.send(str(pulse))
+    radio.send(str(pulse))'''
 
 def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
@@ -208,7 +203,7 @@ while True:
     else:
         p13.write_digital(0)
 
-    #跌倒报警
+    #跌倒报警(ok)
     if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
         down = 1
     else:
@@ -248,9 +243,10 @@ while True:
             
     #“我想回家，请帮帮我！”
     if p16.read_digital() == 1:              #防止老人按很多次
-        a = a + 1
+        backhome = backhome + 1
     if p2.read_digital() == 1:               #方便老人
-        a = 0
+        backhome = 0
+    
     if backhome != 0:                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
         home()
         rgb.fill((int(255), int(0), int(0)))
