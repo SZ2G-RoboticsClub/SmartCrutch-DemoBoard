@@ -1,18 +1,19 @@
 from machine import Timer
+from machine import UART
 from mpython import *
 from bluebit import *
+from nplus.ai import *
 import smartcamera
 import math
 import music
 import neopixel
 import time
-import usocket
-import urequests
-import json
+import socket
 
 #p0：MP3模块
-#p1：心率传感器（模拟值需测试）
-#p2：已回家按钮
+#p1&p6：串口uart1
+#p0&p3：串口uart2
+#p2：“已回家”按钮
 #p13：rgb灯
 #p14 灯带1
 #p15：灯带2
@@ -21,19 +22,26 @@ import json
 
 #song1 = “我想回家，请帮帮我！”
 
-#摔倒判断：
-# 角度
+#摔倒判断：角度
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
 mp3 = MP3(Pin.P0)
 p13 = MPythonPin(13, PinMode.OUT)
 p1 = MPythonPin(1, PinMode.ANALOG)
+p2 = MPythonPin(2, PinMode.IN)
+p16 = MPythonPin(16, PinMode.IN)
 
-radio.on()                    #无线电广播功能打开
-radio.config(channel=13)
+#初始化服务器传输
+host = 192.168.1.105
+port = 54269
+my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
+mywifi.connectWiFi("","")
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                                                                                 # 创建TCP的套接字,也可以不给定参数。默认为TCP通讯方式
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)                                                                             # 设置socket属性
+s.connect((host,port))                                                                                                            # 设置要连接的服务器端的IP和端口,并连接
 
-def get_tilt_angle(_axis):                                    #加速度计设定(ok)
+def get_tilt_angle(_axis):                                  
     _Ax = accelerometer.get_x()
     _Ay = accelerometer.get_y()
     _Az = accelerometer.get_z()
@@ -50,6 +58,13 @@ def get_tilt_angle(_axis):                                    #加速度计设�
         if (_Ax + _Ay) < 0: return 180 - math.degrees(math.atan2(_T , _Az))
         else: return math.degrees(math.atan2(_T , _Az)) - 180
     return 0
+
+def help():                                                   #呼叫路人来帮忙(ok)
+    oled.fill(0)
+    oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
+    oled.show()
+    sound()
+    pass
 
 def light():                                                  #倒地闪红蓝报警灯(ok)
     my_rgb1.fill( (255, 0, 0) )
@@ -111,15 +126,8 @@ def light():                                                  #倒地闪红蓝�
     my_rgb2.fill( (0, 0, 0) )
     my_rgb1.write()
     my_rgb2.write()
-    sleep_ms(50)
+    sleep_ms(50)    
 
-def help():                                                   #呼叫路人来帮忙(ok)
-    oled.fill(0)
-    oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
-    oled.show()
-    sound()
-    pass
-    
 def sound():                                                  #MP3发警报声(ok)
     music.play(music.POWER_UP, wait=False, loop=True)
 
@@ -130,11 +138,6 @@ def common():                                                 #平常状态(ok)
     oled.show()
     liushuideng()
        
-def pulse_send(_):                                            #发送心跳pulse到服务端(定时器回调函数)
-    '''global pulse
-    pulse = int(((1024 - 0) / (4095 - 0)) * (p1.read_analog() - 0) + 0)    #要测试心率映射值
-    radio.send(str(pulse))'''
-
 def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
     for i in range(_num):
@@ -174,29 +177,35 @@ def home():                                                   #“回家”住�
         oled.show()
                        #app上地址要小于30个字
 
+
+
 backhome = 0
 move = 0
 timestart = 0
 fall = 0
 down = 0
-smartcamera = smartcamera.SmartCamera(tx=Pin.P2, rx=Pin.P7)         #AI摄像头开启
-smart_camera.sensor.reset()
-smart_camera.sensor.set_framesize(smart_camera.sensor.VGA)
-smart_camera.sensor.set_pixformat(smart_camera.sensor.RGB565)
-smart_camera.sensor.set_auto_whitebal(True)
-smart_camera.sensor.run(1)
+location = 0
+ai = NPLUS_AI()         
 tim1 = Timer(1)
 #获取一次app上的电话与住址（app上标注重启拐杖即生效）
-receive = #获取app的地址
-phone = #获取qpp的电话
+phone = conn.recv(1024)#获取qpp的电话
+receive = conn.recv(1024)#获取app的地址
 dizhi = list(receive)
 mp3.volume = 30
-
-#心率每小时定时发送
-tim1.init(period=3600000, mode=Timer.PERIODIC, callback=pulse_send)
-
+uart1 = machine.UART(1, baudrate=115200, tx=Pin.P1, rx=Pin.P6)
+uart2 = machine.UART(2, baudrate=115200, tx=Pin.P, rx=Pin.P6)
 while True:
+    '''data = s.recv(1024)                                 # 从服务器端套接字中读取1024字节数据
+    if(len(data) == 0):                                 # 如果接收数据为0字节时,关闭套接字
+        print("close socket")
+        s.close()
+        break
+    data=data.decode('utf-8')                         # 以utf-8编码解码字符串'''
+    if uart1.read():                                   #存取
+        location = list(uart1.readline())
+    
     common()
+
     #光感手电
     if light.read() < 50:
         p13.write_digital(1)
@@ -210,6 +219,7 @@ while True:
         down = 0
     
     if down = 1:
+        ai.video_capture(60)                 #ai开启摄像头
         timestart = time.ticks_ms()          #计时10s，10s内灯带先变红
         my_rgb1.brightness(100 / 100)
         my_rgb2.brightness(100 / 100)
@@ -231,12 +241,12 @@ while True:
         help()
         light()
         sound()
-                #发送消息&定位到app并发警报声
+        s.send('call')        #发送消息&定位到app并发警报声
     elif fall == 2:
         help()
         light()
         sound()
-                #拨打电话（SIM卡）
+        ……      #拨打电话（SIM卡）
     elif fall == 0:
         common()
         music.stop()
@@ -261,4 +271,5 @@ while True:
         mp3.stop()#停止说话
         common()
     
-    #拐杖记录仪（AI摄像头）
+    #拐杖记录仪（AI摄像头录像）
+    
