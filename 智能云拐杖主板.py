@@ -185,6 +185,7 @@ timestart = 0
 fall = 0
 down = 0
 location = 0
+telephone = 0
 ai = NPLUS_AI()         
 tim1 = Timer(1)
 #获取一次app上的电话与住址（app上标注重启拐杖即生效）
@@ -201,9 +202,10 @@ while True:
         s.close()
         break
     data=data.decode('utf-8')                         # 以utf-8编码解码字符串'''
-    if uart1.read():                                   #存取
+    if uart1.read():                                   #存取地址
         location = list(uart1.readline())
-    
+    if uart2.read():
+        telephone = uart2.readline()
     common()
 
     #光感手电
@@ -246,7 +248,7 @@ while True:
         help()
         light()
         sound()
-        ……      #拨打电话（SIM卡）
+        uart2.write(('ATD' + str(phone)))#拨打电话（SIM卡）
     elif fall == 0:
         common()
         music.stop()
@@ -270,6 +272,4 @@ while True:
         mp3.singleLoop(0)
         mp3.stop()#停止说话
         common()
-    
-    #拐杖记录仪（AI摄像头录像）
     
