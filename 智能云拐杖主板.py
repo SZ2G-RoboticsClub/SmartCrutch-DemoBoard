@@ -10,11 +10,10 @@ import neopixel
 import time
 import socket
 
-#p0：MP3模块
+#p5：MP3模块
 #p1&p6：串口uart1
 #p0&p3：串口uart2
-#p2：“已回家”按钮
-#p13：rgb灯
+#p2：“记录”按钮
 #p14 灯带1
 #p15：灯带2
 #p16：“回家”按钮
@@ -26,8 +25,7 @@ import socket
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
-mp3 = MP3(Pin.P0)
-p13 = MPythonPin(13, PinMode.OUT)
+mp3 = MP3(Pin.P5)
 p1 = MPythonPin(1, PinMode.ANALOG)
 p2 = MPythonPin(2, PinMode.IN)
 p16 = MPythonPin(16, PinMode.IN)
@@ -39,8 +37,8 @@ my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("","")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                                                                                 # 创建TCP的套接字,也可以不给定参数。默认为TCP通讯方式
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)                                                                             # 设置socket属性
-s.connect((host,port))                                                                                                            # 设置要连接的服务器端的IP和端口,并连接
-
+s.connect((host,port))                                                                                 # 设置要连接的服务器端的IP和端口,并连接
+                           
 def get_tilt_angle(_axis):                                  
     _Ax = accelerometer.get_x()
     _Ay = accelerometer.get_y()
@@ -188,20 +186,14 @@ location = 0
 telephone = 0
 ai = NPLUS_AI()         
 tim1 = Timer(1)
-#获取一次app上的电话与住址（app上标注重启拐杖即生效）
-phone = conn.recv(1024)#获取qpp的电话
-receive = conn.recv(1024)#获取app的地址
+#获取一次app上的电话（app上标注重启拐杖即生效）
+phone = phone.decode('utf-8')                         # 以utf-8编码解码字符串'''
+phone = conn.recv(1024)#获取app的电话
 dizhi = list(receive)
 mp3.volume = 30
 uart1 = machine.UART(1, baudrate=115200, tx=Pin.P1, rx=Pin.P6)
-uart2 = machine.UART(2, baudrate=115200, tx=Pin.P, rx=Pin.P6)
+uart2 = machine.UART(2, baudrate=115200, tx=Pin.P0, rx=Pin.P3)
 while True:
-    '''data = s.recv(1024)                                 # 从服务器端套接字中读取1024字节数据
-    if(len(data) == 0):                                 # 如果接收数据为0字节时,关闭套接字
-        print("close socket")
-        s.close()
-        break
-    data=data.decode('utf-8')                         # 以utf-8编码解码字符串'''
     if uart1.read():                                   #存取地址
         location = list(uart1.readline())
     if uart2.read():
@@ -210,9 +202,15 @@ while True:
 
     #光感手电
     if light.read() < 50:
-        p13.write_digital(1)
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb2.fill( (255, 255, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
     else:
-        p13.write_digital(0)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
 
     #跌倒报警(ok)
     if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
@@ -256,20 +254,11 @@ while True:
     #“我想回家，请帮帮我！”
     if p16.read_digital() == 1:              #防止老人按很多次
         backhome = backhome + 1
-    if p2.read_digital() == 1:               #方便老人
-        backhome = 0
+    if p2.read_digital() == 1:               #记录按钮
+        backhome = -1
     
-    if backhome != 0:                         #按一下“回家”按钮，语音叫路人带他回家并显示家的地址
-        home()
-        rgb.fill((int(255), int(0), int(0)))
-        rgb.write()
-        time.sleep_ms(1)
-        mp3.singleLoop(1)
-        mp3.play_song(1)
-        if True：                           #AI摄像头识别到人距离小于46cm时间超过5s
-            mp3.stop()
-    elif backhome == 0:                       #按下“已回家”按钮，停止
-        mp3.singleLoop(0)
-        mp3.stop()#停止说话
-        common()
-    
+    if backhome == -1:                       #按下“记录”按钮，北斗记录当前位置
+        
+    if backhome != -1:                         #按一下“回家”按钮，北斗导航语音带老人回家
+       
+   
