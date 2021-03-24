@@ -36,23 +36,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)             # 创建TCP的
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)           # 设置socket属性
 s.connect((host,port))                                            # 设置要连接的服务器端的IP和端口,并连接
                            
-def get_tilt_angle(_axis):                                  
-    _Ax = accelerometer.get_x()
-    _Ay = accelerometer.get_y()
-    _Az = accelerometer.get_z()
-    if 'X' == _axis:
-        _T = math.sqrt(_Ay ** 2 + _Az ** 2)
-        if _Az < 0: return math.degrees(math.atan2(_Ax , _T))
-        else: return 180 - math.degrees(math.atan2(_Ax , _T))
-    elif 'Y' == _axis:
-        _T = math.sqrt(_Ax ** 2 + _Az ** 2)
-        if _Az < 0: return  math.degrees(math.atan2(_Ay , _T))
-        else: return 180 - math.degrees(math.atan2(_Ay , _T))
-    elif 'Z' == _axis:
-        _T = math.sqrt(_Ax ** 2 + _Ay ** 2)
-        if (_Ax + _Ay) < 0: return 180 - math.degrees(math.atan2(_T , _Az))
-        else: return math.degrees(math.atan2(_T , _Az)) - 180
-    return 0
+
+
 
 def help():                                                   #呼叫路人来帮忙(ok)
     oled.fill(0)
