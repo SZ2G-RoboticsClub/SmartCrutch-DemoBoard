@@ -12,3 +12,22 @@ class CrutchClient(object):
         url = self.root_url + "/api/demoboard/heartbeat"
         headers = {'uuid': uuid}
         data = {}
+        response = {}
+
+    def emergency(self,uuid: str,loc_status: str,):
+        '''send message to app when the old man fall down
+        '''
+        url = self.root_url + "/api/demoboard/emergency"
+        #post
+        headers = {'uuid':uuid}
+        data = {}
+        response = {}
+
+    def get_settings(self, uuid: str):
+        '''get phone number from app
+        '''
+        url = self.root_url + "/api/demoboard/settings"
+        #get
+        headers = {'uuid': uuid}
+        data = {}
+        response = {}
