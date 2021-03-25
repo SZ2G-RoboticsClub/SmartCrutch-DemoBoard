@@ -7,7 +7,7 @@ import math
 import music
 import neopixel
 import time
-import urequests
+import socket   #urequests
 
 #p5：MP3模块
 #p1&p6：串口uart1
@@ -16,8 +16,6 @@ import urequests
 #p14 灯带1
 #p15：灯带2
 #p16：“回家”按钮
-#用socket http传输
-
 #摔倒判断：角度
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
