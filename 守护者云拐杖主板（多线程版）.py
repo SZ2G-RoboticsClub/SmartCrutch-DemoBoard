@@ -33,14 +33,14 @@ my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("QFCS1","12345678")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)             
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)           
-s.connect((host,port))                                            
+s.connect(host,port)                                            
 
 backhome = 0
 move = 0
 timestart = 0
 fall = 0
 down = 0
-location = 0
+location = []
 latitude_first = 0
 longtitude_first = 0
 latitude_now = 0
@@ -178,8 +178,11 @@ def liushuideng():                                            #平常状态之�
 
 
 
-
-def fall_down():                      #线程1：判断跌倒
+def loc_get():                        #线程1：北斗地址获取
+    while True:
+        if uart1.read():                  
+                location = list(uart1.readline())
+def fall_down():                      #线程2：判断跌倒
     while True:
         common()
         if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
@@ -207,7 +210,7 @@ def fall_down():                      #线程1：判断跌倒
             timestart = 0
         
         if fall == 1:
-            s.send('call')        #发送消息&定位到app并发警报声
+            s.send(location)                      #发送定位到app并发警报声
             light()
             help()
         elif fall == 2:
@@ -218,13 +221,9 @@ def fall_down():                      #线程1：判断跌倒
         elif fall == 0:
             common()
             music.stop()
-
-
-def home():                           #线程2：带你回家
+def home():                           #线程3：带你回家
     while True:
         common()
-        if uart1.read():                                   #存取地址
-            location = list(uart1.readline())
         
         if p16.read_digital() == 1:              #防止老人按很多次
             backhome = 1
@@ -236,9 +235,9 @@ def home():                           #线程2：带你回家
             longtitude_first = str(float(location[32:42]) * 0.01 + location[43])    #存取初始经度
             #n为时间与字符间空格数(为2)
         if backhome == 1:                    #按一下“回家”按钮，北斗记录当前位置并导航语音带老人回初始位置
-            latitude_now = str(float(location[20:29]) * 0.01 + location[18+n])        #存取当前纬度
+            latitude_now = str(float(location[20:29]) * 0.01 + location[18+n])      #存取当前纬度
             longtitude_now = str(float(location[32:42]) * 0.01 + location[43])      #存取当前经度
-            #（……）语音导航带老人回家
+            #语音导航带老人回家
             backhome = 0 #导航到家
 
 
