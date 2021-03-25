@@ -7,7 +7,7 @@ import math
 import music
 import neopixel
 import time
-import socket
+import urequests
 
 #p5：MP3模块
 #p1&p6：串口uart1
@@ -28,13 +28,31 @@ p2 = MPythonPin(2, PinMode.IN)
 p16 = MPythonPin(16, PinMode.IN)
 
 #初始化服务器传输
-host = 192.168.1.105
+host = "192.168.1.105"
 port = 54269
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("QFCS1","12345678")
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)             # 创建TCP的套接字,也可以不给定参数。默认为TCP通讯方式
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)           # 设置socket属性
-s.connect((host,port))                                            # 设置要连接的服务器端的IP和端口,并连接
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)             
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)           
+s.connect((host,port))                                            
+
+def get_tilt_angle(_axis):                                  
+    x = accelerometer.get_x()
+    y = accelerometer.get_y()
+    z = accelerometer.get_z()
+    if 'X' == _axis:
+        force = math.sqrt(y ** 2 + z ** 2)
+        if z < 0: return math.degrees(math.atan2(x , force))
+        else: return 180 - math.degrees(math.atan2(x , force))
+    elif 'Y' == _axis:
+        force = math.sqrt(x ** 2 + z ** 2)
+        if _Az < 0: return  math.degrees(math.atan2(y , force))
+        else: return 180 - math.degrees(math.atan2(y , force))
+    elif 'Z' == _axis:
+        force = math.sqrt(x ** 2 + y ** 2)
+        if (x + y) < 0: return 180 - math.degrees(math.atan2(force , z))
+        else: return math.degrees(math.atan2(force , z)) - 180
+    return 0
 
 def help():                                                   #呼叫路人来帮忙(ok)
     oled.fill(0)
@@ -150,11 +168,11 @@ latitude_first = 0
 longtitude_first = 0
 latitude_now = 0
 longtitude_now = 0
-ai = NPLUS_AI()         
+ai = NPLUS_AI()
 tim1 = Timer(1)
 #获取一次app上的电话（app上标注重启拐杖即生效）
 phone = conn.recv(1024)                               #获取紧急联系人电话
-phone = phone.decode('utf-8')                         # 以utf-8编码解码字符串
+phone = phone.decode('utf-8')                         #以utf-8编码解码字符串
 mp3.volume = 30
 uart1 = machine.UART(1, baudrate=115200, tx=Pin.P1, rx=Pin.P6)
 uart2 = machine.UART(2, baudrate=115200, tx=Pin.P0, rx=Pin.P3)
@@ -170,7 +188,7 @@ while True:
     else:
         down = 0
     
-    if down = 1:
+    if down == 1:
         ai.video_capture(60)                 #AI拐杖记录仪
         timestart = time.ticks_ms()          #计时10s，10s内灯带先变红
         my_rgb1.brightness(100 / 100)
@@ -185,7 +203,7 @@ while True:
         #30s内没起来
         if time.ticks_ms() - timestart >= 30000:
             fall = 2
-    elif down = 0:
+    elif down == 0:
         fall = 0
         timestart = 0
     
@@ -215,5 +233,5 @@ while True:
     if backhome == 1:                    #按一下“回家”按钮，北斗记录当前位置并导航语音带老人回初始位置
         latitude_now = str(float(location[20:29]) * 0.01 + location[18+n])        #存取当前纬度
         longtitude_now = str(float(location[32:42]) * 0.01 + location[43])      #存取当前经度
-        （……）#语音导航带老人回家
+        #（……）语音导航带老人回家
         backhome = 0 #导航到家
