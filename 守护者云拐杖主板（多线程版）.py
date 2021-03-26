@@ -218,20 +218,20 @@ def fall_down():                      #线程2：判断跌倒
         elif fall == 0:
             common()
             music.stop()
-def get_u_home():                           #线程3：带你回家
+def get_u_home():                     #线程3：带你回家
     while True:
         common()
         
         if p16.read_digital() == 1:              #防止老人按很多次
             backhome = 1
-        if :               #出门抬起拐杖
+        if :               #出门抬起拐杖(或者从充电座提起自动记录位置)
             backhome = -1
         
-        if backhome == -1:                    #出门抬起拐杖，北斗记录初始位置
+        if backhome == -1:                   #记录初始位置
             latitude_first = str(float(location[20:29]) * 0.01 + location[20])      #存取初始纬度
             longtitude_first = str(float(location[32:42]) * 0.01 + location[43])    #存取初始经度
             #n为时间与字符间空格数(为2)
-        if backhome == 1:                    #按一下“回家”按钮，北斗记录当前位置并导航语音带老人回初始位置
+        if backhome == 1:                    #记录当前位置
             latitude_now = str(float(location[20:29]) * 0.01 + location[18+n])      #存取当前纬度
             longtitude_now = str(float(location[32:42]) * 0.01 + location[43])      #存取当前经度
             #语音导航带老人回家
