@@ -6,7 +6,8 @@ from nplus.ai import *
 import math
 import music
 import neopixel
-import threading
+import _thread
+import sys
 import time
 import socket   #urequests
 
@@ -145,18 +146,14 @@ def common():                                                 #平常状态(ok)
     oled.DispChar('智能云拐杖', 24, 16)
     oled.DispChar('开', 56, 32)
     oled.show()
-    liushuideng()
     #光感手电
-    if light.read() < 50:
+    if light.read() < 25:                          #测试数值0-4095
         my_rgb1.fill( (255, 255, 255) )
         my_rgb2.fill( (255, 255, 255) )
         my_rgb1.write()
         my_rgb2.write()
     else:
-        my_rgb1.fill( (0, 0, 0) )
-        my_rgb2.fill( (0, 0, 0) )
-        my_rgb1.write()
-        my_rgb2.write()
+        liushuideng()
        
 def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
@@ -221,16 +218,16 @@ def fall_down():                      #线程2：判断跌倒
         elif fall == 0:
             common()
             music.stop()
-def home():                           #线程3：带你回家
+def get_u_home():                           #线程3：带你回家
     while True:
         common()
         
         if p16.read_digital() == 1:              #防止老人按很多次
             backhome = 1
-        if p2.read_digital() == 1:               #记录按钮
+        if :               #出门抬起拐杖
             backhome = -1
         
-        if backhome == -1:                    #按下“记录”按钮，北斗记录初始位置
+        if backhome == -1:                    #出门抬起拐杖，北斗记录初始位置
             latitude_first = str(float(location[20:29]) * 0.01 + location[20])      #存取初始纬度
             longtitude_first = str(float(location[32:42]) * 0.01 + location[43])    #存取初始经度
             #n为时间与字符间空格数(为2)
@@ -241,18 +238,6 @@ def home():                           #线程3：带你回家
             backhome = 0 #导航到家
 
 
-
-threads = []
-t1 = threading.Thread(target=fall_down)
-threads.append(t1)
-t2 = threading.Thread(target=home)
-threads.append(t2)
-
-
-if __name__ == '__main__':
-    for t in threads:
-        t.setDaemon(True)
-        t.start()
-
-    for t in threads:
-        t.join()
+_thread.start_new_thread(fall_down,())
+_thread.start_new_thread(loc_get,())
+_thread.start_new_thread(get_u_home,())
