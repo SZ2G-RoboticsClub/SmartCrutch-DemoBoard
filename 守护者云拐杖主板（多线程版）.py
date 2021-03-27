@@ -11,21 +11,24 @@ import sys
 import time
 import socket   #urequests
 
-#p5：MP3模块
-#p1&p6：串口uart1
-#p0&p3：串口uart2
-#p2：“记录”按钮
-#p14 灯带1
-#p15：灯带2
-#p16：“回家”按钮
+
+#p15&p2：串口uart1
+#p19(SCL)&p20(SDA)：串口uart2
+#p0&p1：小方舟模块
+#p13：灯带1
+#p14：灯带2
+#p3：“回家”按钮
 #摔倒判断：角度
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)#引脚设定
+#小方舟学习数据顺序：id0为充电二维码
+#还需测试小方舟识别东西的时候要不要切换到对应模式，以及小方舟的接线
+
+
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
-mp3 = MP3(Pin.P5)
 p1 = MPythonPin(1, PinMode.ANALOG)
-p2 = MPythonPin(2, PinMode.IN)
-p16 = MPythonPin(16, PinMode.IN)
+p3 = MPythonPin(3, PinMode.IN)
+
 
 #初始化服务器传输
 host = "192.168.1.105"
@@ -35,6 +38,7 @@ mywifi.connectWiFi("QFCS1","12345678")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)             
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)           
 s.connect(host,port)                                            
+
 
 backhome = 0
 move = 0
@@ -46,14 +50,13 @@ latitude_first = 0
 longtitude_first = 0
 latitude_now = 0
 longtitude_now = 0
+lock = 0
 ai = NPLUS_AI()
 tim1 = Timer(1)
-#获取一次app上的电话（app上标注重启拐杖即生效）
-phone = conn.recv(1024)                               #获取紧急联系人电话
+phone = conn.recv(1024)                               #获取紧急联系人电话（app上标注重启拐杖即生效）
 phone = phone.decode('utf-8')                         #以utf-8编码解码字符串
-mp3.volume = 30
-uart1 = machine.UART(1, baudrate=115200, tx=Pin.P1, rx=Pin.P6)
-uart2 = machine.UART(2, baudrate=115200, tx=Pin.P0, rx=Pin.P3)
+uart1 = machine.UART(1, baudrate=115200, tx=Pin.P15, rx=Pin.P2)
+uart2 = machine.UART(2, baudrate=115200, tx=Pin.P5, rx=Pin.P11)
 
 def get_tilt_angle(_axis):                                  
     x = accelerometer.get_x()
@@ -218,21 +221,31 @@ def fall_down():                      #线程2：判断跌倒
         elif fall == 0:
             common()
             music.stop()
-def get_u_home():                     #线程3：带你回家
+def get_u_home():                     #线程3：带你回家(除了导航外都ok)
     while True:
         common()
         
-        if p16.read_digital() == 1:              #防止老人按很多次
+        if p3.read_digital() == 1:              #防止老人按很多次
             backhome = 1
-        if :               #出门抬起拐杖(或者从充电座提起自动记录位置)
+        if get ai.get_id_data(0):                #识别到二维码，开始充电
+            lock = -1
+            oled.fill(0)
+            oled.DispChar('智能云拐杖', 24, 16)
+            oled.DispChar('充电中', 40, 32)
+            oled.show()
+            liushuideng()
+        if not ai.get_id_data(0) and lock = -1:                        #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
             backhome = -1
+            lock = 1
+            common()
         
-        if backhome == -1:                   #记录初始位置
+        if backhome == -1 and lock = 1:      #记录初始位置
             latitude_first = str(float(location[20:29]) * 0.01 + location[20])      #存取初始纬度
             longtitude_first = str(float(location[32:42]) * 0.01 + location[43])    #存取初始经度
             #n为时间与字符间空格数(为2)
-        if backhome == 1:                    #记录当前位置
-            latitude_now = str(float(location[20:29]) * 0.01 + location[18+n])      #存取当前纬度
+            lock = 0             #只在充电一次结束的时候记录一次经纬度
+        if backhome == 1 and lock = 0:                    #记录当前位置
+            latitude_now = str(float(location[20:29]) * 0.01 + location[20])        #存取当前纬度
             longtitude_now = str(float(location[32:42]) * 0.01 + location[43])      #存取当前经度
             #语音导航带老人回家
             backhome = 0 #导航到家
