@@ -51,7 +51,7 @@ longtitude_now = 0
 lock = 0
 ai = NPLUS_AI()
 tim1 = Timer(1)
-phone = urequests.get('') #获取紧急联系人电话（app上标注重启拐杖即生效）
+phone = urequests.get('http://', headers={"Content-Type":"application/json"}, data=json.dumps())  #获取紧急联系人电话（app上标注重启拐杖即生效）
 uart1 = machine.UART(1, baudrate=115200, tx=Pin.P15, rx=Pin.P2)
 uart2 = machine.UART(2, baudrate=115200, tx=Pin.P19, rx=Pin.P20)
 
@@ -207,12 +207,12 @@ def fall_down():                      #线程2：判断跌倒
             timestart = 0
         
         if fall == 1:
-            s.send(location)                      #发送定位到app并发警报声
+            addr_now = {"latitude": str(float(my_list[19:29]) * 0.01) + str(my_list[29]), "longtitude": str(float(my_list[31:41]) * 0.01) + str(my_list[42])}
+            response = urequests.post('http://', headers={"Content-Type":"application/json"}, data=json.dumps(addr_now))
             light()
             help()
         elif fall == 2:
             light()
-            sound()
             uart2.write(('ATD' + str(phone)))     #拨打电话（SIM卡）
             help()
         elif fall == 0:
@@ -237,13 +237,13 @@ def get_u_home():                     #线程3：带你回家(除了导航外都
             common()
         
         if backhome == -1 and lock == 1:      #记录初始位置
-            latitude_first = str(float(location[20:29]) * 0.01 + location[20])      #存取初始纬度
-            longtitude_first = str(float(location[32:42]) * 0.01 + location[43])    #存取初始经度
+            latitude_first = str(float(location[19:28])) * 0.01 + str(location[29])      #存取初始纬度
+            longtitude_first = str(float(location[31:41])) * 0.01 + str(location[42])    #存取初始经度
             #n为时间与字符间空格数(为2)
             lock = 0             #只在充电一次结束的时候记录一次经纬度
         if backhome == 1 and lock == 0:                    #记录当前位置
-            latitude_now = str(float(location[20:29]) * 0.01 + location[20])        #存取当前纬度
-            longtitude_now = str(float(location[32:42]) * 0.01 + location[43])      #存取当前经度
+            latitude_now = str(float(location[19:28])) * 0.01 + str(location[29])        #存取当前纬度
+            longtitude_now = str(float(location[31:41])) * 0.01 + str(location[42])      #存取当前经度
             #语音导航带老人回家
             backhome = 0 #导航到家
 
