@@ -2,7 +2,7 @@ from machine import Timer
 from machine import UART
 from mpython import *
 from bluebit import *
-from nplus.ai import *
+#from nplus.ai import *
 import math
 import music
 import neopixel
@@ -12,22 +12,23 @@ import time
 import urequests
 
 
-#p15&p2：串口uart1 
+#p15&p2：串口uart1
 #p19(SCL)&p20(SDA)：串口uart2
 #p0&p1：小方舟模块
 #p13：灯带1
 #p14：灯带2
-#p3：“回家”按钮
+#p16：“回家”按钮
+#p3：光感
+
 #摔倒判断：角度
 
 #小方舟学习数据顺序：id0为充电座上的二维码
-#还需测试小方舟识别东西的时候要不要切换到对应模式，以及小方舟的接线
 
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
-p1 = MPythonPin(1, PinMode.ANALOG)
-p3 = MPythonPin(3, PinMode.IN)
+p16 = MPythonPin(16, PinMode.IN)
+p3 = MPythonPin(3, PinMode.ANALOG)
 
 
 #初始化服务器传输
@@ -36,7 +37,6 @@ port = 54269
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("QFCS1","12345678")
                                             
-
 
 backhome = 0
 move = 0
@@ -51,7 +51,7 @@ longtitude_now = 0
 lock = 0
 ai = NPLUS_AI()
 tim1 = Timer(1)
-phone = urequests.get('http://', headers={"Content-Type":"application/json"}, data=json.dumps())  #获取紧急联系人电话（app上标注重启拐杖即生效）
+phone = urequests.get('', headers={"Content-Type":"application/json"}, data=json.dumps())  #获取紧急联系人电话（app上标注重启拐杖即生效）
 uart1 = machine.UART(1, baudrate=115200, tx=Pin.P15, rx=Pin.P2)
 uart2 = machine.UART(2, baudrate=115200, tx=Pin.P19, rx=Pin.P20)
 
@@ -79,7 +79,7 @@ def help():                                                   #呼叫路人来�
     oled.show()
     music.play(music.POWER_UP, wait=False, loop=True)
 
-def light():                                                  #倒地闪红蓝报警灯(ok)
+def flashlight():                                                  #倒地闪红蓝报警灯(ok)
     my_rgb1.fill( (255, 0, 0) )
     my_rgb2.fill( (255, 0, 0) )
     my_rgb1.write()
@@ -166,6 +166,7 @@ def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之�
         _neopixel[(i + _offset) % _num] = (r, g, b)
 
 def liushuideng():                                            #平常状态之流水彩虹灯(ok)
+    global move
     make_rainbow(my_rgb1, 23, 80, move)
     make_rainbow(my_rgb2, 23, 80, move)
     my_rgb1.write()
@@ -177,10 +178,12 @@ def liushuideng():                                            #平常状态之�
 
 def loc_get():                        #线程1：北斗地址获取
     while True:
+        global location
         if uart1.read():                  
                 location = list(uart1.readline())
 def fall_down():                      #线程2：判断跌倒
     while True:
+        global response
         common()
         if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
             down = 1
@@ -207,12 +210,12 @@ def fall_down():                      #线程2：判断跌倒
             timestart = 0
         
         if fall == 1:
-            addr_now = {"latitude": str(float(my_list[19:29]) * 0.01) + str(my_list[29]), "longtitude": str(float(my_list[31:41]) * 0.01) + str(my_list[42])}
+            addr_now = {"latitude": str(float(location[19:29]) * 0.01) + str(location[29]), "longtitude": str(float(location[31:41]) * 0.01) + str(location[42])}
             response = urequests.post('http://', headers={"Content-Type":"application/json"}, data=json.dumps(addr_now))
-            light()
+            flashlight()
             help()
         elif fall == 2:
-            light()
+            flashlight()
             uart2.write(('ATD' + str(phone)))     #拨打电话（SIM卡）
             help()
         elif fall == 0:
@@ -220,9 +223,10 @@ def fall_down():                      #线程2：判断跌倒
             music.stop()
 def get_u_home():                     #线程3：带你回家(除了导航外都ok)
     while True:
+        global latitude_first, longtitude_first, latitude_now, longtitude_now
         common()
         
-        if p3.read_digital() == 1:              #防止老人按很多次
+        if p16.read_digital() == 1:              #防止老人按很多次
             backhome = 1
         if ai.get_id_data(0):               #识别到二维码，开始充电
             lock = -1
@@ -247,7 +251,8 @@ def get_u_home():                     #线程3：带你回家(除了导航外都
             #语音导航带老人回家
             backhome = 0 #导航到家
 
-
+#获得settingdata
+#heartbeat发送
 _thread.start_new_thread(fall_down,())
 _thread.start_new_thread(loc_get,())
 _thread.start_new_thread(get_u_home,())
