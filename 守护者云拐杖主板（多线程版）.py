@@ -1,4 +1,3 @@
-from machine import Timer
 from machine import UART
 from mpython import *
 from bluebit import *
@@ -40,11 +39,11 @@ my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("QFCS1","12345678")
 
                                             
-
+a = 0
 backhome = 0
 move = 0
-time_fall = 0
 fall = 0
+time_on = 0
 switch = 0
 down = 0
 location = []
@@ -56,12 +55,11 @@ c_lock = 0
 ai = NPLUS_AI()
 ai.mode_change(1)
 tim1 = Timer(1)
-uart1 = machine.UART(1, baudrate=115200, tx=Pin.P15, rx=Pin.P2)
-uart2 = machine.UART(2, baudrate=115200, tx=Pin.P19, rx=Pin.P20)
+# uart1 = machine.UART(1, baudrate=115200, tx=Pin.P15, rx=Pin.P2)
+# uart2 = machine.UART(2, baudrate=115200, tx=Pin.P19, rx=Pin.P20)
 
 
 #part
-
 def get_tilt_angle(_axis):                                  
     x = accelerometer.get_x()
     y = accelerometer.get_y()
@@ -189,12 +187,13 @@ def liushuideng():                                            #平常状态之�
     time.sleep(0.25)
     move = move + 1
 
-timelock = _thread.allocate_lock()
+
+
+
 
 #thread定义
 
 def main_thread():                      
-    timelock.acquire()
     while True:
         global latitude_first, longtitude_first, latitude_now, longtitude_now
         common()
@@ -202,20 +201,14 @@ def main_thread():
             location = list(uart1.readline())
 
         if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
+            switch = 0
             c_lock = -1
-            oled.fill(0)
-            oled.DispChar('智能云拐杖', 24, 16)
-            oled.DispChar('充电中', 40, 32)
-            oled.show()
-            rgb[1] = (int(255), int(0), int(0))
-            rgb.write()
-            time.sleep_ms(1)
+            
         if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
             backhome = -1
             c_lock = 1
             switch = 1
             
-
         if backhome == -1 and c_lock == 1:      #记录初始位置
             latitude_first = str(float(location[19:28])) * 0.01 + str(location[29])      #存取初始纬度
             longtitude_first = str(float(location[31:41])) * 0.01 + str(location[42])    #存取初始经度
@@ -232,7 +225,7 @@ def main_thread():
 
             if down == 1:
                 ai.video_capture(60)                 #AI拐杖记录仪
-                timelock.release()
+                time_on
                 my_rgb1.brightness(100 / 100)
                 my_rgb2.brightness(100 / 100)
                 my_rgb1.fill( (255, 0, 0) )
@@ -240,36 +233,49 @@ def main_thread():
                 my_rgb1.write()
                 my_rgb2.write()
                 #10s内没起来
-                if  time_fall> 10000:
+                if time.time() - time_on > 10000 and a == 0:
                     fall = 1
+                    a = 1
                 #30s内没起来
-                elif  time_fall>= 30000:
+                elif time.time() - time_on >= 30000 and a == 1:
                     fall = 2
-            if down == 0:
+            elif down == 0:
                 fall = 0
-                timelock.acquire()
-                time_fall = 0
         
 
-                if fall == 1:
-                    addr_now = {"latitude": str(float(location[19:29]) * 0.01) + str(location[29]), "longtitude": str(float(location[31:41]) * 0.01) + str(location[42])}
-                    
-                    flashlight()
-                    help()
-                elif fall == 2:
-                    flashlight()
-                    uart2.write('ATD' + str(settingdata.get('phone')))     #拨打电话（SIM卡）
-                    help()
-                elif fall == 0:
-                    common()
-                    music.stop()
-
+            if fall == 1:
+                addr_now = {
+                "uuid": uuid
+                "loc":{    
+                    "latitude": str(float(location[19:29]) * 0.01) + str(location[29]), 
+                    "longtitude": str(float(location[31:41]) * 0.01) + str(location[42])
+                    }
+                }
+                emergency = urequests.post(url=BASE_URL+'/emergency', data=addr_now)
+                flashlight()
+                help()
+            elif fall == 2:
+                flashlight()
+                help()
+                uart2.write('ATD' + str(s.get('phone')))     #拨打电话（SIM卡）          
+            elif fall == 0:
+                common()
+                music.stop()
 
             if backhome == 1 and c_lock == 0:                  #记录当前位置
                 latitude_now = str(float(location[19:28])) * 0.01 + str(location[29])        #存取当前纬度
                 longtitude_now = str(float(location[31:41])) * 0.01 + str(location[42])      #存取当前经度
                 #语音导航带老人回家
                 backhome = 0 #导航到家
+
+        elif switch == 0:
+            oled.fill(0)
+            oled.DispChar('智能云拐杖', 24, 16)
+            oled.DispChar('充电中', 40, 32)
+            oled.show()
+            rgb[1] = (int(255), int(0), int(0))
+            rgb.write()
+            time.sleep_ms(1)
         
 
 def heartbeat_send():
@@ -277,12 +283,11 @@ def heartbeat_send():
 
         data = {
         "uuid": uuid,
-        "status": status,
-        "loc": {
-            "latitude": 0,
-            "longitude": 0
-            }
+        "status":"ok"
+        "loc": None
         }
+
+        time.sleep(5)
 
         resp = urequests.post(url=BASE_URL+'/heartbeat/', data=data)
 
@@ -300,12 +305,6 @@ def heartbeat_send():
             print(resp['msg'])
 
 
-def timecount():
-    global time_fall
-    while True:
-        time_fall = time_fall + 1
-        time.sleep(1)
-
 
 
 
@@ -317,5 +316,4 @@ except:
 else:
     _thread.start_new_thread(heartbeat_send,())
     _thread.start_new_thread(main_thread,())
-    _thread.start_new_thread(timecount,())
 
