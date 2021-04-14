@@ -4,6 +4,7 @@ from bluebit import *
 from nplus.ai import *
 import math
 import music
+import ntptime
 import neopixel
 import _thread
 import sys
@@ -12,22 +13,22 @@ import urequests
 
 
 
-#p15&p2：串口uart1（待测试）
+#p16&p14：串口uart1（待测试）
 #p19(SCL)&p20(SDA)：串口uart2（待测试）
 #p0&p1：小方舟模块
 #p13：灯带1
-#p14：灯带2
+#p15：灯带2
 #p16：“回家”按钮
-#p5：光感
+#p2：光感
 
 #摔倒判断：角度
 
 #小方舟学习数据：id0为充电座上的二维码
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=21, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)
 p16 = MPythonPin(16, PinMode.IN)
-p5 = MPythonPin(5, PinMode.ANALOG)
+p2 = MPythonPin(2, PinMode.ANALOG)
 
 
 BASE_URL = '/demoboard'
@@ -37,6 +38,7 @@ uuid = '14159265358979313530481716qfpkydy666'
 #初始化服务器传输
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("QFCS1","12345678")
+
 
                                             
 a = 0
@@ -55,7 +57,7 @@ c_lock = 0
 ai = NPLUS_AI()
 ai.mode_change(1)
 tim1 = Timer(1)
-# uart1 = machine.UART(1, baudrate=115200, tx=Pin.P15, rx=Pin.P2)
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P14)   #北斗导航串口
 # uart2 = machine.UART(2, baudrate=115200, tx=Pin.P19, rx=Pin.P20)
 
 
@@ -79,14 +81,14 @@ def get_tilt_angle(_axis):
     return 0
 
 
-def help():                                                   #呼叫路人来帮忙(ok)
+def help():                                                   #呼叫路人来帮忙
     oled.fill(0)
     oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
     oled.show()
     music.play(music.POWER_UP, wait=False, loop=True)
 
 
-def flashlight():                                                  #倒地闪红蓝报警灯(ok)
+def flashlight():                                                  #倒地闪红蓝报警灯
     my_rgb1.fill( (255, 0, 0) )
     my_rgb2.fill( (255, 0, 0) )
     my_rgb1.write()
@@ -149,6 +151,27 @@ def flashlight():                                                  #倒地闪红
     sleep_ms(50)    
 
 
+def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
+    _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
+    for i in range(_num):
+        t = 7 * i / _num
+        t0 = int(t)
+        r = round((_rgb[t0][0] + (t-t0)*(_rgb[t0+1][0]-_rgb[t0][0]))*_bright)>>8
+        g = round((_rgb[t0][1] + (t-t0)*(_rgb[t0+1][1]-_rgb[t0][1]))*_bright)>>8
+        b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
+        _neopixel[(i + _offset) % _num] = (r, g, b)
+
+
+def liushuideng():                                            #平常状态之流水彩虹灯(ok)
+    global move
+    make_rainbow(my_rgb1, 24, 80, move)
+    make_rainbow(my_rgb2, 24, 80, move)
+    my_rgb1.write()
+    my_rgb2.write()
+    time.sleep(0.25)
+    move = move + 1
+
+
 def common():                                                 #平常状态(ok)
     rgb.fill( (0, 0, 0) )
     rgb.write()
@@ -167,28 +190,6 @@ def common():                                                 #平常状态(ok)
         liushuideng()
 
 
-def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
-    _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
-    for i in range(_num):
-        t = 7 * i / _num
-        t0 = int(t)
-        r = round((_rgb[t0][0] + (t-t0)*(_rgb[t0+1][0]-_rgb[t0][0]))*_bright)>>8
-        g = round((_rgb[t0][1] + (t-t0)*(_rgb[t0+1][1]-_rgb[t0][1]))*_bright)>>8
-        b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
-        _neopixel[(i + _offset) % _num] = (r, g, b)
-
-
-def liushuideng():                                            #平常状态之流水彩虹灯(ok)
-    global move
-    make_rainbow(my_rgb1, 23, 80, move)
-    make_rainbow(my_rgb2, 23, 80, move)
-    my_rgb1.write()
-    my_rgb2.write()
-    time.sleep(0.25)
-    move = move + 1
-
-
-
 
 
 #thread定义
@@ -197,8 +198,6 @@ def main_thread():
     while True:
         global latitude_first, longtitude_first, latitude_now, longtitude_now
         common()
-        if uart1.read():                  
-            location = list(uart1.readline())
 
         if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
             switch = 0
@@ -225,7 +224,7 @@ def main_thread():
 
             if down == 1:
                 ai.video_capture(60)                 #AI拐杖记录仪
-                time_on
+                time_on = time.tick_ms()
                 my_rgb1.brightness(100 / 100)
                 my_rgb2.brightness(100 / 100)
                 my_rgb1.fill( (255, 0, 0) )
@@ -233,7 +232,7 @@ def main_thread():
                 my_rgb1.write()
                 my_rgb2.write()
                 #10s内没起来
-                if time.time() - time_on > 10000 and a == 0:
+                if diff > 10000 and a == 0:
                     fall = 1
                     a = 1
                 #30s内没起来
@@ -257,12 +256,13 @@ def main_thread():
             elif fall == 2:
                 flashlight()
                 help()
-                uart2.write('ATD' + str(s.get('phone')))     #拨打电话（SIM卡）          
+                uart2.write('ATD' + str(s.get('phone')))                                                                         #拨打电话（SIM卡）          
             elif fall == 0:
                 common()
                 music.stop()
 
-            if backhome == 1 and c_lock == 0:                  #记录当前位置
+            if backhome == 1 and c_lock == 0:                                                                                      #记录当前位置
+                location = list(uart1.readline())
                 latitude_now = str(float(location[19:28])) * 0.01 + str(location[29])        #存取当前纬度
                 longtitude_now = str(float(location[31:41])) * 0.01 + str(location[42])      #存取当前经度
                 #语音导航带老人回家
@@ -276,7 +276,7 @@ def main_thread():
             rgb[1] = (int(255), int(0), int(0))
             rgb.write()
             time.sleep_ms(1)
-        
+        time.sleep(0.1)
 
 def heartbeat_send():
     while True:
@@ -300,7 +300,7 @@ def heartbeat_send():
         if resp['code'] == 0:
             continue
         elif resp['code'] == 1:
-            ...
+            
         else:
             print(resp['msg'])
 
