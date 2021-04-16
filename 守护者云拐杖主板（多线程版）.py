@@ -13,13 +13,12 @@ import urequests
 
 
 
-#p16&p14：串口uart1（待测试）
-#p19(SCL)&p20(SDA)：串口uart2（待测试）
+#p16&p15：串口uart1（待测试）
 #p0&p1：小方舟模块
 #p13：灯带1
-#p15：灯带2
-#p16：“回家”按钮
-#p2：光感
+#p14：灯带2
+#p5：“回家”按钮
+
 
 #摔倒判断：角度
 
@@ -27,8 +26,8 @@ import urequests
 
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)
-p16 = MPythonPin(16, PinMode.IN)
-p2 = MPythonPin(2, PinMode.ANALOG)
+p5 = MPythonPin(5, PinMode.IN)
+
 
 
 BASE_URL = '/demoboard'
@@ -41,7 +40,6 @@ mywifi.connectWiFi("QFCS1","12345678")
 
 
                                             
-a = 0
 backhome = 0
 move = 0
 fall = 0
@@ -57,11 +55,10 @@ c_lock = 0
 ai = NPLUS_AI()
 ai.mode_change(1)
 tim1 = Timer(1)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P14)   #北斗导航串口
-# uart2 = machine.UART(2, baudrate=115200, tx=Pin.P19, rx=Pin.P20)
+uart = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)   
 
 
-#part
+#Module
 def get_tilt_angle(_axis):                                  
     x = accelerometer.get_x()
     y = accelerometer.get_y()
@@ -148,7 +145,8 @@ def flashlight():                                                  #倒地闪红
     my_rgb2.fill( (0, 0, 0) )
     my_rgb1.write()
     my_rgb2.write()
-    sleep_ms(50)    
+    sleep_ms(50)
+    time.sleep(0.8)    
 
 
 def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
@@ -177,7 +175,7 @@ def common():                                                 #平常状态(ok)
     rgb.write()
     time.sleep_ms(1)
     oled.fill(0)
-    oled.DispChar('智能云拐杖', 24, 16)
+    oled.DispChar('守护者云拐杖', 18, 16)
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
@@ -192,9 +190,9 @@ def common():                                                 #平常状态(ok)
 
 
 
-#thread定义
+#Thread
 
-def main_thread():                      
+def fall_det():                      
     while True:
         global latitude_first, longtitude_first, latitude_now, longtitude_now
         common()
@@ -224,7 +222,7 @@ def main_thread():
 
             if down == 1:
                 ai.video_capture(60)                 #AI拐杖记录仪
-                time_on = time.tick_ms()
+                time_on = time.time()
                 my_rgb1.brightness(100 / 100)
                 my_rgb2.brightness(100 / 100)
                 my_rgb1.fill( (255, 0, 0) )
@@ -232,34 +230,29 @@ def main_thread():
                 my_rgb1.write()
                 my_rgb2.write()
                 #10s内没起来
-                if diff > 10000 and a == 0:
+                if time.time() - time_on > 10 and time.time() - time_on <= 30:
                     fall = 1
-                    a = 1
                 #30s内没起来
-                elif time.time() - time_on >= 30000 and a == 1:
+                elif time.time() - time_on > 30:
                     fall = 2
             elif down == 0:
                 fall = 0
         
 
             if fall == 1:
-                addr_now = {
-                "uuid": uuid
-                "loc":{    
-                    "latitude": str(float(location[19:29]) * 0.01) + str(location[29]), 
-                    "longtitude": str(float(location[31:41]) * 0.01) + str(location[42])
-                    }
-                }
-                emergency = urequests.post(url=BASE_URL+'/emergency', data=addr_now)
+                status = "emergency"
                 flashlight()
                 help()
             elif fall == 2:
                 flashlight()
                 help()
-                uart2.write('ATD' + str(s.get('phone')))                                                                         #拨打电话（SIM卡）          
+                uart.write('ATD' + str(s.get('phone')))                                                                         #拨打电话（SIM卡）          
             elif fall == 0:
                 common()
                 music.stop()
+
+            if p5.read_digital() == 0:
+                backhome = 1
 
             if backhome == 1 and c_lock == 0:                                                                                      #记录当前位置
                 location = list(uart1.readline())
@@ -270,20 +263,20 @@ def main_thread():
 
         elif switch == 0:
             oled.fill(0)
-            oled.DispChar('智能云拐杖', 24, 16)
+            oled.DispChar('守护者云拐杖', 18, 16)
             oled.DispChar('充电中', 40, 32)
             oled.show()
             rgb[1] = (int(255), int(0), int(0))
             rgb.write()
             time.sleep_ms(1)
-        time.sleep(0.1)
 
-def heartbeat_send():
+
+def heartbeat_thread():
     while True:
 
         data = {
         "uuid": uuid,
-        "status":"ok"
+        "status":status
         "loc": None
         }
 
@@ -292,7 +285,7 @@ def heartbeat_send():
         resp = urequests.post(url=BASE_URL+'/heartbeat/', data=data)
 
         if resp.code != 200:
-            print('heartbeat错误')
+            print('数据传输错误')
             continue
 
         resp = resp.json()
@@ -314,6 +307,6 @@ try:
 except:
     print('无法连接服务器，请重试')
 else:
-    _thread.start_new_thread(heartbeat_send,())
+    _thread.start_new_thread(heartbeat_thread,())
     _thread.start_new_thread(main_thread,())
 
