@@ -13,3 +13,28 @@ filter_data = [x for x in list2 for y in list1 if y in x ]
 print("第一个列表的内容:", list1)
 print("第二个列表的内容:", list2)
 print("过滤后的第二个列表的内容:", filter_data)
+
+
+
+from mpython import *
+#coding=utf-8
+
+# 声明两个列表变量
+list1 = ['PHP', 'JavaScript']
+list2 = ['JavaScript是客户端脚本语言',
+    'PHP是服务器端脚本语言',
+     'Java是一种编程语言',
+    'Kotlin是一种静态编程语言']
+ 
+# 根据第一个列表过滤第二个列表
+filter_data = [x for x in list2 for y in list1 if y in x]
+ 
+# 在过滤前和过滤后打印列表数据
+while True:
+    oled.fill(0)
+    oled.DispChar('1:' + str(list1), 0, 0)
+    oled.DispChar('2:' + str(list2), 0, 16)
+    oled.DispChar('过滤:' + str(filter_data), 0, 32, True)
+    oled.show()
+
+

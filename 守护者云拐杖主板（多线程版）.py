@@ -47,15 +47,17 @@ time_on = 0
 switch = 0
 down = 0
 location = []
-latitude_first = 0
-longtitude_first = 0
-latitude_now = 0
-longtitude_now = 0
+lat_first = 0
+lon_first = 0
+lat_now = 0
+lon_now = 0
+loc_get = []
 c_lock = 0
+loc_lock = 0
 ai = NPLUS_AI()
 ai.mode_change(1)
 tim1 = Timer(1)
-uart = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)   
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)   
 
 
 #Module
@@ -194,12 +196,13 @@ def common():                                                 #平常状态(ok)
 
 def fall_det():                      
     while True:
-        global latitude_first, longtitude_first, latitude_now, longtitude_now
+        global lat_first, lon_first, lat_now, lon_now, loc_lock
         common()
 
         if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
             switch = 0
             c_lock = -1
+            loc_lock = 0
             
         if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
             backhome = -1
@@ -207,10 +210,28 @@ def fall_det():
             switch = 1
             
         if backhome == -1 and c_lock == 1:      #记录初始位置
-            latitude_first = str(float(location[19:28])) * 0.01 + str(location[29])      #存取初始纬度
-            longtitude_first = str(float(location[31:41])) * 0.01 + str(location[42])    #存取初始经度
-            #n为时间与字符间空格数(为2)
-            c_lock = 0             #只在充电一次结束的时候记录一次经纬度
+            if uart1.any() and loc_lock = 0:
+                time.sleep(0.1)
+                loc_get = uart1.readline()
+                if 'GNGLL' in loc_get:
+                    location = (str(loc_get).split(','))
+                    if location[2] == 'N':
+                        lat_first = float(location[1])
+                    elif location[2] == 'S':
+                        lat_first = float(location[1]) * -1
+                    else:
+                        lat_first = 0
+
+                    if location[4] == 'E':
+                        lon_first = float(location[3])
+                    elif location[4] == 'W':
+                        lon_first = float(location[3]) * -1
+                    else:
+                        lon_first = 0
+                    
+                    loc_lock = 1
+
+                    c_lock = 0             #只在充电一次结束的时候记录一次经纬度
 
         if switch == 1:
             common()
@@ -240,9 +261,11 @@ def fall_det():
         
 
             if fall == 1:
+                if #导航定位
                 status = "emergency"
                 flashlight()
                 help()
+                
             elif fall == 2:
                 flashlight()
                 help()
@@ -269,6 +292,10 @@ def fall_det():
             rgb[1] = (int(255), int(0), int(0))
             rgb.write()
             time.sleep_ms(1)
+
+
+def home_thread():
+
 
 
 def heartbeat_thread():
