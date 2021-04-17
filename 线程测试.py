@@ -2,7 +2,10 @@ from mpython import *
 import time
 import _thread
 
-def get_tilt_angle(_axis):                                  
+thread1_count = 0
+thread2_count = 0
+
+def get_tilt_angle(_axis):                #加速度获取函数                  
     x = accelerometer.get_x()
     y = accelerometer.get_y()
     z = accelerometer.get_z()
@@ -22,22 +25,28 @@ def get_tilt_angle(_axis):
     
     
 def thread1():
-    global angle_x, angle_y, angle_z
+    global thread1_count
     while True:
         oled.fill(0)
-        angle_x = get_tilt_angle('X')
+        # angle_x = get_tilt_angle('X')      
+        # angle_y = get_tilt_angle('Y')
+        # angle_z = get_tilt_angle('Z')
+        oled.DispChar('加速度角度测试：', 0, 0, 1)
+        oled.DispChar('x轴：'+str(thread1_count), 0, 16, 1)
+        oled.DispChar('y轴：', 0, 32, 1)
+        oled.DispChar('z轴：', 0, 48, 1)
+        oled.show()
+        time.sleep(0.001)
+        thread1_count = thread1_count + 1
+        print('thread1:', thread1_count)
+        
+        
+def thread2():
+    global thread2_count
+    while True:
+        angle_x = get_tilt_angle('X')      
         angle_y = get_tilt_angle('Y')
         angle_z = get_tilt_angle('Z')
-        oled.DispChar('加速度角度测试：', 0, 0, 1)
-        oled.DispChar(('x轴：' + str(angle_x)), 0, 16, 1)
-        oled.DispChar(('y轴：' + str(angle_y)), 0, 32, 1)
-        oled.DispChar(('z轴：' + str(angle_z)), 0, 48, 1)
-        oled.show()
-        time.sleep(0.1)
-    
-
-def thread2():    
-    while True:
         rgb.fill( (0, 0, 0) )
         rgb.write()
         time.sleep_ms(1)
@@ -45,7 +54,15 @@ def thread2():
             rgb.fill((int(255), int(0), int(0)))
             rgb.write()
             time.sleep_ms(1)
+        time.sleep(1)
+        thread2_count = thread2_count + 1
+        print('thread2:', thread2_count)
 
 
 _thread.start_new_thread(thread1,())
 _thread.start_new_thread(thread2,())
+
+
+
+
+

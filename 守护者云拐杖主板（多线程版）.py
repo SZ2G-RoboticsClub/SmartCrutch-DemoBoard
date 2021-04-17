@@ -4,7 +4,6 @@ from bluebit import *
 from nplus.ai import *
 import math
 import music
-import ntptime
 import neopixel
 import _thread
 import sys
@@ -26,9 +25,9 @@ my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)
 p5 = MPythonPin(5, PinMode.IN)
 
-BASE_URL = '/demoboard'
+BASE_URL = 'http://0.0.0.0:8000/demoboard'
 
-uuid = '14159265358979313530481716qfpkydy666'
+uuid = '3141592653589793'
 status = ""
 heartbeat_Loc = {}
 
@@ -245,7 +244,7 @@ def fall_det_thread():
 
         if switch == 1:
             common()
-            if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
+            if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 and get_tilt_angle('Y') > 0 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
                 down = 1
             else:
                 down = 0
@@ -345,7 +344,8 @@ def home_thread():
                         lon_now = 0
                     
                     home_lock = 1
-            
+            print(lat_now)
+            print(lon_now)
             #语音导航带老人回家
             backhome = 0 #导航到家
 
@@ -353,7 +353,6 @@ def home_thread():
 def heartbeat_thread():
     global status, heartbeat_Loc
     while True:
-
         data = {
         "uuid": uuid,
         "status":status
@@ -385,11 +384,10 @@ def heartbeat_thread():
 
 #获得settingdata
 try:
-    s = urequests.get(url=BASE_URL+'/get_settings/')
+    s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 except:
     print('无法连接服务器，请重试')
 else:
     _thread.start_new_thread(heartbeat_thread,())
     _thread.start_new_thread(fall_det_thread,())
     _thread.start_new_thread(home_thread,())
-
