@@ -9,7 +9,6 @@ import _thread
 import sys
 import time
 import urequests
-import ujson
 
 #引脚
 #p16tx&p15：串口uart2(SIM卡模块)
@@ -328,6 +327,7 @@ def home_thread():
                         lon_now = 0
                     
                     home_lock = 1                              #只存取一次纬度，防止重复存取
+
             print(lat_now)      #电脑测试print坐标是否正确
             print(lon_now)
             #导航回家
@@ -368,7 +368,7 @@ def heartbeat_thread():
 
 
 
-
+# ============ Start ============
 
 #获得settingdata拐杖状态
 try:
