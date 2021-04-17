@@ -9,12 +9,13 @@ import _thread
 import sys
 import time
 import urequests
+import ujson
 
 #引脚
-#p16&p15：串口uart1(北斗定位模块)
-#p14tx&p11rx：串口uart2(SIM卡模块)
+#p16tx&p15：串口uart2(SIM卡模块)
+#p14tx&p11rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
 #p0&p1：小方舟模块
-#p13：灯带1
+#p13：灯带
 #p5：“带我回家”按钮
 
 #摔倒判断：角度
@@ -33,6 +34,10 @@ heartbeat_Loc = {}               #location
 BASE_URL = 'http://192.168.43.199:8000/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("","")
+
+#路径规划初始化
+MAP_URL = 'https://restapi.amap.com/v3/direction/walking?'
+key = ''
 
 
 #全局变量定义                                            
@@ -54,6 +59,9 @@ lat_now = 0
 lon_now = 0
 lat_fall = 0
 lon_fall = 0
+ori_loc = 0
+des_loc = 0
+parameters = 0
 home_lock = 0     #（home_thread调用）0:空状态    1：记录完一次经纬度
 c_lock = 0
 #（crutchlock，fall_det_thread调用）
@@ -65,12 +73,14 @@ c_lock = 0
 
 ai = NPLUS_AI()                   #小方舟初始化
 ai.mode_change(1)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
-uart2 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)   
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
+uart2 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)   
 
 
-#Module
-def get_tilt_angle(_axis):                                  #获取加速度角度函数
+# ============ Module ============
+
+#获取加速度角度函数
+def get_tilt_angle(_axis):                                  
     x = accelerometer.get_x()
     y = accelerometer.get_y()
     z = accelerometer.get_z()
@@ -89,7 +99,8 @@ def get_tilt_angle(_axis):                                  #获取加速度角�
     return 0
 
 
-def flashlight():                                                  #倒地闪红蓝白报警灯
+#倒地闪红蓝白报警灯
+def flashlight():                                                  
     my_rgb.fill( (255, 0, 0) )
     my_rgb.write()
     sleep_ms(50)
@@ -129,7 +140,8 @@ def flashlight():                                                  #倒地闪红
     time.sleep(0.8)    
 
 
-def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之彩虹灯效设定(ok)
+#平常状态之彩虹灯效设定(ok)
+def make_rainbow(_neopixel, _num, _bright, _offset):          
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
     for i in range(_num):
         t = 7 * i / _num
@@ -140,7 +152,8 @@ def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之�
         _neopixel[(i + _offset) % _num] = (r, g, b)
 
 
-def liushuideng():                                            #平常状态之流水彩虹灯(ok)
+#平常状态之流水彩虹灯(ok)
+def liushuideng():                                            
     global move
     make_rainbow(my_rgb, 24, 80, move)
     my_rgb.write()
@@ -148,7 +161,8 @@ def liushuideng():                                            #平常状态之�
     move = move + 1
 
 
-def common():                                                 #平常状态(ok)
+#平常状态(ok)
+def common():                                                 
     rgb.fill((0, 0, 0))
     rgb.write()
     time.sleep_ms(1)
@@ -160,12 +174,21 @@ def common():                                                 #平常状态(ok)
         liushuideng()
 
 
+# 路径规划
+# def get_route(origin,destination):
+#     api = f'https://restapi.amap.com/v3/direction/transit/integrated?origin={origin}&destination={destination}&output=JSON&key=自己的key&city=北京'
+#     r = urequests.get(api)
+#     r = r.text
+#     jsonData = json.loads(r)
+#     return jsonData
 
 
-#Thread
 
-def fall_det_thread():                      #摔倒检测
-    global lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc
+# ============ Thread ============
+
+#摔倒检测
+def fall_det_thread():                      
+    global lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
     while True:
         common()
         status = "ok"
@@ -203,7 +226,7 @@ def fall_det_thread():                      #摔倒检测
                         lon_first = float(location1[3]) * -1
                     else:
                         lon_first = 0
-                    
+                    des_loc = str(lon_first) + ',' + str(lat_first)
                     switch = 1             #只有读到GLL格式并存取了经纬时才记为充电结束状态
                     c_lock = 0             #只在充电一次结束的时候记录一次经纬度
 
@@ -275,8 +298,9 @@ def fall_det_thread():                      #摔倒检测
             time.sleep_ms(1)
 
 
+#"带你回家"
 def home_thread():
-    global lat_now, lon_now, home_lock, loc_get3, location3
+    global lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
     while True:
         if p5.read_digital() == 0:                #本为输出引脚，反向使用，且防止老人按多次，用变量赋值
                 backhome = 1
@@ -287,14 +311,16 @@ def home_thread():
                 loc_get3 = uart1.readline()        #串口读取坐标
                 if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
                     location3 = (str(loc_get3).split(','))     #存取到列表
-                    if location3[2] == 'N':                    #纬度存取，北正南负，赤道0°
+                    #纬度存取，北正南负，赤道0°
+                    if location3[2] == 'N':
                         lat_now = float(location3[1])
                     elif location3[2] == 'S':
                         lat_now = float(location3[1]) * -1
                     else:
                         lat_now = 0
-
-                    if location3[4] == 'E':                    #经度存取，东正西负，否则0°
+                    
+                    #经度存取，东正西负，否则0°
+                    if location3[4] == 'E':
                         lon_now = float(location3[3])
                     elif location3[4] == 'W':
                         lon_now = float(location3[3]) * -1
@@ -304,10 +330,15 @@ def home_thread():
                     home_lock = 1                              #只存取一次纬度，防止重复存取
             print(lat_now)      #电脑测试print坐标是否正确
             print(lon_now)
-            #语音导航带老人回家
-            backhome = 0 #导航到家
+            #导航回家
+            ori_loc = str(lon_now) + ',' + str(lat_now)
+            parameters = 'origin='+ori_loc+'&destination='+des_loc+'&key='+key
+            route = urequests.get(url=MAP_URL+str(parameters))
+            
+            backhome = 0        #导航到家
 
 
+#心跳包发送
 def heartbeat_thread():
     global status, heartbeat_Loc
     while True:
