@@ -1,37 +1,51 @@
-#mPythonType:0
 from mpython import *
 import time
 import _thread
-import neopixel
-import sys
 
-def torch_det():
+def get_tilt_angle(_axis):                                  
+    x = accelerometer.get_x()
+    y = accelerometer.get_y()
+    z = accelerometer.get_z()
+    if 'X' == _axis:
+        force = math.sqrt(y ** 2 + z ** 2)
+        if z < 0: return math.degrees(math.atan2(x , force))
+        else: return 180 - math.degrees(math.atan2(x , force))
+    elif 'Y' == _axis:
+        force = math.sqrt(x ** 2 + z ** 2)
+        if z < 0: return  math.degrees(math.atan2(y , force))
+        else: return 180 - math.degrees(math.atan2(y , force))
+    elif 'Z' == _axis:
+        force = math.sqrt(x ** 2 + y ** 2)
+        if (x + y) < 0: return 180 - math.degrees(math.atan2(force , z))
+        else: return math.degrees(math.atan2(force , z)) - 180
+    return 0
+    
+    
+def thread1():
+    global angle_x, angle_y, angle_z
     while True:
         oled.fill(0)
-        oled.DispChar((str(light.read())), 0, 16, 1)
+        angle_x = get_tilt_angle('X')
+        angle_y = get_tilt_angle('Y')
+        angle_z = get_tilt_angle('Z')
+        oled.DispChar('加速度角度测试：', 0, 0, 1)
+        oled.DispChar(('x轴：' + str(angle_x)), 0, 16, 1)
+        oled.DispChar(('y轴：' + str(angle_y)), 0, 32, 1)
+        oled.DispChar(('z轴：' + str(angle_z)), 0, 48, 1)
         oled.show()
-        if light.read() < 60:
-            rgb.fill((int(255), int(204), int(102)))
-            rgb.write()
-            time.sleep_ms(1)
-        else:
-            rgb.fill( (0, 0, 0) )
-            rgb.write()
-            time.sleep_ms(1)
-
-my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=23, bpp=3, timing=1)
-
-def light_on_off():
-    while True:
-        if button_a.is_pressed():
-            my_rgb.fill( (0, 153, 0) )
-            my_rgb.write()
-        else:
-            my_rgb.fill( (0, 0, 0) )
-            my_rgb.write()
-
-
-_thread.start_new_thread(torch_det,())
-_thread.start_new_thread(light_on_off,())
-
+        time.sleep(0.1)
     
+
+def thread2():    
+    while True:
+        rgb.fill( (0, 0, 0) )
+        rgb.write()
+        time.sleep_ms(1)
+        if angle_x <= 15 or angle_x >= 165 or angle_y <= 110 and angle_y > 0 or angle_y >= 250 or angle_z <= -170 or angle_z >= -20:
+            rgb.fill((int(255), int(0), int(0)))
+            rgb.write()
+            time.sleep_ms(1)
+
+
+_thread.start_new_thread(thread1,())
+_thread.start_new_thread(thread2,())
