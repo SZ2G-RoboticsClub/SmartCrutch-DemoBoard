@@ -12,18 +12,16 @@ import urequests
 
 #引脚
 #p16&p15：串口uart1(北斗定位模块)
-#p19(SCL)&p20(SDA)：串口uart2(SIM卡模块)
+#p14tx&p11rx：串口uart2(SIM卡模块)
 #p0&p1：小方舟模块
 #p13：灯带1
-#p14：灯带2
 #p5：“带我回家”按钮
 
 #摔倒判断：角度
 
 #小方舟学习数据：id0为充电座上的二维码
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=21, bpp=3, timing=1)
+my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
 p5 = MPythonPin(5, PinMode.IN)
 
 #心跳包数据初始化
@@ -68,7 +66,7 @@ c_lock = 0
 ai = NPLUS_AI()                   #小方舟初始化
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
-uart2 = machine.UART(1, baudrate=9600, tx=Pin.P19, rx=Pin.P20)   
+uart2 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)   
 
 
 #Module
@@ -92,65 +90,41 @@ def get_tilt_angle(_axis):                                  #获取加速度角�
 
 
 def flashlight():                                                  #倒地闪红蓝白报警灯
-    my_rgb1.fill( (255, 0, 0) )
-    my_rgb2.fill( (255, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (255, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb2.fill( (0, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (255, 0, 0) )
-    my_rgb2.fill( (255, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (255, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb2.fill( (0, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 255) )
-    my_rgb2.fill( (0, 0, 255) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 255) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb2.fill( (0, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 255) )
-    my_rgb2.fill( (0, 0, 255) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 255) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb2.fill( (0, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (255, 255, 255) )
-    my_rgb2.fill( (255, 255, 255) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (255, 255, 255) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb2.fill( (0, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (255, 255, 255) )
-    my_rgb2.fill( (255, 255, 255) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (255, 255, 255) )
+    my_rgb.write()
     sleep_ms(50)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb2.fill( (0, 0, 0) )
-    my_rgb1.write()
-    my_rgb2.write()
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
     sleep_ms(50)
     time.sleep(0.8)    
 
@@ -168,10 +142,8 @@ def make_rainbow(_neopixel, _num, _bright, _offset):          #平常状态之�
 
 def liushuideng():                                            #平常状态之流水彩虹灯(ok)
     global move
-    make_rainbow(my_rgb1, 24, 80, move)
-    make_rainbow(my_rgb2, 24, 80, move)
-    my_rgb1.write()
-    my_rgb2.write()
+    make_rainbow(my_rgb, 24, 80, move)
+    my_rgb.write()
     time.sleep(0.25)
     move = move + 1
 
@@ -181,11 +153,9 @@ def common():                                                 #平常状态(ok)
     rgb.write()
     time.sleep_ms(1)
     #光感手电
-    if p5.read_analog() < 25:                          #测试数值0-4095
-        my_rgb1.fill( (255, 255, 255) )
-        my_rgb2.fill( (255, 255, 255) )
-        my_rgb1.write()
-        my_rgb2.write()
+    if light.read() < 25:                          #测试数值0-4095
+        my_rgb.fill( (255, 255, 255) )
+        my_rgb.write()
     else:
         liushuideng()
 
@@ -206,7 +176,7 @@ def fall_det_thread():                      #摔倒检测
             c_lock = -1
             
         if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
-            rgb.fill((int(51), int(255), int(51)))
+            rgb.fill((int(51), int(255), int(51)))         #亮一下绿灯
             rgb.write()
             time.sleep(2)
             rgb.fill((0, 0, 0))
@@ -249,10 +219,8 @@ def fall_det_thread():                      #摔倒检测
             if down == 1:
                 ai.video_capture(60)                 #AI拐杖记录仪开启录像
                 time_on = time.time()                #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
-                my_rgb1.fill( (255, 0, 0) )          #10s内先亮红灯
-                my_rgb2.fill( (255, 0, 0) )
-                my_rgb1.write()
-                my_rgb2.write()
+                my_rgb.fill( (255, 0, 0) )          #10s内先亮红灯
+                my_rgb.write()
                 #10s内没起来
                 if time.time() - time_on > 10 and time.time() - time_on <= 30:
                     fall = 1
