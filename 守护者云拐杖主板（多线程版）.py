@@ -139,7 +139,7 @@ def flashlight():
     time.sleep(0.8)    
 
 
-#平常状态之彩虹灯效设定(ok)
+#平常状态之彩虹灯效设定函数(ok)
 def make_rainbow(_neopixel, _num, _bright, _offset):          
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
     for i in range(_num):
