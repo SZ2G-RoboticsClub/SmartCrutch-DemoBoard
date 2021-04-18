@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "C:\\Users\\qinfeng\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "C_Cpp.errorSquiggles": "Enabled",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.mypyEnabled": false
+}
