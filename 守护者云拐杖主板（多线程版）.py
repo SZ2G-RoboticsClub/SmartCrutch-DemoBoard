@@ -22,7 +22,7 @@ import urequests
 
 #小方舟学习数据：id0为充电座上的二维码
 
-my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=21, bpp=3, timing=1)#引脚设定
+my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)#引脚设定
 p5 = MPythonPin(5, PinMode.IN)
 
 #心跳包数据初始化
@@ -240,15 +240,17 @@ def fall_det_thread():
         
 
             if down == 1:
-                ai.video_capture(60)                 #AI拐杖记录仪开启录像
+                ai.picture_capture(0)                 #AI拐杖记录仪拍照
                 time_on = time.time()                #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
                 my_rgb.fill( (255, 0, 0) )          #10s内先亮红灯
                 my_rgb.write()
                 #10s内没起来
                 if time.time() - time_on > 10 and time.time() - time_on <= 30:
+                    ai.picture_capture(0)
                     fall = 1
                 #30s内没起来
                 elif time.time() - time_on > 30:
+                    ai.picture_capture(0)
                     fall = 2
             elif down == 0:
                 fall = 0
@@ -302,7 +304,7 @@ def fall_det_thread():
 def home_thread():
     global lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
     while True:
-        if p5.read_digital() == 0:                #本为输出引脚，反向使用，且防止老人按多次，用变量赋值
+        if p5.read_digital() == 1:                #防止老人按多次，用变量赋值
                 backhome = 1
 
         if backhome == 1:                                                                                      #记录当前位置
