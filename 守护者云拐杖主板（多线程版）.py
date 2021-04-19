@@ -344,7 +344,7 @@ def heartbeat_thread():
     while True:
         data = {                #心跳包数据存储
         "uuid": uuid,
-        "status":status
+        "status":status,
         "loc": heartbeat_Loc
         }
 
