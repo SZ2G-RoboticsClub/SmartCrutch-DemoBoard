@@ -33,7 +33,7 @@ heartbeat_Loc = {}               #location
 #初始化服务器传输
 BASE_URL = 'http://192.168.31.125:8000/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
-mywifi.connectWiFi("","")
+my_wifi.connectWiFi("","")
 
 #路径规划初始化
 MAP_URL = 'https://restapi.amap.com/v3/direction/walking?'
