@@ -3,6 +3,7 @@ from mpython import *
 from bluebit import *
 from nplus.ai import *
 import math
+import network
 import music
 import neopixel
 import _thread
@@ -30,7 +31,7 @@ status = ""                      #拐杖状态（"ok"/"emergency"/"error"/"offli
 heartbeat_Loc = {}               #location
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
+BASE_URL = 'http://192.168.31.125:8000/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 mywifi.connectWiFi("","")
 
