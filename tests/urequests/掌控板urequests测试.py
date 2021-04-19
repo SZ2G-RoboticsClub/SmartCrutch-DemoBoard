@@ -16,5 +16,5 @@ time.sleep(1)
 print(m)
 
 oled.fill(0)
-oled.DispChar(r, 0, 0)
+oled.DispChar(s, 0, 0)
 oled.show()
