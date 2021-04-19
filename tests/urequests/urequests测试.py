@@ -1,17 +1,8 @@
-import urequests
-from mpython import *
+import requests
 
-my_wifi = wifi()
-my_wifi.connectWiFi('啊哈','dy666821')
+uuid = '3141592653589793'
 
 # http get方法
-r = urequests.get('http://micropython.org/ks/test.html')
+r = requests.get(url='http://0.0.0.0:8000/demoboard/get_settings/'+uuid)
 # 响应的内容
-r.content
-
-
-# response：
-# 刷入成功
-# Connection WiFi.....
-# WiFi(啊哈,-53dBm) Connection Successful, Config:('192.168.43.131', '255.255.255.0', '192.168.43.1', '192.168.43.1')
-# MicroPython v2.1.2 on 2020-11-18; mpython with ESP32
+print(r.json())
