@@ -10,11 +10,10 @@ BASE_URL = 'http://192.168.31.125:8000/demoboard'
 uuid = '3141592653589793'
 
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
-m = s.json()
 print(s)
 time.sleep(1)
-print(m)
+print(s.json())
 
 oled.fill(0)
-oled.DispChar(s, 0, 0)
+oled.DispChar(str(s.json()), 0, 0)
 oled.show()
