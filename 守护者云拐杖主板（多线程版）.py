@@ -28,7 +28,7 @@ p5 = MPythonPin(5, PinMode.IN)
 #心跳包数据初始化
 uuid = '3141592653589793'        #拐杖身份证
 status = ""                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
-heartbeat_Loc = {}               #location
+heartbeat_Loc = None               #location
 
 #初始化服务器传输
 BASE_URL = 'http://192.168.31.125:8000/demoboard'
@@ -279,8 +279,8 @@ def fall_det_thread():
                         c_lock = 2
 
                 loc_fall = {"latitude":lat_fall,               #修改心跳包状态
-                            "longtitude":lon_fall}
-                status = "emergency"
+                            "longitude":lon_fall}
+                status = 'emergency'
                 heartbeat_Loc = loc_fall
                 
                 flashlight()
