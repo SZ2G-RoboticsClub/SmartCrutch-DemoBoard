@@ -39,7 +39,7 @@ my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 my_wifi.connectWiFi("QFCS-MI","999999999")
 
 #路径规划初始化
-MAP_URL = ''
+MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
 #全局变量定义                                            
@@ -167,7 +167,7 @@ def common():
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if light.read() < 50:
+    if light.read() < 20:
         my_rgb.fill( (255, 255, 255) )
         my_rgb.write()
     else:
@@ -178,6 +178,7 @@ def common():
 
 #摔倒检测
 def fall_det():
+    global c_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
     common()
     status = "ok"
     heartbeat_Loc = None
@@ -299,7 +300,8 @@ def fall_det():
 
 #"带你回家"
 def get_u_home():
-    if button_a.is() == 1:                #防止老人按多次，用变量赋值
+    global route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
+    if button_a.is_pressed() == 1:                #防止老人按多次，用变量赋值
             backhome = 1
 
     if backhome == 1:                                                                                      #记录当前位置
@@ -329,9 +331,9 @@ def get_u_home():
         print(lat_now)      #电脑测试print坐标是否正确
         print(lon_now)
         #导航回家
-        # ori_loc = str(lon_now) + ',' + str(lat_now)
-        # parameters = 'origin='+ori_loc+'&destination='+des_loc+'&key='+key
-        # route = urequests.get(url=MAP_URL+str(parameters))
+        ori_loc = str(lon_now) + ',' + str(lat_now)
+        parameters = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
+        route = urequests.get(url=MAP_URL+str(parameters))
         
         backhome = 0        #导航到家
 
@@ -371,4 +373,6 @@ while True:
     common()
     fall_det()
     get_u_home()
+
+#状态：倒地，充电，common，导航
 
