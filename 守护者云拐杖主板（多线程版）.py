@@ -47,7 +47,7 @@ move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = 0     #摔倒初始时间
-switch = 0      #0：充电状态；     1：不在充电
+switch = 1      #0：充电状态；     1：不在充电
 location1 = []    #充电结束获取的经纬信息
 loc_get1 = []
 location2 = []    #摔倒获取的经纬信息
@@ -80,7 +80,7 @@ uart2 = machine.UART(1, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 
 # ============ Module ============
 
-#获取加速度角度函数
+#获取加速度角度函数(ok)
 def get_tilt_angle(_axis):                                  
     x = accelerometer.get_x()
     y = accelerometer.get_y()
@@ -100,7 +100,19 @@ def get_tilt_angle(_axis):
     return 0
 
 
-#倒地闪红蓝报警灯
+#平常状态之彩虹灯效设定函数(ok)
+def make_rainbow(_neopixel, _num, _bright, _offset):          
+    _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
+    for i in range(_num):
+        t = 7 * i / _num
+        t0 = int(t)
+        r = round((_rgb[t0][0] + (t-t0)*(_rgb[t0+1][0]-_rgb[t0][0]))*_bright)>>8
+        g = round((_rgb[t0][1] + (t-t0)*(_rgb[t0+1][1]-_rgb[t0][1]))*_bright)>>8
+        b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
+        _neopixel[(i + _offset) % _num] = (r, g, b)
+
+
+#倒地闪红蓝报警灯(ok)
 def flashlight():                                                  
     my_rgb.fill( (255, 0, 0) )
     my_rgb.write()
@@ -132,19 +144,6 @@ def flashlight():
     my_rgb.fill( (0, 0, 0) )
     my_rgb.write()
     time.sleep(0.1)
-
-
-
-#平常状态之彩虹灯效设定函数(ok)
-def make_rainbow(_neopixel, _num, _bright, _offset):          
-    _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
-    for i in range(_num):
-        t = 7 * i / _num
-        t0 = int(t)
-        r = round((_rgb[t0][0] + (t-t0)*(_rgb[t0+1][0]-_rgb[t0][0]))*_bright)>>8
-        g = round((_rgb[t0][1] + (t-t0)*(_rgb[t0+1][1]-_rgb[t0][1]))*_bright)>>8
-        b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
-        _neopixel[(i + _offset) % _num] = (r, g, b)
 
 
 #平常状态之流水彩虹灯(ok)
@@ -180,7 +179,7 @@ def fall_det_thread():
         status = "ok"
         heartbeat_Loc = None
 
-        if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
+        if ai.get_id_data(0) and c_lock == 0:               #识别到二维码，开始充电
             switch = 0
             c_lock = -1
         
