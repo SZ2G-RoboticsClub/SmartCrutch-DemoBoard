@@ -36,6 +36,7 @@ my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 my_wifi.connectWiFi("","")
 
 #路径规划初始化
+ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 MAP_URL = 'https://restapi.amap.com/v3/direction/walking?'
 key = ''
 
@@ -59,9 +60,9 @@ lat_now = 0
 lon_now = 0
 lat_fall = 0
 lon_fall = 0
-ori_loc = 0
-des_loc = 0
-parameters = 0
+# ori_loc = 0
+# des_loc = 0
+# parameters = 0
 home_lock = 0     #（home_thread调用）0:空状态    1：记录完一次经纬度
 c_lock = 0
 #（crutchlock，fall_det_thread调用）
@@ -99,45 +100,39 @@ def get_tilt_angle(_axis):
     return 0
 
 
-#倒地闪红蓝白报警灯
+#倒地闪红蓝报警灯
 def flashlight():                                                  
     my_rgb.fill( (255, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (255, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 255) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 255) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (255, 255, 255) )
     my_rgb.write()
-    sleep_ms(50)
+    time.sleep(0.1)
     my_rgb.fill( (0, 0, 0) )
     my_rgb.write()
-    sleep_ms(50)
-    my_rgb.fill( (255, 255, 255) )
-    my_rgb.write()
-    sleep_ms(50)
-    my_rgb.fill( (0, 0, 0) )
-    my_rgb.write()
-    sleep_ms(50)
-    time.sleep(0.8)    
+    time.sleep(0.1)
+
 
 
 #平常状态之彩虹灯效设定函数(ok)
@@ -174,15 +169,6 @@ def common():
         liushuideng()
 
 
-# 路径规划
-# def get_route(origin,destination):
-#     api = f'https://restapi.amap.com/v3/direction/transit/integrated?origin={origin}&destination={destination}&output=JSON&key=自己的key&city=北京'
-#     r = urequests.get(api)
-#     r = r.text
-#     jsonData = json.loads(r)
-#     return jsonData
-
-
 
 # ============ Thread ============
 
@@ -197,7 +183,7 @@ def fall_det_thread():
         if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
             switch = 0
             c_lock = -1
-            
+        
         if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
             rgb.fill((int(51), int(255), int(51)))         #亮一下绿灯
             rgb.write()
@@ -207,6 +193,7 @@ def fall_det_thread():
             time.sleep_ms(1)
             c_lock = 1
             
+
         if c_lock == 1 and switch == 0:      #记录初始位置
             if uart1.any():
                 time.sleep(0.1)
@@ -247,9 +234,15 @@ def fall_det_thread():
                 #10s内没起来
                 if time.time() - time_on > 10 and time.time() - time_on <= 30:
                     ai.picture_capture(0)
+                    time.sleep_ms(100)
+                    ai.picture_capture(0)
+                    time.sleep_ms(100)
+                    ai.picture_capture(0)
                     fall = 1
                 #30s内没起来
                 elif time.time() - time_on > 30:
+                    ai.picture_capture(0)
+                    time.sleep_ms(100)
                     ai.picture_capture(0)
                     fall = 2
             elif down == 0:
@@ -268,6 +261,7 @@ def fall_det_thread():
                             lat_fall = float(location2[1]) * -1
                         else:
                             lat_fall = 0
+
 
                         if location2[4] == 'E':
                             lon_fall = float(location2[3])
@@ -289,7 +283,7 @@ def fall_det_thread():
             elif fall == 2:
                 flashlight()
                 music.play(music.POWER_UP, wait=False, loop=True)
-                uart2.write('ATD' + str(s.get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+                uart2.write('ATD' + str(user_set.get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
             elif fall == 0:
                 common()
                 music.stop()
@@ -302,7 +296,7 @@ def fall_det_thread():
 
 #"带你回家"
 def home_thread():
-    global lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
+    global lat_now, lon_now, home_lock, loc_get3, location3##, ori_loc, des_loc, parameters
     while True:
         if p5.read_digital() == 1:                #防止老人按多次，用变量赋值
                 backhome = 1
@@ -334,9 +328,9 @@ def home_thread():
             print(lat_now)      #电脑测试print坐标是否正确
             print(lon_now)
             #导航回家
-            ori_loc = str(lon_now) + ',' + str(lat_now)
-            parameters = 'origin='+ori_loc+'&destination='+des_loc+'&key='+key
-            route = urequests.get(url=MAP_URL+str(parameters))
+            # ori_loc = str(lon_now) + ',' + str(lat_now)
+            # parameters = 'origin='+ori_loc+'&destination='+des_loc+'&key='+key
+            # route = urequests.get(url=MAP_URL+str(parameters))
             
             backhome = 0        #导航到家
 
@@ -351,19 +345,19 @@ def heartbeat_thread():
         "loc": heartbeat_Loc
         }
 
-        time.sleep(5)
-
         resp = urequests.post(url=BASE_URL+'/heartbeat/', json=data)       #发送心跳包
 
-        if resp.code != 200:                    #服务器读取数据错误或无法连接
-            print('服务器数据传输发生错误')
-            continue
+        # if resp.code != 200:                    #服务器读取数据错误或无法连接
+        #     print('服务器数据传输发生错误')
+        #     continue
 
-        resp = resp.json()
+        user_set = resp.json()
 
-        if resp['code'] == 0:                   #返回数据类型正常
+        time.sleep(5)
+
+        if user_set['code'] == 0:                   #返回数据类型正常
             continue
-        elif resp['code'] == 1:
+        elif user_set['code'] == 1:
             print('拐杖未注册')
             continue
         else:
@@ -374,12 +368,16 @@ def heartbeat_thread():
 # ============ Start ============
 
 #获得settingdata拐杖状态
-try:
-    s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
-except:
-    print('无法连接服务器，请重试')
+s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
+user_set = s.json()
+uart2.write()
+if user_set['code'] == 0:
+    print('获取账户连接成功')
+    time.sleep(1)
+
+    _thread.start_new_thread(fall_det_thread, ())
+    _thread.start_new_thread(home_thread, ())
+    _thread.start_new_thread(heartbeat_thread, ())
+
 else:
-    s = s.json()
-    _thread.start_new_thread(heartbeat_thread,())
-    _thread.start_new_thread(fall_det_thread,())
-    _thread.start_new_thread(home_thread,())
+    print('用户连接失败，请重试')
