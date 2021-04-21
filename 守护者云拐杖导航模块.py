@@ -1,8 +1,14 @@
 from mpython import *
+import time
+import urequests
+
 
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
+
+my_wifi = wifi()
+my_wifi.connectWiFi("QFCS-MI","999999999")
 
 backhome = 0
 distance = 0
@@ -19,13 +25,13 @@ loc_get3 = []
 loc_get4 = []
 lat_det = 0
 lon_det = 0
+end_loc = ''
+way = ''
+l_way = []
 location1 = []
 location3 = []
 location4 = []
 method = []
-
-
-
 while True:
     if button_b.was_pressed():
         if uart1.any():
@@ -81,6 +87,7 @@ while True:
             oled.fill(0)
             oled.DispChar(way, 0, 0, 1, True)
             oled.show()
+            end_loc = i.get('end_location').get('lat') + ',' + i.get('end_location').get('lng')
             while True:
                 if uart1.any():
                     time.sleep(0.1)

@@ -9,23 +9,6 @@ import neopixel
 import time
 import urequests
 
-
-
-#引脚：
-#p16tx&p15rx：串口uart2(SIM卡模块)
-#p14tx&p11rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#p0&p1：小方舟模块
-#p13：灯带
-#掌控板a键：“带我回家”按钮
-#掌控板b键：记录初始位置
-
-#摔倒判断：角度
-
-#小方舟学习数据：id0为充电座上的二维码
-
-
-
-
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 
 #心跳包数据初始化
@@ -39,39 +22,9 @@ my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 my_wifi.connectWiFi("QFCS-MI","999999999")
 
 #路径规划初始化
-MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
+MAP_URL = ''
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
-para1 = ''
 
-#全局变量定义                                            
-backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
-move = 0        #彩虹灯变量
-down = 0        #0：拐杖没倒；    1：拐杖倒了
-fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
-time_on = 0     #摔倒初始时间
-switch = 1      #0：充电状态；     1：不在充电
-location1 = []    #充电结束获取的经纬信息
-loc_get1 = []
-location2 = []    #摔倒获取的经纬信息
-loc_get2 = []
-location3 = []    #按下回家按钮获取的经纬信息
-log_get3 = []
-lat_first = 0
-lon_first = 0
-lat_now = 0
-lon_now = 0
-lat_fall = 0
-lon_fall = 0
-# ori_loc = 0
-# des_loc = 0
-# parameters = 0
-home_lock = 0     #（get_u_home调用）0:空状态    1：记录完一次经纬度
-c_lock = -1
-#（crutchlock，fall_det调用）
-# -1：充电状态；   
-# 1：正在使用；   
-# 0：充电结束记录完初始经纬度；   
-# 2：摔倒记录完倒地经纬度
 
 
 
@@ -161,6 +114,9 @@ def rainbow():
     move = move + 1
 
 
+
+
+
 #平常状态(ok)
 def common():
     oled.fill(0)
@@ -175,27 +131,21 @@ def common():
         rainbow()
 
 
-# ============ Function ============
-
 #摔倒检测
 def fall_det():
-    global c_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
-    common()
-    status = "ok"
-    heartbeat_Loc = None
-
-    # if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
-    #     switch = 0
-    #     c_lock = -1
+    global
+    if ai.get_id_data(0) and c_lock == 0:               #识别到二维码，开始充电
+        switch = 0
+        c_lock = -1
     
-    # if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
-    #     rgb.fill((int(51), int(255), int(51)))         #亮一下绿灯
-    #     rgb.write()
-    #     time.sleep(2)
-    #     rgb.fill((0, 0, 0))
-    #     rgb.write()
-    #     time.sleep_ms(1)
-    #     c_lock = 1
+    if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
+        rgb.fill((int(51), int(255), int(51)))         #亮一下绿灯
+        rgb.write()
+        time.sleep(2)
+        rgb.fill((0, 0, 0))
+        rgb.write()
+        time.sleep_ms(1)
+        c_lock = 1
         
 
     if c_lock == 1 and switch == 0:      #记录初始位置
@@ -205,19 +155,20 @@ def fall_det():
             if 'GNGLL' in loc_get1:
                 location1 = (str(loc_get1).split(','))
                 if location1[2] == 'N':
-                    lat_first = float(location1[1]) * 0.01
+                    lat_first = float(location1[1])
                 elif location1[2] == 'S':
-                    lat_first = float(location1[1]) * 0.01 * -1
+                    lat_first = float(location1[1]) * -1
                 else:
                     lat_first = 0
 
                 if location1[4] == 'E':
-                    lon_first = float(location1[3]) * 0.01
+                    lon_first = float(location1[3])
                 elif location1[4] == 'W':
-                    lon_first = float(location1[3]) * 0.01 * -1
+                    lon_first = float(location1[3]) * -1
                 else:
                     lon_first = 0
-                des_loc = str(lat_first) + ',' + str(lon_first)
+                des_loc = str(lon_first) + ',' + str(lat_first)
+                print(des_loc)
                 switch = 1             #只有读到GLL格式并存取了经纬时才记为充电结束状态
                 c_lock = 0             #只在充电一次结束的时候记录一次经纬度
 
@@ -260,17 +211,17 @@ def fall_det():
                 if 'GNGLL' in loc_get2:
                     location2 = (str(loc_get2).split(','))
                     if location2[2] == 'N':
-                        lat_fall = float(location2[1]) * 0.01
+                        lat_fall = float(location2[1])
                     elif location2[2] == 'S':
-                        lat_fall = float(location2[1]) * 0.01 * -1
+                        lat_fall = float(location2[1]) * -1
                     else:
                         lat_fall = 0
 
 
                     if location2[4] == 'E':
-                        lon_fall = float(location2[3]) * 0.01
+                        lon_fall = float(location2[3])
                     elif location2[4] == 'W':
-                        lon_fall = float(location2[3]) * 0.01 * -1
+                        lon_fall = float(location2[3]) * -1
                     else:
                         lon_fall = 0
 
@@ -280,15 +231,16 @@ def fall_det():
                         "longitude":lon_fall}
             status = 'emergency'
             heartbeat_Loc = loc_fall
+            print(heartbeat_Loc)
+            print(loc_fall)
+            print(status)
             
             flashlight()
             music.play(music.POWER_UP, wait=True, loop=False)   #示警鸣笛声
             
         elif fall == 2:
             flashlight()
-            music.play(music.POWER_UP, wait=True, loop=False)
-            uart2.write('AT+SETVOLTE=1')
-            uart2.write('ATD' + str(user_set.get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+            music.play(music.POWER_UP, wait=False, loop=True)
         elif fall == 0:
             common()
             music.stop()
@@ -297,83 +249,40 @@ def fall_det():
         rgb[1] = ((int(255), int(0), int(0)))            #掌控板上自带rgb灯中间那颗亮红灯
         rgb.write()
         time.sleep_ms(1)
-
-
-#"带你回家"
-def get_u_home():
-    global route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
-    if button_a.is_pressed() == 1:                #防止老人按多次，用变量赋值
-            backhome = 1
-
-    if backhome == 1:                                                                                      #记录当前位置
-        if uart1.any() and home_lock == 0:
-            time.sleep(0.1)
-            loc_get3 = uart1.readline()        #串口读取坐标
-            if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
-                location3 = (str(loc_get3).split(','))     #存取到列表
-                #纬度存取，北正南负，赤道0°
-                if location3[2] == 'N':
-                    lat_now = float(location3[1]) * 0.01
-                elif location3[2] == 'S':
-                    lat_now = float(location3[1]) * 0.01 * -1
-                else:
-                    lat_now = 0
-                
-                #经度存取，东正西负，否则0°
-                if location3[4] == 'E':
-                    lon_now = float(location3[3]) * 0.01
-                elif location3[4] == 'W':
-                    lon_now = float(location3[3]) * 0.01 * -1
-                else:
-                    lon_now = 0
-                
-                home_lock = 1                              #只存取一次纬度，防止重复存取
-
-        print(lat_now)      #电脑测试print坐标是否正确
-        print(lon_now)
-        #导航回家
-        ori_loc = str(lat_now) + ',' + str(lon_now)
-        para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
-        route = urequests.get(url=MAP_URL+para1)
         
-        backhome = 0        #导航到家
 
-
-#心跳包发送
-def heartbeat():
-    data = {                #心跳包数据存储
-    "uuid": uuid,
-    "status":status,
-    "loc": heartbeat_Loc
-    }
-
-    resp = urequests.post(url=BASE_URL+'/heartbeat/', json=data)       #发送心跳包
-
-    # if resp.code != 200:                    #服务器读取数据错误或无法连接
-    #     print('服务器数据传输发生错误')
-    #     continue
-
-    user_set = resp.json()
-
-    if user_set['code'] == 0:                   #返回数据类型正常
-        continue
-    elif user_set['code'] == 1:
-        print('拐杖未注册')
-        continue
-    else:
-        print(user_set.get('msg'))          #查看是否正常回应
-
-
+#全局变量定义                                            
+backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
+move = 0        #彩虹灯变量
+down = 0        #0：拐杖没倒；    1：拐杖倒了
+fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
+time_on = 0     #摔倒初始时间
+switch = 1      #0：充电状态；     1：不在充电
+location1 = []    #充电结束获取的经纬信息
+loc_get1 = []
+location2 = []    #摔倒获取的经纬信息
+loc_get2 = []
+location3 = []    #按下回家按钮获取的经纬信息
+log_get3 = []
+lat_first = 0
+lon_first = 0
+lat_now = 0
+lon_now = 0
+lat_fall = 0
+lon_fall = 0
+# ori_loc = 0
+# des_loc = 0
+# parameters = 0
+home_lock = 0     #（home_thread调用）0:空状态    1：记录完一次经纬度
+c_lock = -1
+#（crutchlock，fall_det_thread调用）
+# -1：充电状态；   
+# 1：正在使用；   
+# 0：充电结束记录完初始经纬度；   
+# 2：摔倒记录完倒地经纬度
 ai = NPLUS_AI()                   #小方舟初始化
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
-tim1 = Timer(1)
 while True:
     common()
     fall_det()
-    tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
-    get_u_home()
-
-#状态：倒地，充电，common，导航
-

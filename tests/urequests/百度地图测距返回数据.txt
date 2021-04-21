@@ -1,13 +1,8 @@
 {'status': 0, 
  'result': [
-            {'distance': 
-                {'text': 1.6公里', 
-                 'value': 1640
-                 }, 
-             'duration': 
-                        {'text': '23分钟', 
-                         'value': 1403
-                         }
+            {
+            'distance': {'text': 1.6公里', 'value': 1640}, 
+            'duration': {'text': '23分钟', 'value': 1403}
             }
             ], 
  'message': '成功'}
