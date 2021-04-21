@@ -249,7 +249,7 @@ def fall_det_thread():
         
 
             if fall == 1:
-                if uart1.any() and c_lock == 0:            #存取倒地所在经纬度
+                while True:
                     time.sleep(0.1)
                     loc_get2 = uart1.readline()
                     if 'GNGLL' in loc_get2:
@@ -269,7 +269,7 @@ def fall_det_thread():
                         else:
                             lon_fall = 0
 
-                        c_lock = 2
+
 
                 loc_fall = {"latitude":lat_fall,               #修改心跳包状态
                             "longitude":lon_fall}

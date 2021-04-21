@@ -8,6 +8,7 @@ import music
 import neopixel
 import time
 import urequests
+import json
 
 
 
@@ -25,7 +26,6 @@ import urequests
 
 
 
-
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 
 #心跳包数据初始化
@@ -33,15 +33,38 @@ uuid = '3141592653589793'        #拐杖身份证
 status = ""                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
 
+
 #初始化服务器传输
 BASE_URL = 'http://192.168.43.199:8000/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 my_wifi.connectWiFi("QFCS-MI","999999999")
 
+
 #路径规划初始化
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
+lat_first = 0     #出门获取的经纬信息
+lon_first = 0
+location1 = []
+loc_get1 = []
+des_loc = 0
+lat_now = 0       #按下带我回家按钮记录的经纬信息
+lon_now = 0
+location3 = []
+log_get3 = []
+ori_loc = 0
 para1 = ''
+
+
+#测距初始化
+D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
+para2 = ''
+location4 = []
+loc_get4 = []
+det_lat = 0
+det_lon = 0
+det_loc = ''
+
 
 #全局变量定义                                            
 backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
@@ -50,25 +73,16 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 switch = 1      #0：充电状态；     1：不在充电
-location1 = []    #充电结束获取的经纬信息
-loc_get1 = []
-location2 = []    #摔倒获取的经纬信息
-loc_get2 = []
-location3 = []    #按下回家按钮获取的经纬信息
-log_get3 = []
-lat_first = 0
-lon_first = 0
-lat_now = 0
-lon_now = 0
-lat_fall = 0
+
+lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
-# ori_loc = 0
-# des_loc = 0
-# parameters = 0
-home_lock = 0     #（get_u_home调用）0:空状态    1：记录完一次经纬度
-ai_lock = -1
+location2 = []
+loc_get2 = []
+loc_fall = ''
+ai_lock = 0
 #（fall_det调用）
-# 1：拍过一次照；   
+# 2：摔倒30s拍过一次照;
+# 1：摔倒10s拍过一次照；   
 # 0：准备拍照；   
 
 
@@ -179,10 +193,8 @@ def common():
 #摔倒检测
 def fall_det():
     global ai_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
-    status = "ok"
-    heartbeat_Loc = None
-
-    #拐杖倒地判定
+    
+    #拐杖倒地判定（需重新测试）
     if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 and get_tilt_angle('Y') > 0 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
         down = 1
     else:
@@ -196,24 +208,27 @@ def fall_det():
         my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
         my_rgb.write()
         #10s内没起来
-        if time.time() - time_on > 10:
-            while True:
-                if ai_lock == 0:
-                    ai.picture_capture(0)
-                    time.sleep_ms(100)
-                    ai.picture_capture(0)
-                    time.sleep_ms(100)
-                    ai.picture_capture(0)
-                ai_lock = 1
-                fall = 1
-                #30s内没起来
-                if time.time() - time_on > 30:
-                    break
-            
-            ai.picture_capture(0)
-            time.sleep_ms(100)
-            ai.picture_capture(0)
+        if time.time() - time_on > 10 and time.time() - time_on <= 30:
+            if ai_lock == 0:
+                ai.picture_capture(0)
+                time.sleep_ms(100)
+                ai.picture_capture(0)
+                time.sleep_ms(100)
+                ai.picture_capture(0)
+            ai_lock = 1
+            fall = 1
+
+        #30s内没起来
+        if time.time() - time_on > 30:
+            if ai_lock == 1:
+                ai.picture_capture(0)
+                time.sleep_ms(100)
+                ai.picture_capture(0)
+                time.sleep_ms(100)
+                ai.picture_capture(0)
+            ai_lock = 2
             fall = 2
+
     elif down == 0:
         fall = 0
 
@@ -248,60 +263,81 @@ def fall_det():
         
         flashlight()
         music.play(music.POWER_UP, wait=True, loop=False)   #示警鸣笛声
-        
+
     if fall == 2:
+        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
+                    "longitude":lon_fall}
+        status = 'emergency'
+        heartbeat_Loc = loc_fall
+
         flashlight()
         music.play(music.POWER_UP, wait=True, loop=False)
         uart2.write('AT+SETVOLTE=1')
         uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+
     if fall == 0:
         music.stop()
-
-
-def h_fall():
+        status = "ok"
+        heartbeat_Loc = None
 
 
 #"带你回家"
 def get_u_home():
-    global route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
+    global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
     if button_a.is_pressed() == 1:                #防止老人按多次，用变量赋值
             backhome = 1
 
-    if backhome == 1:                                                                                      #记录当前位置
-        if uart1.any() and home_lock == 0:
-            time.sleep(0.1)
-            loc_get3 = uart1.readline()        #串口读取坐标
-            if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
-                location3 = (str(loc_get3).split(','))     #存取到列表
-                #纬度存取，北正南负，赤道0°
-                if location3[2] == 'N':
-                    lat_now = float(location3[1]) * 0.01
-                elif location3[2] == 'S':
-                    lat_now = float(location3[1]) * 0.01 * -1
-                else:
-                    lat_now = 0
-                
-                #经度存取，东正西负，否则0°
-                if location3[4] == 'E':
-                    lon_now = float(location3[3]) * 0.01
-                elif location3[4] == 'W':
-                    lon_now = float(location3[3]) * 0.01 * -1
-                else:
-                    lon_now = 0
-                
-                home_lock = 1                              #只存取一次纬度，防止重复存取
-
-        print(lat_now)      #电脑测试print坐标是否正确
-        print(lon_now)
-        #导航回家
-        ori_loc = str(lat_now) + ',' + str(lon_now)
+    if backhome == 1:
         para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
-        route = urequests.get(url=MAP_URL+para1)
-        
+        nav = urequests.get(url=MAP_URL+str(para1))
+        route = nav.json()
+        method = route.get('result').get('routes')[0].get('steps')
+        # print(method)
+        for i in method:
+            way = i.get('instruction').replace('<b>', '').replace('</b>', '')
+            oled.fill(0)
+            oled.DispChar(way, 0, 0, 1, True)
+            oled.show()
+            end_loc = i.get('end_location').get('lat') + ',' + i.get('end_location').get('lng')
+            # time.sleep(5)
+            while True:
+                time.sleep(0.1)
+                loc_get4 = uart1.readline()       #串口读取坐标
+                if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
+                    location4 = (str(loc_get4).split(','))     #存取到列表
+                    #纬度存取，北正南负，赤道0°
+                    if location4[2] == 'N':
+                        lat_det = float(location4[1]) * 0.01
+                    elif location4[2] == 'S':
+                        lat_det = float(location4[1]) * 0.01 * -1
+                    else:
+                        lat_det = 0
+                    
+                    #经度存取，东正西负，否则0°
+                    if location4[4] == 'E':
+                        lon_det = float(location4[3]) * 0.01
+                    elif location4[4] == 'W':
+                        lon_det = float(location4[3]) * 0.01 * -1
+                    else:
+                        lon_det = 0
+                    
+                    det_loc = str(lat_det) + ',' + str(lon_det)
+                    para2 = 'output=json&origins='+det_loc+'&destinations='+end_loc+'&ak='+ak
+                    d = urequests.get(url=D_URL+para2)
+                    d = d.json()
+                    distance = d.get('result')[0].get('distance').get('value')
+                    if distance <= 10:
+                        end_way = way.split(',')[-1]
+                        oled.fill(0)
+                        oled.DispChar(end_way, 0, 0, 1, True)
+                        oled.show()
+                        break
+
+
         backhome = 0        #导航到家
 
 
-#心跳包发送
+#心跳包发送(ok)
 def heartbeat():
     data = {                #心跳包数据存储
     "uuid": uuid,
@@ -310,10 +346,6 @@ def heartbeat():
     }
 
     resp = urequests.post(url=BASE_URL+'/heartbeat/', json=data)       #发送心跳包
-
-    # if resp.code != 200:                    #服务器读取数据错误或无法连接
-    #     print('服务器数据传输发生错误')
-    #     continue
 
     user_set = resp.json()
 
@@ -367,9 +399,6 @@ while True:
         common()
         fall_det()
         tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
-        h_fall()
-    
-    get_u_home()
+        get_u_home()
 
 #状态：倒地，充电，common，导航
-
