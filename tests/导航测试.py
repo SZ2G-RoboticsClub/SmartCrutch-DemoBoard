@@ -1,3 +1,4 @@
+#mPythonType:0
 from mpython import *
 import time
 import urequests
@@ -14,6 +15,12 @@ my_wifi = wifi()
 my_wifi.connectWiFi("QFCS-MI","999999999")
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
 
+oled.fill(0)
+oled.DispChar('初始化完毕', 0, 0)
+oled.show()
+time.sleep(2)
+oled.fill(0)
+oled.show()
 
 backhome = 0
 move = 0
@@ -34,52 +41,28 @@ l_way = []
 location1 = []
 location3 = []
 location4 = []
-method = []
+p = 0
 c = 0
-
-#平常状态之彩虹灯效设定(ok)
-def make_rainbow(_neopixel, _num, _bright, _offset):          
-    _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
-    for i in range(_num):
-        t = 7 * i / _num
-        t0 = int(t)
-        r = round((_rgb[t0][0] + (t-t0)*(_rgb[t0+1][0]-_rgb[t0][0]))*_bright)>>8
-        g = round((_rgb[t0][1] + (t-t0)*(_rgb[t0+1][1]-_rgb[t0][1]))*_bright)>>8
-        b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
-        _neopixel[(i + _offset) % _num] = (r, g, b)
-
-
-#平常状态之流水彩虹灯(ok)
-def rainbow():
-    global move
-    make_rainbow(my_rgb, 23, 80, move)
-    my_rgb.write()
-    time.sleep(0.25)
-    move = move + 1
-    
-
-def common():
-    oled.fill(0)
-    oled.DispChar('守护者云拐杖', 24, 16)
-    oled.DispChar('开', 56, 32)
-    oled.show()
-    #光感手电
-    if light.read() < 20:
-        my_rgb.fill( (255, 255, 255) )
-        my_rgb.write()
-    else:
-        rainbow()
-        
         
 while True:
-    common()
+    if touchPad_P.was_pressed():
+        p = p + 1
+
+
+    if p % 2 == 1:
+        my_rgb.fill( (255, 255, 255) )
+        my_rgb.write()
+    elif p % 2 == 0:
+        my_rgb.fill( (0, 0, 0) )
+        my_rgb.write()
+    
+    
     if button_b.was_pressed() and c == 0:
-        print('记录初始位置')
         while True:
             time.sleep(0.1)
             loc_get1 = uart1.readline()
             if 'GNGLL' in loc_get1:
-                print(loc_get1)
+                # print(loc_get1)
                 location1 = (str(loc_get1).split(','))
                 if location1[2] == 'N':
                     lat_first = float(location1[1]) * 0.01
@@ -96,9 +79,15 @@ while True:
                     lon_first = 0
                 des_loc = str(lat_first) + ',' + str(lon_first)
                 c = 1
-                print(loc_get1)
-                print(des_loc)
+                # print(loc_get1)
+                # print(des_loc)
                 break
+        oled.fill(0)
+        oled.DispChar('初始位置记录完毕', 0, 16)
+        oled.show()
+        time.sleep(1)
+        oled.fill(0)
+        oled.show()
                 
     if button_a.was_pressed() and c == 1:
         print('终止位置')
@@ -106,7 +95,7 @@ while True:
             time.sleep(0.1)
             loc_get3 = uart1.readline()        #串口读取坐标
             if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
-                print(loc_get3)
+                # print(loc_get3)
                 location3 = (str(loc_get3).split(','))     #存取到列表
                 #纬度存取，北正南负，赤道0°
                 if location3[2] == 'N':
@@ -124,18 +113,24 @@ while True:
                 else:
                     lon_now = 0
                 ori_loc = str(lat_now) + ',' + str(lon_now)
-                print(loc_get3)
-                print(ori_loc)
-                backhome = 1
+                # print(loc_get3)
+                # print(ori_loc)
                 c = 0
                 break
-    
+        oled.fill(0)
+        oled.DispChar('当前位置记录完毕', 0, 16)
+        oled.show()
+        time.sleep(1)
+        backhome = 1
+        oled.fill(0)
+        oled.show()
+        
     if backhome == 1:
         para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
         nav = urequests.get(url=MAP_URL+str(para1))
         route = nav.json()
         method = route.get('result').get('routes')[0].get('steps')
-        print(method)
+        # print(method)
         for i in method:
             way = i.get('instruction').replace('<b>', '').replace('</b>', '')
             oled.fill(0)
