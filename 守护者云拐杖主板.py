@@ -216,7 +216,7 @@ def fall_det():
                     lon_first = float(location1[3]) * -1
                 else:
                     lon_first = 0
-                des_loc = str(lon_first) + ',' + str(lat_first)
+                des_loc = str(lat_first) + ',' + str(lon_first)
                 switch = 1             #只有读到GLL格式并存取了经纬时才记为充电结束状态
                 c_lock = 0             #只在充电一次结束的时候记录一次经纬度
 
@@ -331,7 +331,7 @@ def get_u_home():
         print(lat_now)      #电脑测试print坐标是否正确
         print(lon_now)
         #导航回家
-        ori_loc = str(lon_now) + ',' + str(lat_now)
+        ori_loc = str(lat_now) + ',' + str(lon_now)
         parameters = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
         route = urequests.get(url=MAP_URL+str(parameters))
         
@@ -369,9 +369,9 @@ uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
 uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 tim1 = Timer(1)
 while True:
-    tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
     common()
     fall_det()
+    tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
     get_u_home()
 
 #状态：倒地，充电，common，导航
