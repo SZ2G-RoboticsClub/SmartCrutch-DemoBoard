@@ -1,4 +1,5 @@
 from machine import UART
+from machine import Timer
 from mpython import *
 from bluebit import *
 from nplus.ai import *
@@ -19,9 +20,7 @@ import json
 #掌控板a键：“带我回家”按钮
 #掌控板b键：记录初始位置
 
-#摔倒判断：角度
-
-#小方舟学习数据：id0为充电座上的二维码
+#摔倒判断：z轴加速度
 
 
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
@@ -89,26 +88,6 @@ ai_lock = 0
 
 
 # ============ Module ============
-
-#获取加速度角度函数(ok)
-def get_tilt_angle(_axis):                                  
-    x = accelerometer.get_x()
-    y = accelerometer.get_y()
-    z = accelerometer.get_z()
-    if 'X' == _axis:
-        force = math.sqrt(y ** 2 + z ** 2)
-        if z < 0: return math.degrees(math.atan2(x , force))
-        else: return 180 - math.degrees(math.atan2(x , force))
-    elif 'Y' == _axis:
-        force = math.sqrt(x ** 2 + z ** 2)
-        if z < 0: return  math.degrees(math.atan2(y , force))
-        else: return 180 - math.degrees(math.atan2(y , force))
-    elif 'Z' == _axis:
-        force = math.sqrt(x ** 2 + y ** 2)
-        if (x + y) < 0: return 180 - math.degrees(math.atan2(force , z))
-        else: return math.degrees(math.atan2(force , z)) - 180
-    return 0
-
 
 #平常状态之彩虹灯效设定(ok)
 def make_rainbow(_neopixel, _num, _bright, _offset):          
@@ -191,12 +170,12 @@ def common():
 
 # ============ Function ============
 
-#摔倒检测
+#摔倒检测(ok)
 def fall_det():
     global ai_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
-    
-    #拐杖倒地判定（需重新测试）
-    if get_tilt_angle('X') <= 15 or get_tilt_angle('X') >= 165 or get_tilt_angle('Y') <= 110 and get_tilt_angle('Y') > 0 or get_tilt_angle('Y') >= 250 or get_tilt_angle('Z') <= -170 or get_tilt_angle('Z') >= -20:
+    z = accelerometer.get_z()
+    #拐杖倒地判定
+    if z > 0 or z <= 0 and z >= -0.6:
         down = 1
     else:
         down = 0
@@ -335,10 +314,11 @@ def get_u_home():
                         break
 
         backhome = 0        #导航到家
+        
 
 
 #心跳包发送(ok)
-def timer1_tick(_):
+def heartbeat(_):
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
@@ -349,7 +329,7 @@ def timer1_tick(_):
 
     user_set = resp.json()
     
-    return 
+    
 
 
     # if user_set['code'] == 0:                   #返回数据类型正常
@@ -395,9 +375,13 @@ while True:
                     break
 
     if switch == 1:
-        common()
+        if time_set == None:
+            time_set = time.time()
         fall_det()
-        tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
         get_u_home()
+        if  time.time() - time_set >= 5:
+            heartbeat()
+            time_set = None
+
 
 #状态：倒地，充电，common()，导航
