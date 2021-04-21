@@ -13,5 +13,4 @@ parameters = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+str(ak)
 route = requests.get(url=MAP_URL+str(parameters))
 route = route.json()
 print(route)
-# m = route['route']
 print(route.get('result').get('routes')[0].get('steps')[0])
