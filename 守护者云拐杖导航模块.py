@@ -5,7 +5,7 @@ D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
 backhome = 0
-distance = 
+distance = 0
 des_loc = ''
 ori_loc = ''
 para1 = ''
@@ -75,10 +75,11 @@ while True:
         para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
         route = requests.get(url=MAP_URL+str(para1))
         route = route.json()
-        method = route.get('result').get('routes')[0].get('steps')[0]
+        method = route.get('result').get('routes')[0].get('steps')
         for i in method:
+            way = i.get('instruction').replace('<b>', '').replace('</b>', '')
             oled.fill(0)
-            oled.DispChar(str(i.get('instruction')), 0, 0, 1, True)
+            oled.DispChar(way, 0, 0, 1, True)
             oled.show()
             while True:
                 if uart1.any():
@@ -103,6 +104,13 @@ while True:
                             lon_det = 0
                         det_loc = str(lat_det) + ',' + str(lon_det)
                 para2 = 'output=json&origins='+det_loc+'&destinations='+end_loc+'&ak='+ak
-                distance = requests.get(url=D_URL+para2)
-                if 
+                d = requests.get(url=D_URL+para2)
+                d = d.json()
+                distance = d.get('result')[0].get('distance').get('value')
+                if distance <= 10:
+                    l_way = way.split(',')[-1]
+                    oled.fill(0)
+                    oled.DispChar(l_way, 0, 0, 1, True)
+                    oled.show()
+                    break
 

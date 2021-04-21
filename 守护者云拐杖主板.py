@@ -42,6 +42,7 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 #路径规划初始化
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
+para1 = ''
 
 #全局变量定义                                            
 backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
@@ -333,8 +334,8 @@ def get_u_home():
         print(lon_now)
         #导航回家
         ori_loc = str(lat_now) + ',' + str(lon_now)
-        parameters = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
-        route = urequests.get(url=MAP_URL+str(parameters))
+        para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
+        route = urequests.get(url=MAP_URL+para1)
         
         backhome = 0        #导航到家
 
