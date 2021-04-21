@@ -18,6 +18,7 @@ import urequests
 #p0&p1：小方舟模块
 #p13：灯带
 #掌控板a键：“带我回家”按钮
+#掌控板b键：记录初始位置
 
 #摔倒判断：角度
 
@@ -183,18 +184,18 @@ def fall_det():
     status = "ok"
     heartbeat_Loc = None
 
-    if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
-        switch = 0
-        c_lock = -1
+    # if ai.get_id_data(0) and c_lock != -1:               #识别到二维码，开始充电
+    #     switch = 0
+    #     c_lock = -1
     
-    if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
-        rgb.fill((int(51), int(255), int(51)))         #亮一下绿灯
-        rgb.write()
-        time.sleep(2)
-        rgb.fill((0, 0, 0))
-        rgb.write()
-        time.sleep_ms(1)
-        c_lock = 1
+    # if not ai.get_id_data(0) and c_lock == -1:         #从充电座提起断电自动记录位置——识别二维码不在就是离开出门
+    #     rgb.fill((int(51), int(255), int(51)))         #亮一下绿灯
+    #     rgb.write()
+    #     time.sleep(2)
+    #     rgb.fill((0, 0, 0))
+    #     rgb.write()
+    #     time.sleep_ms(1)
+    #     c_lock = 1
         
 
     if c_lock == 1 and switch == 0:      #记录初始位置
@@ -360,7 +361,7 @@ def heartbeat():
         print('拐杖未注册')
         continue
     else:
-        print(resp['msg'])          #查看是否正常回应
+        print(user_set.get('msg'))          #查看是否正常回应
 
 
 ai = NPLUS_AI()                   #小方舟初始化
