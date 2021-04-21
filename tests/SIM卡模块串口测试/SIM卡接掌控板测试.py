@@ -10,11 +10,17 @@ print('开始')
 time.sleep(2)
 print('初始化成功')
 i = 0
-uart1.write('AT+CIMI' + "\r\n")
+uart1.write('AT+SETVOLTE=1')
+uart1.write('ATD18823340233')
+# uart1.write('AT+CGMI')
 while True:
     if uart1.any():
-        print(uart1.read())
-        break
+        m = uart1.readline()
+        print(m)
+        if 'OK' in m:
+            print('ok!')
+            time.sleep(1)
+            break
     else:
         print('串口无数据，次数：' + str(i))
     i = i + 1

@@ -338,7 +338,7 @@ def get_u_home():
 
 
 #心跳包发送(ok)
-def heartbeat():
+def timer1_tick(_):
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
@@ -348,15 +348,16 @@ def heartbeat():
     resp = urequests.post(url=BASE_URL+'/heartbeat/', json=data)       #发送心跳包
 
     user_set = resp.json()
+    
+    return 
 
-    if user_set['code'] == 0:                   #返回数据类型正常
-        continue
-    elif user_set['code'] == 1:
-        print('拐杖未注册')
-        continue
-    else:
-        print(user_set.get('msg'))          #查看是否正常回应
 
+    # if user_set['code'] == 0:                   #返回数据类型正常
+    #     continue
+    # elif user_set['code'] == 1:
+    #     print('拐杖未注册')
+    # else:
+    #     print(user_set.get('msg'))          #查看是否正常回应
 
 
 ai = NPLUS_AI()                   #小方舟初始化
@@ -389,7 +390,6 @@ while True:
                         lon_first = float(location1[3]) * 0.01 * -1
                     else:
                         lon_first = 0
-
                     des_loc = str(lat_first) + ',' + str(lon_first)
                     switch = 1             
                     break

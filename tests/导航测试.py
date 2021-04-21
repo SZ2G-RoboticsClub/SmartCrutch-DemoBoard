@@ -1,5 +1,6 @@
 #mPythonType:0
 from mpython import *
+from machine import UART
 import time
 import urequests
 import json
@@ -45,7 +46,7 @@ p = 0
 c = 0
         
 while True:
-    if touchPad_P.was_pressed():
+    if touchPad_H.was_pressed():
         p = p + 1
 
 
@@ -64,6 +65,10 @@ while True:
             if 'GNGLL' in loc_get1:
                 # print(loc_get1)
                 location1 = (str(loc_get1).split(','))
+                oled.fill(0)
+                oled.DispChar(str(location1), 0, 0)
+                oled.show()
+                time.sleep(0.5)
                 if location1[2] == 'N':
                     lat_first = float(location1[1]) * 0.01
                 elif location1[2] == 'S':
@@ -84,19 +89,23 @@ while True:
                 break
         oled.fill(0)
         oled.DispChar('初始位置记录完毕', 0, 16)
+        oled.DispChar(des_loc, 0, 32)
         oled.show()
         time.sleep(1)
         oled.fill(0)
         oled.show()
                 
     if button_a.was_pressed() and c == 1:
-        print('终止位置')
         while True:
             time.sleep(0.1)
             loc_get3 = uart1.readline()        #串口读取坐标
             if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
                 # print(loc_get3)
-                location3 = (str(loc_get3).split(','))     #存取到列表
+                location3 = (str(loc_get3).split(','))#存取到列表
+                oled.fill(0)
+                oled.DispChar(str(location1), 0, 0)
+                oled.show()
+                time.sleep(0.5)
                 #纬度存取，北正南负，赤道0°
                 if location3[2] == 'N':
                     lat_now = float(location3[1]) * 0.01
@@ -119,6 +128,7 @@ while True:
                 break
         oled.fill(0)
         oled.DispChar('当前位置记录完毕', 0, 16)
+        oled.DispChar(ori_loc, 0, 32)
         oled.show()
         time.sleep(1)
         backhome = 1
@@ -169,4 +179,3 @@ while True:
                         oled.DispChar(l_way, 0, 0, 1, True)
                         oled.show()
                         break
-

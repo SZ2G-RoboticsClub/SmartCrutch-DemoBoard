@@ -12,7 +12,7 @@ def get_tilt_angle(_axis):
         else: return 180 - math.degrees(math.atan2(x , force))
     elif 'Y' == _axis:
         force = math.sqrt(x ** 2 + z ** 2)
-        if _Az < 0: return  math.degrees(math.atan2(y , force))
+        if z < 0: return  math.degrees(math.atan2(y , force))
         else: return 180 - math.degrees(math.atan2(y , force))
     elif 'Z' == _axis:
         force = math.sqrt(x ** 2 + y ** 2)
@@ -20,11 +20,10 @@ def get_tilt_angle(_axis):
         else: return math.degrees(math.atan2(force , z)) - 180
     return 0
 
-angle_x = get_tilt_angle('X')
-angle_y = get_tilt_angle('Y')
-angle_z = get_tilt_angle('Z')
-
 while True:
+    angle_x = get_tilt_angle('X')
+    angle_y = get_tilt_angle('Y')
+    angle_z = get_tilt_angle('Z')
     oled.fill(0)
     oled.DispChar('加速度角度测试：', 0, 0, 1)
     oled.DispChar(('x轴：' + str(angle_x)), 0, 16, 1)
