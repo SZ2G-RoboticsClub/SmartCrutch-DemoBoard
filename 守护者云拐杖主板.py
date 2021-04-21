@@ -11,7 +11,6 @@ import urequests
 import json
 
 
-
 #引脚：
 #p16tx&p15rx：串口uart2(SIM卡模块)
 #p14tx&p11rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
@@ -25,8 +24,8 @@ import json
 #小方舟学习数据：id0为充电座上的二维码
 
 
-
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
+
 
 #心跳包数据初始化
 uuid = '3141592653589793'        #拐杖身份证
@@ -47,23 +46,24 @@ lat_first = 0     #出门获取的经纬信息
 lon_first = 0
 location1 = []
 loc_get1 = []
-des_loc = 0
+des_loc = ''
 lat_now = 0       #按下带我回家按钮记录的经纬信息
 lon_now = 0
 location3 = []
 log_get3 = []
-ori_loc = 0
+ori_loc = ''
 para1 = ''
 
 
 #测距初始化
 D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
-para2 = ''
-location4 = []
-loc_get4 = []
 det_lat = 0
 det_lon = 0
+location4 = []
+loc_get4 = []
 det_loc = ''
+end_loc = ''
+para2 = ''
 
 
 #全局变量定义                                            
@@ -186,6 +186,7 @@ def common():
         my_rgb.write()
     else:
         rainbow()
+
 
 
 # ============ Function ============
@@ -333,7 +334,6 @@ def get_u_home():
                         oled.show()
                         break
 
-
         backhome = 0        #导航到家
 
 
@@ -358,14 +358,13 @@ def heartbeat():
         print(user_set.get('msg'))          #查看是否正常回应
 
 
+
 ai = NPLUS_AI()                   #小方舟初始化
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
 uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 tim1 = Timer(1)
 while True:
-    status = "ok"
-    heartbeat_Loc = None
     if switch == 0:
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
@@ -401,4 +400,4 @@ while True:
         tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
         get_u_home()
 
-#状态：倒地，充电，common，导航
+#状态：倒地，充电，common()，导航

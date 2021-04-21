@@ -27,6 +27,8 @@ while True:
 
     resp = resp.json()
 
+    time.sleep(5)
+
     if resp['code'] == 0:                   #返回数据类型正常
         continue
     elif resp['code'] == 1:
