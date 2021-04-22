@@ -14,7 +14,7 @@ import json
 
 #引脚：
 #p16tx&p15rx：串口uart2(SIM卡模块)
-#p14tx&p11rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
+#p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
 #p0&p1：小方舟模块
 #p13：灯带
 #掌控板a键：“带我回家”按钮
@@ -93,7 +93,8 @@ move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
-switch = 1      #0：充电状态；     1：不在充电
+time_set = None    #心跳包发送初始时间
+switch = 1      #0：充电状态；     1：不在充电——检测摔倒或导航
 lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
 location2 = []
@@ -246,12 +247,12 @@ def fall_det():
                 a3 = list(str(location2[1]))
                 b3 = float(''.join(a3[2:]))
                 c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-                lat_fall = math.ceil(float(location2[1]) * 0.01) + c3
+                lat_fall = math.floor(float(location2[1]) * 0.01) + c3 * 0.01
             elif location2[2] == 'S':
                 a3 = list(str(location2[1]))
                 b3 = float(''.join(a3[2:]))
                 c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-                lat_fall = math.ceil(float(location2[1]) * 0.01 * -1) + c3
+                lat_fall = math.floor(float(location2[1]) * 0.01 * -1) + c3 * 0.01
             else:
                 lat_fall = 0
 
@@ -260,12 +261,12 @@ def fall_det():
                 a4 = list(str(location2[3]))
                 b4 = float(''.join(a4[3:]))
                 c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-                lon_fall = math.ceil(float(location2[3]) * 0.01) + c4
+                lon_fall = math.floor(float(location2[3]) * 0.01) + c4 * 0.01
             elif location2[4] == 'W':
                 a4 = list(str(location2[3]))
                 b4 = float(''.join(a4[3:]))
                 c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-                lon_fall = math.ceil(float(location2[3]) * 0.01 * -1) + c4
+                lon_fall = math.floor(float(location2[3]) * 0.01 * -1) + c4 * 0.01
             else:
                 lon_fall = 0
 
@@ -299,36 +300,36 @@ def fall_det():
 #"带你回家"
 def get_u_home():
     global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
-    if button_a.is_pressed() == 1:                #防止老人按多次，用变量赋值
+    if button_a.is_pressed():                
         while True:
             location3 = (str(uart1.readline()).split(','))
             if location3[2] == 'N':
                 a5 = list(str(location3[1]))
                 b5 = float(''.join(a5[2:]))
                 c5 = ((100 - 0) / (60 - 0)) * (b5 - 0) + 0
-                lat_det = math.ceil(float(location3[1]) * 0.01) + c5
+                lat_now = math.floor(float(location3[1]) * 0.01) + c5 * 0.01
             elif location3[2] == 'S':
                 a5 = list(str(location3[1]))
                 b5 = float(''.join(a5[2:]))
                 c5 = ((100 - 0) / (60 - 0)) * (b5 - 0) + 0
-                lat_det = math.ceil(float(location3[1]) * 0.01 * -1) + c5
+                lat_now = math.floor(float(location3[1]) * 0.01 * -1) + c5 * 0.01
             else:
-                lat_det = 0
+                lat_now = 0
             
             #经度存取，东正西负，否则0°
-            if location4[4] == 'E':
+            if location3[4] == 'E':
                 a6 = list(str(location3[3]))
                 b6 = float(''.join(a6[3:]))
                 c6 = ((100 - 0) / (60 - 0)) * (b6 - 0) + 0
-                lon_det = math.ceil(float(location3[3]) * 0.01) + c6
-            elif location4[4] == 'W':
+                lon_now = math.floor(float(location3[3]) * 0.01) + c6 * 0.01
+            elif location3[4] == 'W':
                 a6 = list(str(location3[3]))
                 b6 = float(''.join(a6[3:]))
                 c6 = ((100 - 0) / (60 - 0)) * (b6 - 0) + 0
-                lon_det = math.ceil(float(location3[3]) * 0.01 * -1) + c6
+                lon_now = math.floor(float(location3[3]) * 0.01 * -1) + c6 * 0.01
             else:
-                lon_det = 0
-
+                lon_now = 0
+            ori_loc = str(lat_now) + ',' + str(lon_now)
             break
         backhome = 1
 
@@ -352,12 +353,12 @@ def get_u_home():
                     a1 = list(str(location4[1]))
                     b1 = float(''.join(a1[2:]))
                     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                    lat_det = math.ceil(float(location4[1]) * 0.01) + c1
+                    lat_det = math.floor(float(location4[1]) * 0.01) + c1 * 0.01
                 elif location4[2] == 'S':
                     a1 = list(str(location4[1]))
                     b1 = float(''.join(a1[2:]))
                     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                    lat_det = math.ceil(float(location4[1]) * 0.01 * -1) + c1
+                    lat_det = math.floor(float(location4[1]) * 0.01 * -1) + c1 * 0.01
                 else:
                     lat_det = 0
                 
@@ -366,12 +367,12 @@ def get_u_home():
                     a2 = list(str(location4[3]))
                     b2 = float(''.join(a2[3:]))
                     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                    lon_det = math.ceil(float(location4[3]) * 0.01) + c2
+                    lon_det = math.floor(float(location4[3]) * 0.01) + c2 * 0.01
                 elif location4[4] == 'W':
                     a2 = list(str(location4[3]))
                     b2 = float(''.join(a2[3:]))
                     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                    lon_det = math.ceil(float(location4[3]) * 0.01 * -1) + c2
+                    lon_det = math.floor(float(location4[3]) * 0.01 * -1) + c2 * 0.01
                 else:
                     lon_det = 0
                 
@@ -392,7 +393,7 @@ def get_u_home():
 
 
 #心跳包发送(ok)
-def heartbeat(_):
+def heartbeat():
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
@@ -416,7 +417,7 @@ def heartbeat(_):
 
 ai = NPLUS_AI()                   #小方舟初始化
 ai.mode_change(1)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
 uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 tim1 = Timer(1)
 while True:
@@ -432,12 +433,12 @@ while True:
                     a7 = list(str(location1[1]))
                     b7 = float(''.join(a7[2:]))
                     c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
-                    lat_first = math.ceil(float(location1[1]) * 0.01) + c7
+                    lat_first = math.floor(float(location1[1]) * 0.01) + c7 * 0.01
                 elif location1[2] == 'S':
                     a7 = list(str(location1[1]))
                     b7 = float(''.join(a7[2:]))
                     c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
-                    lat_first = math.ceil(float(location1[1]) * 0.01 * -1) + c7
+                    lat_first = math.floor(float(location1[1]) * 0.01 * -1) + c7 * 0.01
                 else:
                     lat_first = 0
 
@@ -445,12 +446,12 @@ while True:
                     a8 = list(str(location1[3]))
                     b8 = float(''.join(a8[3:]))
                     c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
-                    lon_first = math.ceil(float(location1[3]) * 0.01) + c8
+                    lon_first = math.floor(float(location1[3]) * 0.01) + c8 * 0.01
                 elif location1[4] == 'W':
                     a8 = list(str(location1[3]))
                     b8 = float(''.join(a8[3:]))
                     c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
-                    lon_first = math.ceil(float(location1[3]) * 0.01 * -1) + c8
+                    lon_first = math.floor(float(location1[3]) * 0.01 * -1) + c8 * 0.01
                 else:
                     lon_first = 0
 
@@ -463,9 +464,15 @@ while True:
             time_set = time.time()
         fall_det()
         get_u_home()
-        if  time.time() - time_set >= 5:
+        if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
+        
+        # if touchpad_h.is_pressed():
+        #     count = count + 1
+        
+        # if count % 2 == 1:
+        #     switch = 0
 
 
 #状态：倒地，充电，common()，导航
