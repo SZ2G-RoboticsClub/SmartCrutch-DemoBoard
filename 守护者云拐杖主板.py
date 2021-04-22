@@ -22,6 +22,11 @@ import json
 
 #摔倒判断：z轴加速度
 
+#位置获取：
+# a: list
+# b, c: float
+# 奇数为纬度数据，偶数为经度数据
+
 
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 
@@ -41,25 +46,42 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 #路径规划初始化
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
-lat_first = 0     #出门获取的经纬信息
+
+lat_first = 0     #出门获取经纬信息
 lon_first = 0
 location1 = []
-loc_get1 = []
+a7 = []
+a8 = []
+b7 = 0
+b8 = 0
+c7 = 0
+c8 = 0
 des_loc = ''
+
 lat_now = 0       #按下带我回家按钮记录的经纬信息
 lon_now = 0
 location3 = []
-log_get3 = []
+a5 = []
+a6 = []
+b5 = 0
+b6 = 0
+c5 = 0
+c6 = 0
 ori_loc = ''
 para1 = ''
 
 
 #测距初始化
 D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
-det_lat = 0
+det_lat = 0             #回家中的位置
 det_lon = 0
 location4 = []
-loc_get4 = []
+a1 = []
+a2 = []
+b1 = 0
+b2 = 0
+c1 = 0
+c2 = 0
 det_loc = ''
 end_loc = ''
 para2 = ''
@@ -72,11 +94,15 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 switch = 1      #0：充电状态；     1：不在充电
-
 lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
 location2 = []
-loc_get2 = []
+a3 = []
+a4 = []
+b3 = 0
+b4 = 0
+c3 = 0
+c4 = 0
 loc_fall = ''
 ai_lock = 0
 #（fall_det调用）
@@ -215,26 +241,35 @@ def fall_det():
 
     if fall == 1:
         while True:
-            time.sleep(0.1)
-            loc_get2 = uart1.readline()
-            if 'GNGLL' in loc_get2:
-                location2 = (str(loc_get2).split(','))
-                if location2[2] == 'N':
-                    lat_fall = float(location2[1]) * 0.01
-                elif location2[2] == 'S':
-                    lat_fall = float(location2[1]) * 0.01 * -1
-                else:
-                    lat_fall = 0
+            location2 = (str(uart1.readline()).split(','))
+            if location2[2] == 'N':
+                a3 = list(str(location2[1]))
+                b3 = float(''.join(a3[2:]))
+                c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
+                lat_fall = math.ceil(float(location2[1]) * 0.01) + c3
+            elif location2[2] == 'S':
+                a3 = list(str(location2[1]))
+                b3 = float(''.join(a3[2:]))
+                c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
+                lat_fall = math.ceil(float(location2[1]) * 0.01 * -1) + c3
+            else:
+                lat_fall = 0
 
 
-                if location2[4] == 'E':
-                    lon_fall = float(location2[3]) * 0.01
-                elif location2[4] == 'W':
-                    lon_fall = float(location2[3]) * 0.01 * -1
-                else:
-                    lon_fall = 0
+            if location2[4] == 'E':
+                a4 = list(str(location2[3]))
+                b4 = float(''.join(a4[3:]))
+                c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
+                lon_fall = math.ceil(float(location2[3]) * 0.01) + c4
+            elif location2[4] == 'W':
+                a4 = list(str(location2[3]))
+                b4 = float(''.join(a4[3:]))
+                c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
+                lon_fall = math.ceil(float(location2[3]) * 0.01 * -1) + c4
+            else:
+                lon_fall = 0
 
-                break
+            break
 
         loc_fall = {"latitude":lat_fall,               #修改心跳包状态
                     "longitude":lon_fall}
@@ -265,7 +300,37 @@ def fall_det():
 def get_u_home():
     global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
     if button_a.is_pressed() == 1:                #防止老人按多次，用变量赋值
-            backhome = 1
+        while True:
+            location3 = (str(uart1.readline()).split(','))
+            if location3[2] == 'N':
+                a5 = list(str(location3[1]))
+                b5 = float(''.join(a5[2:]))
+                c5 = ((100 - 0) / (60 - 0)) * (b5 - 0) + 0
+                lat_det = math.ceil(float(location3[1]) * 0.01) + c5
+            elif location3[2] == 'S':
+                a5 = list(str(location3[1]))
+                b5 = float(''.join(a5[2:]))
+                c5 = ((100 - 0) / (60 - 0)) * (b5 - 0) + 0
+                lat_det = math.ceil(float(location3[1]) * 0.01 * -1) + c5
+            else:
+                lat_det = 0
+            
+            #经度存取，东正西负，否则0°
+            if location4[4] == 'E':
+                a6 = list(str(location3[3]))
+                b6 = float(''.join(a6[3:]))
+                c6 = ((100 - 0) / (60 - 0)) * (b6 - 0) + 0
+                lon_det = math.ceil(float(location3[3]) * 0.01) + c6
+            elif location4[4] == 'W':
+                a6 = list(str(location3[3]))
+                b6 = float(''.join(a6[3:]))
+                c6 = ((100 - 0) / (60 - 0)) * (b6 - 0) + 0
+                lon_det = math.ceil(float(location3[3]) * 0.01 * -1) + c6
+            else:
+                lon_det = 0
+
+            break
+        backhome = 1
 
     if backhome == 1:
         para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
@@ -281,37 +346,46 @@ def get_u_home():
             end_loc = i.get('end_location').get('lat') + ',' + i.get('end_location').get('lng')
             # time.sleep(5)
             while True:
-                time.sleep(0.1)
-                loc_get4 = uart1.readline()       #串口读取坐标
-                if 'GNGLL' in loc_get3:            #过滤，只留GLL的格式
-                    location4 = (str(loc_get4).split(','))     #存取到列表
-                    #纬度存取，北正南负，赤道0°
-                    if location4[2] == 'N':
-                        lat_det = float(location4[1]) * 0.01
-                    elif location4[2] == 'S':
-                        lat_det = float(location4[1]) * 0.01 * -1
-                    else:
-                        lat_det = 0
-                    
-                    #经度存取，东正西负，否则0°
-                    if location4[4] == 'E':
-                        lon_det = float(location4[3]) * 0.01
-                    elif location4[4] == 'W':
-                        lon_det = float(location4[3]) * 0.01 * -1
-                    else:
-                        lon_det = 0
-                    
-                    det_loc = str(lat_det) + ',' + str(lon_det)
-                    para2 = 'output=json&origins='+det_loc+'&destinations='+end_loc+'&ak='+ak
-                    d = urequests.get(url=D_URL+para2)
-                    d = d.json()
-                    distance = d.get('result')[0].get('distance').get('value')
-                    if distance <= 10:
-                        end_way = way.split(',')[-1]
-                        oled.fill(0)
-                        oled.DispChar(end_way, 0, 0, 1, True)
-                        oled.show()
-                        break
+                location4 = (str(uart1.readline()).split(','))
+                #纬度存取，北正南负，赤道0°
+                if location4[2] == 'N':
+                    a1 = list(str(location4[1]))
+                    b1 = float(''.join(a1[2:]))
+                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                    lat_det = math.ceil(float(location4[1]) * 0.01) + c1
+                elif location4[2] == 'S':
+                    a1 = list(str(location4[1]))
+                    b1 = float(''.join(a1[2:]))
+                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                    lat_det = math.ceil(float(location4[1]) * 0.01 * -1) + c1
+                else:
+                    lat_det = 0
+                
+                #经度存取，东正西负，否则0°
+                if location4[4] == 'E':
+                    a2 = list(str(location4[3]))
+                    b2 = float(''.join(a2[3:]))
+                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                    lon_det = math.ceil(float(location4[3]) * 0.01) + c2
+                elif location4[4] == 'W':
+                    a2 = list(str(location4[3]))
+                    b2 = float(''.join(a2[3:]))
+                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                    lon_det = math.ceil(float(location4[3]) * 0.01 * -1) + c2
+                else:
+                    lon_det = 0
+                
+                det_loc = str(lat_det) + ',' + str(lon_det)
+                para2 = 'output=json&origins='+det_loc+'&destinations='+end_loc+'&ak='+ak
+                d = urequests.get(url=D_URL+para2)
+                d = d.json()
+                distance = d.get('result')[0].get('distance').get('value')
+                if distance <= 10:
+                    end_way = way.split(',')[-1]
+                    oled.fill(0)
+                    oled.DispChar(end_way, 0, 0, 1, True)
+                    oled.show()
+                    break
 
         backhome = 0        #导航到家
         
@@ -353,26 +427,36 @@ while True:
         oled.show()
         if button_b.was_pressed():      #记录初始位置
             while True:
-                time.sleep(0.1)
-                loc_get1 = uart1.readline()              #先读取串口一行数据
-                if 'GNGLL' in loc_get1:
-                    location1 = (str(loc_get1).split(','))
-                    if location1[2] == 'N':
-                        lat_first = float(location1[1]) * 0.01
-                    elif location1[2] == 'S':
-                        lat_first = float(location1[1]) * 0.01 * -1
-                    else:
-                        lat_first = 0
+                location1 = (str(uart1.readline()).split(','))
+                if location1[2] == 'N':
+                    a7 = list(str(location1[1]))
+                    b7 = float(''.join(a7[2:]))
+                    c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
+                    lat_first = math.ceil(float(location1[1]) * 0.01) + c7
+                elif location1[2] == 'S':
+                    a7 = list(str(location1[1]))
+                    b7 = float(''.join(a7[2:]))
+                    c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
+                    lat_first = math.ceil(float(location1[1]) * 0.01 * -1) + c7
+                else:
+                    lat_first = 0
 
-                    if location1[4] == 'E':
-                        lon_first = float(location1[3]) * 0.01
-                    elif location1[4] == 'W':
-                        lon_first = float(location1[3]) * 0.01 * -1
-                    else:
-                        lon_first = 0
-                    des_loc = str(lat_first) + ',' + str(lon_first)
-                    switch = 1             
-                    break
+                if location1[4] == 'E':
+                    a8 = list(str(location1[3]))
+                    b8 = float(''.join(a8[3:]))
+                    c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
+                    lon_first = math.ceil(float(location1[3]) * 0.01) + c8
+                elif location1[4] == 'W':
+                    a8 = list(str(location1[3]))
+                    b8 = float(''.join(a8[3:]))
+                    c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
+                    lon_first = math.ceil(float(location1[3]) * 0.01 * -1) + c8
+                else:
+                    lon_first = 0
+
+                des_loc = str(lat_first) + ',' + str(lon_first)
+                switch = 1             
+                break
 
     if switch == 1:
         if time_set == None:
