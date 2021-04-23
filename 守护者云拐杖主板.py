@@ -75,7 +75,8 @@ para1 = ''
 
 
 
-#全局变量定义                                            
+#全局变量定义       
+i = 0                                     
 backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
@@ -126,7 +127,8 @@ def help():
 
 
 #倒地闪红蓝白报警灯(ok)
-def flashlight():                                                  
+def flashlight():
+    global i                                                  
     for i in range(2):
         my_rgb.fill( (255, 0, 0) )
         my_rgb.write()
@@ -290,7 +292,7 @@ def fall_det():
 
 #"带你回家"
 def get_u_home():
-    global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
+    global i, route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get3, location3, ori_loc, des_loc
     if button_a.was_pressed():
         while True:
             loc_get3 = uart1.readline()
