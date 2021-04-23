@@ -1,5 +1,4 @@
 from machine import UART
-from machine import Timer
 from mpython import *
 from bluebit import *
 from nplus.ai import *
@@ -21,36 +20,32 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.31.125:8000/demoboard'
+BASE_URL = 'http://192.168.43.199:8000/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
-my_wifi.connectWiFi("QFCS-MI","999999999")
+my_wifi.connectWiFi("idk","12345678")
 
+oled.fill(0)
+oled.DispChar('初始化完毕', 0, 0)
+oled.show()
+time.sleep(2)
+oled.fill(0)
+oled.show()
 
-#路径规划初始化
-MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
-ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
-lat_first = 0     #出门获取的经纬信息
-lon_first = 0
-location1 = []
-loc_get1 = []
-des_loc = ''
-lat_now = 0       #按下带我回家按钮记录的经纬信息
-lon_now = 0
-location3 = []
-log_get3 = []
-ori_loc = ''
-para1 = ''
+# #路径规划初始化
+# MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
+# ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
+# lat_first = 0     #出门获取的经纬信息
+# lon_first = 0
+# location1 = []
+# loc_get1 = []
+# des_loc = ''
+# lat_now = 0       #按下带我回家按钮记录的经纬信息
+# lon_now = 0
+# location3 = []
+# log_get3 = []
+# ori_loc = ''
+# para1 = ''
 
-
-#测距初始化
-D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
-det_lat = 0
-det_lon = 0
-location4 = []
-loc_get4 = []
-det_loc = ''
-end_loc = ''
-para2 = ''
 
 
 #全局变量定义                                            
@@ -71,6 +66,25 @@ ai_lock = 0
 # 2：摔倒30s拍过一次照;
 # 1：摔倒10s拍过一次照；   
 # 0：准备拍照；  
+
+#获取加速度角度函数(ok)
+# def get_tilt_angle(_axis):                                  
+#     x = accelerometer.get_x()
+#     y = accelerometer.get_y()
+#     z = accelerometer.get_z()
+#     if 'X' == _axis:
+#         force = math.sqrt(y ** 2 + z ** 2)
+#         if z < 0: return math.degrees(math.atan2(x , force))
+#         else: return 180 - math.degrees(math.atan2(x , force))
+#     elif 'Y' == _axis:
+#         force = math.sqrt(x ** 2 + z ** 2)
+#         if z < 0: return  math.degrees(math.atan2(y , force))
+#         else: return 180 - math.degrees(math.atan2(y , force))
+#     elif 'Z' == _axis:
+#         force = math.sqrt(x ** 2 + y ** 2)
+#         if (x + y) < 0: return 180 - math.degrees(math.atan2(force , z))
+#         else: return math.degrees(math.atan2(force , z)) - 180
+#     return 0
 
 def make_rainbow(_neopixel, _num, _bright, _offset):          
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
@@ -125,7 +139,7 @@ def flashlight():
         
 def rainbow():
     global move
-    make_rainbow(my_rgb, 23, 80, move)
+    make_rainbow(my_rgb, 24, 80, move)
     my_rgb.write()
     time.sleep(1)
     move = move + 1
@@ -162,8 +176,7 @@ ai = NPLUS_AI()                   #小方舟初始化
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
 # uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
-tim1 = Timer(1)
-# while True:
+while True:
 #     if switch == 0:
 #         my_rgb.fill( (0, 0, 0) )
 #         my_rgb.write()
@@ -197,95 +210,107 @@ tim1 = Timer(1)
 #         fall_det()
 #         tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
 #         get_u_home()
-while True:
-    if time_set == None:
-        time_set = time.time()
-    z = accelerometer.get_z()
-    if z > 0 or z <= 0 and z >= -0.6:
-        down = 1
-    else:
-        down = 0
-        
-    if down == 1:
-        ai.picture_capture(0)                 #AI拐杖记录仪拍照
-        if time_on == None:
-            time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
-        my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
-        my_rgb.write()
-        #10s内没起来
-        if time.time() - time_on > 10 and time.time() - time_on <= 30:
-            if ai_lock == 0:
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-            ai_lock = 1
-            fall = 1
 
-        #30s内没起来
-        if time.time() - time_on > 30:
-            if ai_lock == 1:
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-            ai_lock = 2
-            fall = 2
-    elif down == 0:
-        fall = 0
-        
-    if fall == 1:
-        # while True:
-        #     time.sleep(0.1)
-        #     loc_get2 = uart1.readline()
-        #     if 'GNGLL' in loc_get2:
-        #         location2 = (str(loc_get2).split(','))
-        #         if location2[2] == 'N':
-        #             lat_fall = float(location2[1]) * 0.01
-        #         elif location2[2] == 'S':
-        #             lat_fall = float(location2[1]) * 0.01 * -1
-        #         else:
-        #             lat_fall = 0
+#获得settingdata拐杖状态
+    s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
+    user_set = s.json()
+    if user_set['code'] == 0:
+        oled.DispChar('获取账户连接成功', 0, 0)
+        oled.show()
+        time.sleep(1)
+    while True:
+        if time_set == None:
+            time_set = time.time()
+            
+        z = accelerometer.get_z()
+        if not (z > -2 and z < -0.6):
+            down = 1
+        else:
+            down = 0
+            
 
-
-        #         if location2[4] == 'E':
-        #             lon_fall = float(location2[3]) * 0.01
-        #         elif location2[4] == 'W':
-        #             lon_fall = float(location2[3]) * 0.01 * -1
-        #         else:
-        #             lon_fall = 0
-
-        #         break
-
-        loc_fall = {"latitude":22.3440441,               #修改心跳包状态
-                    "longitude":113.5500201}
-        status = 'emergency'
-        heartbeat_Loc = loc_fall
-        
-        flashlight()
-        help()
-        music.play(music.POWER_UP, wait=False, loop=True)   #示警鸣笛声
-
-    if fall == 2:
-        loc_fall = {"latitude":22.3440441,               #修改心跳包状态
-                    "longitude":113.5500201}
-        status = 'emergency'
-        heartbeat_Loc = loc_fall
-        flashlight()
-        help()
-        music.play(music.POWER_UP, wait=False, loop=True)
-        # uart2.write('AT+SETVOLTE=1')
-        # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
-
-    if fall == 0:
-        music.stop()
-        common()
-        status = "ok"
-        heartbeat_Loc = None
-        
-    if time.time() - time_set >= 5:
-        heartbeat()
-        time_set = None
+        if down == 1:
+            ai.picture_capture(0)                 #AI拐杖记录仪拍照
+            if time_on == None:
+                time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
+            my_rgb.fill( (255, 0, 0) )                #10s内先亮红灯
+            my_rgb.write()
+            #10s内没起来
+            if time.time() - time_on > 5 and time.time() - time_on <= 30:
+                if ai_lock == 0:
+                    ai.picture_capture(0)
+                    time.sleep_ms(100)
+                    ai.picture_capture(0)
+                    time.sleep_ms(100)
+                    ai.picture_capture(0)
+                ai_lock = 1
+                fall = 1
     
+    
+            #30s内没起来
+            if time.time() - time_on > 30:
+                if ai_lock == 1:
+                    ai.picture_capture(0)
+                    time.sleep_ms(100)
+                    ai.picture_capture(0)
+                    time.sleep_ms(100)
+                    ai.picture_capture(0)
+                ai_lock = 2
+                fall = 2
+        elif down == 0:
+            fall = 0
+            
+            
+        if fall == 1:
+            # while True:
+            #     time.sleep(0.1)
+            #     loc_get2 = uart1.readline()
+            #     if 'GNGLL' in loc_get2:
+            #         location2 = (str(loc_get2).split(','))
+            #         if location2[2] == 'N':
+            #             lat_fall = float(location2[1]) * 0.01
+            #         elif location2[2] == 'S':
+            #             lat_fall = float(location2[1]) * 0.01 * -1
+            #         else:
+            #             lat_fall = 0
+    
+    
+            #         if location2[4] == 'E':
+            #             lon_fall = float(location2[3]) * 0.01
+            #         elif location2[4] == 'W':
+            #             lon_fall = float(location2[3]) * 0.01 * -1
+            #         else:
+            #             lon_fall = 0
+    
+            #         break
+    
+            loc_fall = {"latitude":22.57149,               #修改心跳包状态
+                        "longitude":114.1023}
+            status = 'emergency'
+            heartbeat_Loc = loc_fall
+            
+            flashlight()
+            help()
+            music.play(music.POWER_UP, wait=False, loop=True)   #示警鸣笛声
+    
+        if fall == 2:
+            loc_fall = {"latitude":22.57149,               #修改心跳包状态
+                        "longitude":114.1023}
+            status = 'emergency'
+            heartbeat_Loc = loc_fall
+            flashlight()
+            help()
+            music.play(music.POWER_UP, wait=False, loop=True)
+            # uart2.write('AT+SETVOLTE=1')
+            # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+    
+        if fall == 0:
+            music.stop()
+            common()
+            status = "ok"
+            heartbeat_Loc = None
+            
+        if time.time() - time_set >= 5:
+            heartbeat()
+            time_set = None
+        

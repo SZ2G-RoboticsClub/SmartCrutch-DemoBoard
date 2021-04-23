@@ -14,3 +14,6 @@ route = requests.get(url=MAP_URL+str(parameters))
 route = route.json()
 print(route)
 print(route.get('result').get('routes')[0].get('steps'))
+method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>','').replace('</b>','')
+print(method)
+

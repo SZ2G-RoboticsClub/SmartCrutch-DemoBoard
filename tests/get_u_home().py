@@ -43,7 +43,6 @@ location1 = []
 location3 = []
 location4 = []
 p = 0
-q = 0
 c = 0
 route = {}
 method = []
@@ -61,7 +60,8 @@ while True:
 
     if button_b.was_pressed() and c == 0:
         while True:
-            location1 = (str(uart1.readline()).split(','))
+            loc_get1 = uart1.readline()
+            location1 = (str(loc_get1).split(','))
             if location1[2] == 'N':
                 a7 = list(str(location1[1]))
                 b7 = float(''.join(a7[2:]))
@@ -103,7 +103,8 @@ while True:
                 
     if button_a.was_pressed() and c == 1:
         while True:
-            location3 = (str(uart1.readline()).split(','))
+            loc_get3 = uart1.readline()
+            location3 = (str(loc_ge).split(','))
             if location3[2] == 'N':
                 a5 = list(str(location3[1]))
                 b5 = float(''.join(a5[2:]))
@@ -148,7 +149,7 @@ while True:
             route = nav.json()
             # print(route)
             if route.get('status') == 0:
-                method = route.get('result').get('routes')[0].get('steps')[0].get('instruction')
+                method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>', '').replace('</b>', '')
                 oled.fill(0)
                 oled.DispChar(method, 0, 0, 1, True)
                 oled.show()

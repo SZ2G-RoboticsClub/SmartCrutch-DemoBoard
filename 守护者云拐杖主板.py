@@ -1,5 +1,4 @@
 from machine import UART
-from machine import Timer
 from mpython import *
 from bluebit import *
 from nplus.ai import *
@@ -26,6 +25,10 @@ import json
 # a: list
 # b, c: float
 # 奇数为纬度数据，偶数为经度数据
+
+#出门初始位置：loc_get1, location1, a/b/c:1&2
+#摔倒位置：loc_get2, location2, a/b/c:3&4
+#想回家时位置：loc_get3, location3, a/b/c:5&6
 
 
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
@@ -71,21 +74,6 @@ ori_loc = ''
 para1 = ''
 
 
-#测距初始化
-D_URL = 'https://api.map.baidu.com/routematrix/v2/walking?'
-det_lat = 0             #回家中的位置
-det_lon = 0
-location4 = []
-a1 = []
-a2 = []
-b1 = 0
-b2 = 0
-c1 = 0
-c2 = 0
-det_loc = ''
-end_loc = ''
-para2 = ''
-
 
 #全局变量定义                                            
 backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
@@ -98,12 +86,12 @@ switch = 1      #0：充电状态；     1：不在充电——检测摔倒或�
 lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
 location2 = []
-a3 = []
-a4 = []
-b3 = 0
-b4 = 0
-c3 = 0
-c4 = 0
+a1 = []
+a2 = []
+b1 = 0
+b2 = 0
+c1 = 0
+c2 = 0
 loc_fall = ''
 ai_lock = 0
 #（fall_det调用）
@@ -202,7 +190,7 @@ def fall_det():
     global ai_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
     z = accelerometer.get_z()
     #拐杖倒地判定
-    if z > 0 or z <= 0 and z >= -0.6:
+    if z > 0 or z <= 0 and z >= -0.6:            #究其根本
         down = 1
     else:
         down = 0
@@ -241,8 +229,9 @@ def fall_det():
 
 
     if fall == 1:
+        loc_get2 = uart1.readline()
         while True:
-            location2 = (str(uart1.readline()).split(','))
+            location2 = (str(loc_get2).split(','))
             if location2[2] == 'N':
                 a3 = list(str(location2[1]))
                 b3 = float(''.join(a3[2:]))
@@ -299,10 +288,11 @@ def fall_det():
 
 #"带你回家"
 def get_u_home():
-    global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
-    if button_a.is_pressed():                
+    global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, para1   
+    if button_a.was_pressed():
         while True:
-            location3 = (str(uart1.readline()).split(','))
+            loc_get3 = uart1.readline()
+            location3 = (str(loc_get3).split(','))
             if location3[2] == 'N':
                 a5 = list(str(location3[1]))
                 b5 = float(''.join(a5[2:]))
@@ -329,64 +319,36 @@ def get_u_home():
                 lon_now = math.floor(float(location3[3]) * 0.01 * -1) + c6 * 0.01
             else:
                 lon_now = 0
+                
             ori_loc = str(lat_now) + ',' + str(lon_now)
-            break
-        backhome = 1
-
-    if backhome == 1:
-        para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
-        nav = urequests.get(url=MAP_URL+str(para1))
-        route = nav.json()
-        method = route.get('result').get('routes')[0].get('steps')
-        # print(method)
-        for i in method:
-            way = i.get('instruction').replace('<b>', '').replace('</b>', '')
-            oled.fill(0)
-            oled.DispChar(way, 0, 0, 1, True)
-            oled.show()
-            end_loc = i.get('end_location').get('lat') + ',' + i.get('end_location').get('lng')
-            # time.sleep(5)
-            while True:
-                location4 = (str(uart1.readline()).split(','))
-                #纬度存取，北正南负，赤道0°
-                if location4[2] == 'N':
-                    a1 = list(str(location4[1]))
-                    b1 = float(''.join(a1[2:]))
-                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                    lat_det = math.floor(float(location4[1]) * 0.01) + c1 * 0.01
-                elif location4[2] == 'S':
-                    a1 = list(str(location4[1]))
-                    b1 = float(''.join(a1[2:]))
-                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                    lat_det = math.floor(float(location4[1]) * 0.01 * -1) + c1 * 0.01
-                else:
-                    lat_det = 0
-                
-                #经度存取，东正西负，否则0°
-                if location4[4] == 'E':
-                    a2 = list(str(location4[3]))
-                    b2 = float(''.join(a2[3:]))
-                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                    lon_det = math.floor(float(location4[3]) * 0.01) + c2 * 0.01
-                elif location4[4] == 'W':
-                    a2 = list(str(location4[3]))
-                    b2 = float(''.join(a2[3:]))
-                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                    lon_det = math.floor(float(location4[3]) * 0.01 * -1) + c2 * 0.01
-                else:
-                    lon_det = 0
-                
-                det_loc = str(lat_det) + ',' + str(lon_det)
-                para2 = 'output=json&origins='+det_loc+'&destinations='+end_loc+'&ak='+ak
-                d = urequests.get(url=D_URL+para2)
-                d = d.json()
-                distance = d.get('result')[0].get('distance').get('value')
-                if distance <= 10:
-                    end_way = way.split(',')[-1]
-                    oled.fill(0)
-                    oled.DispChar(end_way, 0, 0, 1, True)
-                    oled.show()
-                    break
+            
+            # oled.fill(0)
+            # oled.DispChar('当前位置记录完毕', 0, 16)
+            # oled.DispChar(ori_loc, 0, 32)
+            # oled.show()
+            # time.sleep(1)
+            # oled.fill(0)
+            # oled.show()
+            # print(ori_loc)
+            para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
+            # print(para1)
+            nav = urequests.get(url=MAP_URL+str(para1))
+            # print(nav)
+            route = nav.json()
+            # print(route)
+            if route.get('status') == 0:
+                method = route.get('result').get('routes')[0].get('steps')[0].get('instruction')
+                oled.fill(0)
+                oled.DispChar(method, 0, 0, 1, True)
+                oled.show()
+            elif route.get('status') != 0:
+                oled.fill(0)
+                oled.DispChar('导航结束！', 0, 0)
+                oled.show()
+                time.sleep(2)
+                oled.fill(0)
+                oled.show()
+                break
 
         backhome = 0        #导航到家
         
@@ -394,18 +356,17 @@ def get_u_home():
 
 #心跳包发送(ok)
 def heartbeat():
+    global uuid, status, heartbeat_Loc
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
     "loc": heartbeat_Loc
     }
 
-    resp = urequests.post(url=BASE_URL+'/heartbeat/', json=data)       #发送心跳包
+    resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
 
-    user_set = resp.json()
+    resp = resp.json()
     
-    
-
 
     # if user_set['code'] == 0:                   #返回数据类型正常
     #     continue
@@ -415,11 +376,19 @@ def heartbeat():
     #     print(user_set.get('msg'))          #查看是否正常回应
 
 
-ai = NPLUS_AI()                   #小方舟初始化
+ai = NPLUS_AI()
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
-tim1 = Timer(1)
+uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
+
+#获得settingdata拐杖状态
+s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
+user_set = s.json()
+if user_set['code'] == 0:
+    oled.DispChar('获取账户连接成功', 0, 0)
+    oled.show()
+    time.sleep(1)
+
 while True:
     if switch == 0:
         my_rgb.fill( (0, 0, 0) )
@@ -427,8 +396,9 @@ while True:
         oled.fill(0)
         oled.show()
         if button_b.was_pressed():      #记录初始位置
+            loc_get1 = uart1.readline()
             while True:
-                location1 = (str(uart1.readline()).split(','))
+                location1 = (str(loc_get1).split(','))
                 if location1[2] == 'N':
                     a7 = list(str(location1[1]))
                     b7 = float(''.join(a7[2:]))
@@ -469,10 +439,8 @@ while True:
             time_set = None
         
         # if touchpad_h.is_pressed():
-        #     count = count + 1
-        
-        # if count % 2 == 1:
         #     switch = 0
+        
 
 
 #状态：倒地，充电，common()，导航
