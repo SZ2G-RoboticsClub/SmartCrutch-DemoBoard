@@ -41,7 +41,7 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
+BASE_URL = 'http://192.168.31.125:8000/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 my_wifi.connectWiFi("QFCS-MI","999999999")
 
@@ -99,7 +99,8 @@ ai_lock = 0
 # 1：摔倒10s拍过一次照；   
 # 0：准备拍照；   
 
-
+oled.DispChar('初始化完毕', 0, 0)
+oled.show()
 
 
 # ============ Module ============
@@ -187,7 +188,7 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global ai_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
+    global time_on, ai_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
     z = accelerometer.get_z()
     #拐杖倒地判定
     if z > 0 or z <= 0 and z >= -0.6:            #究其根本
@@ -229,66 +230,67 @@ def fall_det():
 
 
     if fall == 1:
-        loc_get2 = uart1.readline()
-        while True:
-            location2 = (str(loc_get2).split(','))
-            if location2[2] == 'N':
-                a3 = list(str(location2[1]))
-                b3 = float(''.join(a3[2:]))
-                c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-                lat_fall = math.floor(float(location2[1]) * 0.01) + c3 * 0.01
-            elif location2[2] == 'S':
-                a3 = list(str(location2[1]))
-                b3 = float(''.join(a3[2:]))
-                c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-                lat_fall = math.floor(float(location2[1]) * 0.01 * -1) + c3 * 0.01
-            else:
-                lat_fall = 0
+        # loc_get2 = uart1.readline()
+        # while True:
+        #     location2 = (str(loc_get2).split(','))
+        #     if location2[2] == 'N':
+        #         a3 = list(str(location2[1]))
+        #         b3 = float(''.join(a3[2:]))
+        #         c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
+        #         lat_fall = math.floor(float(location2[1]) * 0.01) + c3 * 0.01
+        #     elif location2[2] == 'S':
+        #         a3 = list(str(location2[1]))
+        #         b3 = float(''.join(a3[2:]))
+        #         c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
+        #         lat_fall = math.floor(float(location2[1]) * 0.01 * -1) + c3 * 0.01
+        #     else:
+        #         lat_fall = 0
 
 
-            if location2[4] == 'E':
-                a4 = list(str(location2[3]))
-                b4 = float(''.join(a4[3:]))
-                c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-                lon_fall = math.floor(float(location2[3]) * 0.01) + c4 * 0.01
-            elif location2[4] == 'W':
-                a4 = list(str(location2[3]))
-                b4 = float(''.join(a4[3:]))
-                c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-                lon_fall = math.floor(float(location2[3]) * 0.01 * -1) + c4 * 0.01
-            else:
-                lon_fall = 0
+        #     if location2[4] == 'E':
+        #         a4 = list(str(location2[3]))
+        #         b4 = float(''.join(a4[3:]))
+        #         c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
+        #         lon_fall = math.floor(float(location2[3]) * 0.01) + c4 * 0.01
+        #     elif location2[4] == 'W':
+        #         a4 = list(str(location2[3]))
+        #         b4 = float(''.join(a4[3:]))
+        #         c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
+        #         lon_fall = math.floor(float(location2[3]) * 0.01 * -1) + c4 * 0.01
+        #     else:
+        #         lon_fall = 0
 
-            break
+        #     break
 
-        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
-                    "longitude":lon_fall}
-        status = 'emergency'
-        heartbeat_Loc = loc_fall
+        # loc_fall = {"latitude":lat_fall,               #修改心跳包状态
+        #             "longitude":lon_fall}
+        # status = 'emergency'
+        # heartbeat_Loc = loc_fall
         
         flashlight()
         music.play(music.POWER_UP, wait=True, loop=False)   #示警鸣笛声
 
     if fall == 2:
-        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
-                    "longitude":lon_fall}
-        status = 'emergency'
-        heartbeat_Loc = loc_fall
+        # loc_fall = {"latitude":lat_fall,               #修改心跳包状态
+        #             "longitude":lon_fall}
+        # status = 'emergency'
+        # heartbeat_Loc = loc_fall
 
         flashlight()
         music.play(music.POWER_UP, wait=True, loop=False)
-        uart2.write('AT+SETVOLTE=1')
-        uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+        # uart2.write('AT+SETVOLTE=1')
+        # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
 
     if fall == 0:
         music.stop()
+        common()
         status = "ok"
         heartbeat_Loc = None
 
 
 #"带你回家"
 def get_u_home():
-    global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, para1   
+    global end_way, i, route, home_lock, backhome, ak, MAP_URL, lat_now, lon_now, home_lock, loc_get3, location3, ori_loc, des_loc, parameters
     if button_a.was_pressed():
         while True:
             loc_get3 = uart1.readline()
@@ -379,7 +381,7 @@ def heartbeat():
 ai = NPLUS_AI()
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
+uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
@@ -388,13 +390,13 @@ if user_set['code'] == 0:
     oled.DispChar('获取账户连接成功', 0, 0)
     oled.show()
     time.sleep(1)
-
+    
 while True:
+    if time_set == None:
+        time_set = time.time()
+            
+    
     if switch == 0:
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
-        oled.fill(0)
-        oled.show()
         if button_b.was_pressed():      #记录初始位置
             loc_get1 = uart1.readline()
             while True:
@@ -426,21 +428,28 @@ while True:
                     lon_first = 0
 
                 des_loc = str(lat_first) + ',' + str(lon_first)
+                oled.fill(0)
+                oled.DispChar('初始位置记录完毕', 0, 16)
+                oled.DispChar(des_loc, 0, 32)
+                oled.show()
+                time.sleep(1)
+                oled.fill(0)
+                oled.show()
                 switch = 1             
                 break
 
     if switch == 1:
-        if time_set == None:
-            time_set = time.time()
         fall_det()
         get_u_home()
-        if time.time() - time_set >= 5:
-            heartbeat()
-            time_set = None
+
         
-        # if touchpad_h.is_pressed():
-        #     switch = 0
+    if time.time() - time_set >= 5:
+        heartbeat()
+        time_set = None
         
+    # if touchpad_h.is_pressed():
+    #     switch = 0
+    
 
 
 #状态：倒地，充电，common()，导航

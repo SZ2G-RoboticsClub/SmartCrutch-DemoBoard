@@ -13,7 +13,7 @@ MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
 my_wifi = wifi()
-my_wifi.connectWiFi("iPhone","aidishengg")
+my_wifi.connectWiFi("idk","12345678")
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
 
 oled.fill(0)
@@ -43,25 +43,56 @@ location1 = []
 location3 = []
 location4 = []
 p = 0
+q = 0
 c = 0
+move = 0
 route = {}
 method = []
+
+def make_rainbow(_neopixel, _num, _bright, _offset):          
+    _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
+    for i in range(_num):
+        t = 7 * i / _num
+        t0 = int(t)
+        r = round((_rgb[t0][0] + (t-t0)*(_rgb[t0+1][0]-_rgb[t0][0]))*_bright)>>8
+        g = round((_rgb[t0][1] + (t-t0)*(_rgb[t0+1][1]-_rgb[t0][1]))*_bright)>>8
+        b = round((_rgb[t0][2] + (t-t0)*(_rgb[t0+1][2]-_rgb[t0][2]))*_bright)>>8
+        _neopixel[(i + _offset) % _num] = (r, g, b)
+
+def rainbow():
+    global move
+    make_rainbow(my_rgb, 23, 80, move)
+    my_rgb.write()
+    time.sleep(0.25)
+    move = move + 1
+
+def common():
+    oled.fill(0)
+    oled.DispChar('守护者云拐杖', 24, 16)
+    oled.DispChar('开', 56, 32)
+    oled.show()
+    #光感手电
+    if light.read() < 20:
+        my_rgb.fill( (255, 255, 255) )
+        my_rgb.write()
+    else:
+        rainbow()
 
 while True:
     if touchPad_H.was_pressed():
         p = p + 1
     
+    
     if p % 2 == 1:
-        my_rgb.fill( (255, 255, 255) )
-        my_rgb.write()
+        common()
     elif p % 2 == 0:
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
 
+
     if button_b.was_pressed() and c == 0:
         while True:
-            loc_get1 = uart1.readline()
-            location1 = (str(loc_get1).split(','))
+            location1 = (str(uart1.readline()).split(','))
             if location1[2] == 'N':
                 a7 = list(str(location1[1]))
                 b7 = float(''.join(a7[2:]))
@@ -74,6 +105,7 @@ while True:
                 lat_first = math.floor(float(location1[1]) * 0.01 * -1) + c7 * 0.01
             else:
                 lat_first = 0
+
 
             if location1[4] == 'E':
                 a8 = list(str(location1[3]))
@@ -97,14 +129,13 @@ while True:
         oled.DispChar('初始位置记录完毕', 0, 16)
         oled.DispChar(des_loc, 0, 32)
         oled.show()
-        time.sleep(1)
+        time.sleep(3)
         oled.fill(0)
         oled.show()
                 
     if button_a.was_pressed() and c == 1:
         while True:
-            loc_get3 = uart1.readline()
-            location3 = (str(loc_ge).split(','))
+            location3 = (str(uart1.readline()).split(','))
             if location3[2] == 'N':
                 a5 = list(str(location3[1]))
                 b5 = float(''.join(a5[2:]))
@@ -134,13 +165,13 @@ while True:
                 
             ori_loc = str(lat_now) + ',' + str(lon_now)
             
-            # oled.fill(0)
-            # oled.DispChar('当前位置记录完毕', 0, 16)
-            # oled.DispChar(ori_loc, 0, 32)
-            # oled.show()
-            # time.sleep(1)
-            # oled.fill(0)
-            # oled.show()
+            oled.fill(0)
+            oled.DispChar('当前位置记录完毕', 0, 16)
+            oled.DispChar(ori_loc, 0, 32)
+            oled.show()
+            time.sleep(3)
+            oled.fill(0)
+            oled.show()
             # print(ori_loc)
             para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
             # print(para1)
@@ -149,11 +180,22 @@ while True:
             route = nav.json()
             # print(route)
             if route.get('status') == 0:
-                method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>', '').replace('</b>', '')
+                oled.fill(0)
+                oled.DispChar(str(route), 0, 0, 1, True)
+                oled.show()
+                time.sleep(5)
+                oled.fill(0)
+                oled.show()
+                method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>','').replace('</b>','')
                 oled.fill(0)
                 oled.DispChar(method, 0, 0, 1, True)
                 oled.show()
+                time.sleep(5)
             elif route.get('status') != 0:
+                oled.fill(0)
+                oled.DispChar(str(route), 0, 0, 1, True)
+                oled.show()
+                time.sleep(5)
                 oled.fill(0)
                 oled.DispChar('导航结束！', 0, 0)
                 oled.show()
