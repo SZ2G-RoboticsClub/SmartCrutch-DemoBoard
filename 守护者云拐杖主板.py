@@ -50,16 +50,16 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
-lat_first = 0     #出门获取经纬信息
-lon_first = 0
-location1 = []
-a7 = []
-a8 = []
-b7 = 0
-b8 = 0
-c7 = 0
-c8 = 0
-des_loc = ''
+# lat_first = 0     #出门获取经纬信息
+# lon_first = 0
+# location1 = []
+# a7 = []
+# a8 = []
+# b7 = 0
+# b8 = 0
+# c7 = 0
+# c8 = 0
+# des_loc = ''
 
 lat_now = 0       #按下带我回家按钮记录的经纬信息
 lon_now = 0
@@ -393,65 +393,66 @@ if user_set['code'] == 0:
     oled.show()
     time.sleep(1)
     
-while True:
-    if time_set == None:
-        time_set = time.time()
+    while True:
+        if time_set == None:
+            time_set = time.time()
+                
+        
+        if switch == 0:
+            # if button_b.was_pressed():      #记录初始位置
+            #     loc_get1 = uart1.readline()
+            #     while True:
+            #         location1 = (str(loc_get1).split(','))
+            #         if location1[2] == 'N':
+            #             a7 = list(str(location1[1]))
+            #             b7 = float(''.join(a7[2:]))
+            #             c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
+            #             lat_first = math.floor(float(location1[1]) * 0.01) + c7 * 0.01
+            #         elif location1[2] == 'S':
+            #             a7 = list(str(location1[1]))
+            #             b7 = float(''.join(a7[2:]))
+            #             c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
+            #             lat_first = math.floor(float(location1[1]) * 0.01 * -1) + c7 * 0.01
+            #         else:
+            #             lat_first = 0
+
+            #         if location1[4] == 'E':
+            #             a8 = list(str(location1[3]))
+            #             b8 = float(''.join(a8[3:]))
+            #             c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
+            #             lon_first = math.floor(float(location1[3]) * 0.01) + c8 * 0.01
+            #         elif location1[4] == 'W':
+            #             a8 = list(str(location1[3]))
+            #             b8 = float(''.join(a8[3:]))
+            #             c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
+            #             lon_first = math.floor(float(location1[3]) * 0.01 * -1) + c8 * 0.01
+            #         else:
+            #             lon_first = 0
+
+            #         des_loc = str(lat_first) + ',' + str(lon_first)
+            #         oled.fill(0)
+            #         oled.DispChar('初始位置记录完毕', 0, 16)
+            #         oled.DispChar(des_loc, 0, 32)
+            #         oled.show()
+            #         time.sleep(1)
+            #         oled.fill(0)
+            #         oled.show()
+            #         switch = 1             
+            #         break
+
+        if switch == 1:
+            fall_det()
+            get_u_home()
+
             
-    
-    if switch == 0:
-        if button_b.was_pressed():      #记录初始位置
-            loc_get1 = uart1.readline()
-            while True:
-                location1 = (str(loc_get1).split(','))
-                if location1[2] == 'N':
-                    a7 = list(str(location1[1]))
-                    b7 = float(''.join(a7[2:]))
-                    c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
-                    lat_first = math.floor(float(location1[1]) * 0.01) + c7 * 0.01
-                elif location1[2] == 'S':
-                    a7 = list(str(location1[1]))
-                    b7 = float(''.join(a7[2:]))
-                    c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
-                    lat_first = math.floor(float(location1[1]) * 0.01 * -1) + c7 * 0.01
-                else:
-                    lat_first = 0
-
-                if location1[4] == 'E':
-                    a8 = list(str(location1[3]))
-                    b8 = float(''.join(a8[3:]))
-                    c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
-                    lon_first = math.floor(float(location1[3]) * 0.01) + c8 * 0.01
-                elif location1[4] == 'W':
-                    a8 = list(str(location1[3]))
-                    b8 = float(''.join(a8[3:]))
-                    c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
-                    lon_first = math.floor(float(location1[3]) * 0.01 * -1) + c8 * 0.01
-                else:
-                    lon_first = 0
-
-                des_loc = str(lat_first) + ',' + str(lon_first)
-                oled.fill(0)
-                oled.DispChar('初始位置记录完毕', 0, 16)
-                oled.DispChar(des_loc, 0, 32)
-                oled.show()
-                time.sleep(1)
-                oled.fill(0)
-                oled.show()
-                switch = 1             
-                break
-
-    if switch == 1:
-        fall_det()
-        get_u_home()
-
-        
-    if time.time() - time_set >= 5:
-        heartbeat()
-        time_set = None
-        
-    # if touchpad_h.is_pressed():
-    #     switch = 0
-    
+        if time.time() - time_set >= 5:
+            heartbeat()
+            time_set = None
+            
+        # if touchpad_h.is_pressed():
+        #     switch = 0
+else:
+    print('账户连接失败，请重新启动')
 
 
 #状态：倒地，充电，common()，导航

@@ -7,4 +7,5 @@ uuid = '3141592653589793'
 r = requests.get(url='http://0.0.0.0:8000/demoboard/get_settings/'+uuid)
 
 # 响应的内容
+print(r)
 print(r.json())
