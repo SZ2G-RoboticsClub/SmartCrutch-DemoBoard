@@ -144,7 +144,6 @@ def liushuideng1():
                 my_rgb2.write()
         break
 '''
-def liushuideng2():
 
     
 def zirandeng():
