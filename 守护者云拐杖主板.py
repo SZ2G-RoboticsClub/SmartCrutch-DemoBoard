@@ -439,7 +439,7 @@ if user_set['code'] == 0:
             #         oled.show()
             #         switch = 1             
             #         break
-
+        
         if switch == 1:
             fall_det()
             take_u_home()
