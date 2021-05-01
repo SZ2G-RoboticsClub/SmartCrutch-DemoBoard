@@ -291,7 +291,7 @@ def fall_det():
 
 
 #"带你回家"
-def get_u_home():
+def take_u_home():
     global i, route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get3, location3, ori_loc, des_loc
     if button_a.was_pressed():
         while True:
@@ -442,7 +442,7 @@ if user_set['code'] == 0:
 
         if switch == 1:
             fall_det()
-            get_u_home()
+            take_u_home()
 
             
         if time.time() - time_set >= 5:
