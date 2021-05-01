@@ -47,19 +47,13 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 #路径规划初始化
+GEO_URL = 'http://api.map.baidu.com/geocoding/v3/?address='
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
-# lat_first = 0     #出门获取经纬信息
-# lon_first = 0
-# location1 = []
-# a7 = []
-# a8 = []
-# b7 = 0
-# b8 = 0
-# c7 = 0
-# c8 = 0
-# des_loc = ''
+lat_home = 0     #出门获取经纬信息
+lon_home = 0
+home_loc = ''
 
 lat_now = 0       #按下带我回家按钮记录的经纬信息
 lon_now = 0
@@ -326,15 +320,15 @@ def take_u_home():
                 
             ori_loc = str(lat_now) + ',' + str(lon_now)
             
-            # oled.fill(0)
-            # oled.DispChar('当前位置记录完毕', 0, 16)
-            # oled.DispChar(ori_loc, 0, 32)
-            # oled.show()
-            # time.sleep(1)
-            # oled.fill(0)
-            # oled.show()
+            oled.fill(0)
+            oled.DispChar('当前位置记录完毕', 0, 16)
+            oled.DispChar(ori_loc, 0, 32)
+            oled.show()
+            time.sleep(1)
+            oled.fill(0)
+            oled.show()
             # print(ori_loc)
-            para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
+            para1 = 'origin='+ori_loc+'&destination='+home_loc+'&ak='+ak
             # print(para1)
             nav = urequests.get(url=MAP_URL+str(para1))
             # print(nav)
@@ -345,6 +339,7 @@ def take_u_home():
                 oled.fill(0)
                 oled.DispChar(method, 0, 0, 1, True)
                 oled.show()
+                time.sleep(1)
             elif route.get('status') != 0:
                 oled.fill(0)
                 oled.DispChar('导航结束！', 0, 0)
@@ -380,6 +375,8 @@ def heartbeat():
     #     print(user_set.get('msg'))          #查看是否正常回应
 
 
+
+
 ai = NPLUS_AI()
 ai.mode_change(1)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
@@ -388,63 +385,33 @@ uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 user_set = s.json()
-if user_set['code'] == 0:
+if user_set.get('code') == 0:
     oled.DispChar('获取账户连接成功', 0, 0)
     oled.show()
     time.sleep(1)
+    oled.fill(0)
+    oled.show()
     
+    #家庭住址经纬度获取
+    home = user_set.get('settings').get('home')
+    h = requests.get(url=GEO_URL+home+'&output=json&ak='+ak)
+    h = h.json()
+    lat_home = h.get('result').get('location').get('lat')
+    lon_home = h.get('result').get('location').get('lng')
+    home_loc = str(lat_home) + ',' + str(lon_home)
+    oled.DispChar('家庭位置记录完毕', 0, 16)
+    oled.DispChar(home_loc, 0, 32)
+    oled.show()
+    time.sleep(1)
+    oled.fill(0)
+    oled.show()
+
     while True:
         if time_set == None:
             time_set = time.time()
-                
         
-        if switch == 0:
-            # if button_b.was_pressed():      #记录初始位置
-            #     loc_get1 = uart1.readline()
-            #     while True:
-            #         location1 = (str(loc_get1).split(','))
-            #         if location1[2] == 'N':
-            #             a7 = list(str(location1[1]))
-            #             b7 = float(''.join(a7[2:]))
-            #             c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
-            #             lat_first = math.floor(float(location1[1]) * 0.01) + c7 * 0.01
-            #         elif location1[2] == 'S':
-            #             a7 = list(str(location1[1]))
-            #             b7 = float(''.join(a7[2:]))
-            #             c7 = ((100 - 0) / (60 - 0)) * (b7 - 0) + 0
-            #             lat_first = math.floor(float(location1[1]) * 0.01 * -1) + c7 * 0.01
-            #         else:
-            #             lat_first = 0
-
-            #         if location1[4] == 'E':
-            #             a8 = list(str(location1[3]))
-            #             b8 = float(''.join(a8[3:]))
-            #             c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
-            #             lon_first = math.floor(float(location1[3]) * 0.01) + c8 * 0.01
-            #         elif location1[4] == 'W':
-            #             a8 = list(str(location1[3]))
-            #             b8 = float(''.join(a8[3:]))
-            #             c8 = ((100 - 0) / (60 - 0)) * (b8 - 0) + 0
-            #             lon_first = math.floor(float(location1[3]) * 0.01 * -1) + c8 * 0.01
-            #         else:
-            #             lon_first = 0
-
-            #         des_loc = str(lat_first) + ',' + str(lon_first)
-            #         oled.fill(0)
-            #         oled.DispChar('初始位置记录完毕', 0, 16)
-            #         oled.DispChar(des_loc, 0, 32)
-            #         oled.show()
-            #         time.sleep(1)
-            #         oled.fill(0)
-            #         oled.show()
-            #         switch = 1             
-            #         break
-        
-        if switch == 1:
-            fall_det()
-            take_u_home()
-
-            
+        fall_det()
+        take_u_home()
         if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
