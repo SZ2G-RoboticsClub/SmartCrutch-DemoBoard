@@ -8,7 +8,8 @@ import music
 import neopixel
 import time
 import urequests
-import json
+import audio
+
 
 
 #引脚：
@@ -53,7 +54,7 @@ ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
-nav_audio = None
+nav_file = None
 
 lat_home = 0     #出门获取经纬信息
 lon_home = 0
@@ -343,22 +344,36 @@ def take_u_home():
             route = nav.json()
             # print(route)
             if route.get('status') == 0:
-                oled.fill(0)
-                oled.DispChar(str(route), 0, 0, 1, True)
-                oled.show()
-                time.sleep(5)
-                oled.fill(0)
-                oled.show()
+                # oled.fill(0)
+                # oled.DispChar(str(route), 0, 0, 1, True)
+                # oled.show()
+                # time.sleep(5)
+                # oled.fill(0)
+                # oled.show()
                 method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>','').replace('</b>','')
-                oled.fill(0)
-                oled.DispChar(method, 0, 0, 1, True)
-                oled.show()
+                data_audio = {
+                    "API_Key": api_key,
+                    "Secret_Key": secret_key,
+                    "text": method,
+                    "filename": nav_file
+                }
+                r_audio = urequests.post("http://119.23.66.134:8085/baidu_tts", params=data_audio)
+                with open(nav_file, "w") as _f:
+                    while True:
+                        dat = r_audio.recv(1024)
+                        if not dat:
+                            break
+                        _f.write(dat)
+                audio.play(nav_file)
+                # oled.fill(0)
+                # oled.DispChar(method, 0, 0, 1, True)
+                # oled.show()
                 time.sleep(5)
             elif route.get('status') != 0:
-                oled.fill(0)
-                oled.DispChar(str(route), 0, 0, 1, True)
-                oled.show()
-                time.sleep(5)
+                # oled.fill(0)
+                # oled.DispChar(str(route), 0, 0, 1, True)
+                # oled.show()
+                # time.sleep(5)
                 oled.fill(0)
                 oled.DispChar('导航结束！', 0, 0)
                 oled.show()
@@ -389,6 +404,8 @@ def heartbeat():
 
 ai = NPLUS_AI()
 ai.mode_change(1)
+audio.player_init(i2c)
+audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
 uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
 
