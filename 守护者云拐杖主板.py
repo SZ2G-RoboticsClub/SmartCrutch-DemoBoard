@@ -50,6 +50,11 @@ GEO_URL = 'http://api.map.baidu.com/geocoding/v3/?address='
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
+api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
+secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
+method = ''
+nav_audio = None
+
 lat_home = 0     #出门获取经纬信息
 lon_home = 0
 home_loc = ''
@@ -189,7 +194,7 @@ def fall_det():
     global time_on, capture_lock, fall, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc
     z = accelerometer.get_z()
     #拐杖倒地判定
-    if z > 0 or z <= 0 and z >= -0.6:            #究其根本
+    if z >= -0.6:            #究其根本
         down = 1
     else:
         down = 0
@@ -289,7 +294,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc 
+    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, nav_file 
     if button_a.was_pressed():
         while True:
             loc_get1 = uart1.readline()
