@@ -67,24 +67,6 @@ ai_lock = 0
 # 1：摔倒10s拍过一次照；   
 # 0：准备拍照；  
 
-#获取加速度角度函数(ok)
-# def get_tilt_angle(_axis):                                  
-#     x = accelerometer.get_x()
-#     y = accelerometer.get_y()
-#     z = accelerometer.get_z()
-#     if 'X' == _axis:
-#         force = math.sqrt(y ** 2 + z ** 2)
-#         if z < 0: return math.degrees(math.atan2(x , force))
-#         else: return 180 - math.degrees(math.atan2(x , force))
-#     elif 'Y' == _axis:
-#         force = math.sqrt(x ** 2 + z ** 2)
-#         if z < 0: return  math.degrees(math.atan2(y , force))
-#         else: return 180 - math.degrees(math.atan2(y , force))
-#     elif 'Z' == _axis:
-#         force = math.sqrt(x ** 2 + y ** 2)
-#         if (x + y) < 0: return 180 - math.degrees(math.atan2(force , z))
-#         else: return math.degrees(math.atan2(force , z)) - 180
-#     return 0
 
 def make_rainbow(_neopixel, _num, _bright, _offset):          
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
