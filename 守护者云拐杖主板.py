@@ -17,7 +17,7 @@ import json
 #p0&p1：小方舟模块
 #p13：灯带
 #掌控板a键：“带我回家”按钮
-#掌控板b键：记录初始位置
+
 
 #摔倒判断：z轴加速度
 
@@ -27,7 +27,7 @@ import json
 # 奇数为纬度数据，偶数为经度数据
 
 #摔倒位置：loc_get2, location2, a/b/c:3&4
-#想回家时位置：loc_get1, location1, a/b/c:5&6
+#想回家时位置：loc_get1, location1, a/b/c:1&2
 
 
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
