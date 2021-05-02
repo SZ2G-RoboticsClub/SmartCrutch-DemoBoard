@@ -26,9 +26,8 @@ import json
 # b, c: float
 # 奇数为纬度数据，偶数为经度数据
 
-#出门初始位置：loc_get1, location1, a/b/c:1&2
 #摔倒位置：loc_get2, location2, a/b/c:3&4
-#想回家时位置：loc_get3, location3, a/b/c:5&6
+#想回家时位置：loc_get1, location1, a/b/c:5&6
 
 
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
@@ -55,16 +54,16 @@ lat_home = 0     #出门获取经纬信息
 lon_home = 0
 home_loc = ''
 
-lat_now = 0       #按下带我回家按钮记录的经纬信息
+lat_now = 0       #导航过程记录的经纬信息
 lon_now = 0
-loc_get3 = ''
-location3 = []
-a5 = []
-a6 = []
-b5 = 0
-b6 = 0
-c5 = 0
-c6 = 0
+loc_get1 = ''
+location1 = []
+a1 = []
+a2 = []
+b1 = 0
+b2 = 0
+c1 = 0
+c2 = 0
 ori_loc = ''
 para1 = ''
 
@@ -77,7 +76,6 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
-switch = 1      #0：充电状态；     1：不在充电——检测摔倒或导航
 lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
 location2 = []
@@ -88,12 +86,13 @@ b2 = 0
 c1 = 0
 c2 = 0
 loc_fall = ''
-ai_lock = 0
+capture_lock = 0
 #（fall_det调用）
 # 2：摔倒30s拍过一次照;
 # 1：摔倒10s拍过一次照；   
 # 0：准备拍照；   
 
+oled.fill(0)
 oled.DispChar('初始化完毕', 0, 0)
 oled.show()
 
@@ -185,7 +184,7 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global time_on, ai_lock, switch, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
+    global time_on, capture_lock, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
     z = accelerometer.get_z()
     #拐杖倒地判定
     if z > 0 or z <= 0 and z >= -0.6:            #究其根本
@@ -202,24 +201,24 @@ def fall_det():
         my_rgb.write()
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
-            if ai_lock == 0:
+            if capture_lock == 0:
                 ai.picture_capture(0)
                 time.sleep_ms(100)
                 ai.picture_capture(0)
                 time.sleep_ms(100)
                 ai.picture_capture(0)
-            ai_lock = 1
+            capture_lock = 1
             fall = 1
 
         #30s内没起来
         if time.time() - time_on > 30:
-            if ai_lock == 1:
+            if capture_lock == 1:
                 ai.picture_capture(0)
                 time.sleep_ms(100)
                 ai.picture_capture(0)
                 time.sleep_ms(100)
                 ai.picture_capture(0)
-            ai_lock = 2
+            capture_lock = 2
             fall = 2
 
     elif down == 0:
@@ -288,34 +287,35 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get3, location3, ori_loc, des_loc
+    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, des_loc
         if button_a.was_pressed():
             while True:
-                location3 = (str(uart1.readline()).split(','))
-                if location3[2] == 'N':
-                    a5 = list(str(location3[1]))
-                    b5 = float(''.join(a5[2:]))
-                    c5 = ((100 - 0) / (60 - 0)) * (b5 - 0) + 0
-                    lat_now = math.floor(float(location3[1]) * 0.01) + c5 * 0.01
-                elif location3[2] == 'S':
-                    a5 = list(str(location3[1]))
-                    b5 = float(''.join(a5[2:]))
-                    c5 = ((100 - 0) / (60 - 0)) * (b5 - 0) + 0
-                    lat_now = math.floor(float(location3[1]) * 0.01 * -1) + c5 * 0.01
+                loc_get1 = uart1.readline()
+                location1 = (str(loc_get1).split(','))
+                if location1[2] == 'N':
+                    a1 = list(str(location1[1]))
+                    b1 = float(''.join(a1[2:]))
+                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                    lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+                elif location1[2] == 'S':
+                    a1 = list(str(location1[1]))
+                    b1 = float(''.join(a1[2:]))
+                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                    lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
                 else:
                     lat_now = 0
                 
                 #经度存取，东正西负，否则0°
-                if location3[4] == 'E':
-                    a6 = list(str(location3[3]))
-                    b6 = float(''.join(a6[3:]))
-                    c6 = ((100 - 0) / (60 - 0)) * (b6 - 0) + 0
-                    lon_now = math.floor(float(location3[3]) * 0.01) + c6 * 0.01
-                elif location3[4] == 'W':
-                    a6 = list(str(location3[3]))
-                    b6 = float(''.join(a6[3:]))
-                    c6 = ((100 - 0) / (60 - 0)) * (b6 - 0) + 0
-                    lon_now = math.floor(float(location3[3]) * 0.01 * -1) + c6 * 0.01
+                if location1[4] == 'E':
+                    a2 = list(str(location1[3]))
+                    b2 = float(''.join(a2[3:]))
+                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                    lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+                elif location1[4] == 'W':
+                    a2 = list(str(location1[3]))
+                    b2 = float(''.join(a2[3:]))
+                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                    lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
                 else:
                     lon_now = 0
                     
@@ -423,15 +423,12 @@ if user_set.get('code') == 0:
     while True:
         if time_set == None:
             time_set = time.time()
-        
         fall_det()
         take_u_home()
         if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
-            
-        # if touchpad_h.is_pressed():
-        #     switch = 0
+        
 else:
     print('账户连接失败，请重新启动')
 
