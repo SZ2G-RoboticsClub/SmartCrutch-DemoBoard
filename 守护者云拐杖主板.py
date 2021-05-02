@@ -76,6 +76,7 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
+
 lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
 location2 = []
@@ -86,6 +87,7 @@ b2 = 0
 c1 = 0
 c2 = 0
 loc_fall = ''
+
 capture_lock = 0
 #（fall_det调用）
 # 2：摔倒30s拍过一次照;
@@ -184,7 +186,7 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global time_on, capture_lock, fall, lat_first, lon_first, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc, des_loc
+    global time_on, capture_lock, fall, lat_fall, lon_fall, loc_fall, status, heartbeat_Loc
     z = accelerometer.get_z()
     #拐杖倒地判定
     if z > 0 or z <= 0 and z >= -0.6:            #究其根本
@@ -226,56 +228,56 @@ def fall_det():
 
 
     if fall == 1:
-        # loc_get2 = uart1.readline()
-        # while True:
-        #     location2 = (str(loc_get2).split(','))
-        #     if location2[2] == 'N':
-        #         a3 = list(str(location2[1]))
-        #         b3 = float(''.join(a3[2:]))
-        #         c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-        #         lat_fall = math.floor(float(location2[1]) * 0.01) + c3 * 0.01
-        #     elif location2[2] == 'S':
-        #         a3 = list(str(location2[1]))
-        #         b3 = float(''.join(a3[2:]))
-        #         c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-        #         lat_fall = math.floor(float(location2[1]) * 0.01 * -1) + c3 * 0.01
-        #     else:
-        #         lat_fall = 0
+        loc_get2 = uart1.readline()
+        while True:
+            location2 = (str(loc_get2).split(','))
+            if location2[2] == 'N':
+                a3 = list(str(location2[1]))
+                b3 = float(''.join(a3[2:]))
+                c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
+                lat_fall = math.floor(float(location2[1]) * 0.01) + c3 * 0.01
+            elif location2[2] == 'S':
+                a3 = list(str(location2[1]))
+                b3 = float(''.join(a3[2:]))
+                c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
+                lat_fall = math.floor(float(location2[1]) * 0.01 * -1) + c3 * 0.01
+            else:
+                lat_fall = 0
 
 
-        #     if location2[4] == 'E':
-        #         a4 = list(str(location2[3]))
-        #         b4 = float(''.join(a4[3:]))
-        #         c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-        #         lon_fall = math.floor(float(location2[3]) * 0.01) + c4 * 0.01
-        #     elif location2[4] == 'W':
-        #         a4 = list(str(location2[3]))
-        #         b4 = float(''.join(a4[3:]))
-        #         c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-        #         lon_fall = math.floor(float(location2[3]) * 0.01 * -1) + c4 * 0.01
-        #     else:
-        #         lon_fall = 0
+            if location2[4] == 'E':
+                a4 = list(str(location2[3]))
+                b4 = float(''.join(a4[3:]))
+                c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
+                lon_fall = math.floor(float(location2[3]) * 0.01) + c4 * 0.01
+            elif location2[4] == 'W':
+                a4 = list(str(location2[3]))
+                b4 = float(''.join(a4[3:]))
+                c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
+                lon_fall = math.floor(float(location2[3]) * 0.01 * -1) + c4 * 0.01
+            else:
+                lon_fall = 0
 
-        #     break
+            break
 
-        # loc_fall = {"latitude":lat_fall,               #修改心跳包状态
-        #             "longitude":lon_fall}
-        # status = 'emergency'
-        # heartbeat_Loc = loc_fall
+        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
+                    "longitude":lon_fall}
+        status = 'emergency'
+        heartbeat_Loc = loc_fall
         
         flashlight()
         music.play(music.POWER_UP, wait=True, loop=False)   #示警鸣笛声
 
     if fall == 2:
-        # loc_fall = {"latitude":lat_fall,               #修改心跳包状态
-        #             "longitude":lon_fall}
-        # status = 'emergency'
-        # heartbeat_Loc = loc_fall
+        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
+                    "longitude":lon_fall}
+        status = 'emergency'
+        heartbeat_Loc = loc_fall
 
         flashlight()
         music.play(music.POWER_UP, wait=True, loop=False)
-        # uart2.write('AT+SETVOLTE=1')
-        # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+        uart2.write('AT+SETVOLTE=1')
+        uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
 
     if fall == 0:
         music.stop()
@@ -287,78 +289,78 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, des_loc
-        if button_a.was_pressed():
-            while True:
-                loc_get1 = uart1.readline()
-                location1 = (str(loc_get1).split(','))
-                if location1[2] == 'N':
-                    a1 = list(str(location1[1]))
-                    b1 = float(''.join(a1[2:]))
-                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                    lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-                elif location1[2] == 'S':
-                    a1 = list(str(location1[1]))
-                    b1 = float(''.join(a1[2:]))
-                    c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                    lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-                else:
-                    lat_now = 0
+    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc 
+    if button_a.was_pressed():
+        while True:
+            loc_get1 = uart1.readline()
+            location1 = (str(loc_get1).split(','))
+            if location1[2] == 'N':
+                a1 = list(str(location1[1]))
+                b1 = float(''.join(a1[2:]))
+                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+            elif location1[2] == 'S':
+                a1 = list(str(location1[1]))
+                b1 = float(''.join(a1[2:]))
+                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+            else:
+                lat_now = 0
+            
+            #经度存取，东正西负，否则0°
+            if location1[4] == 'E':
+                a2 = list(str(location1[3]))
+                b2 = float(''.join(a2[3:]))
+                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+            elif location1[4] == 'W':
+                a2 = list(str(location1[3]))
+                b2 = float(''.join(a2[3:]))
+                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+            else:
+                lon_now = 0
                 
-                #经度存取，东正西负，否则0°
-                if location1[4] == 'E':
-                    a2 = list(str(location1[3]))
-                    b2 = float(''.join(a2[3:]))
-                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                    lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-                elif location1[4] == 'W':
-                    a2 = list(str(location1[3]))
-                    b2 = float(''.join(a2[3:]))
-                    c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                    lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-                else:
-                    lon_now = 0
-                    
-                ori_loc = str(lat_now) + ',' + str(lon_now)
-                
+            ori_loc = str(lat_now) + ',' + str(lon_now)
+            
+            oled.fill(0)
+            oled.DispChar('当前位置记录完毕', 0, 16)
+            oled.DispChar(ori_loc, 0, 32)
+            oled.show()
+            time.sleep(3)
+            oled.fill(0)
+            oled.show()
+            # print(ori_loc)
+            para1 = 'origin='+ori_loc+'&destination='+home_loc+'&ak='+ak
+            # print(para1)
+            nav = urequests.get(url=MAP_URL+str(para1))
+            # print(nav)
+            route = nav.json()
+            # print(route)
+            if route.get('status') == 0:
                 oled.fill(0)
-                oled.DispChar('当前位置记录完毕', 0, 16)
-                oled.DispChar(ori_loc, 0, 32)
+                oled.DispChar(str(route), 0, 0, 1, True)
                 oled.show()
-                time.sleep(3)
+                time.sleep(5)
                 oled.fill(0)
                 oled.show()
-                # print(ori_loc)
-                para1 = 'origin='+ori_loc+'&destination='+des_loc+'&ak='+ak
-                # print(para1)
-                nav = urequests.get(url=MAP_URL+str(para1))
-                # print(nav)
-                route = nav.json()
-                # print(route)
-                if route.get('status') == 0:
-                    oled.fill(0)
-                    oled.DispChar(str(route), 0, 0, 1, True)
-                    oled.show()
-                    time.sleep(5)
-                    oled.fill(0)
-                    oled.show()
-                    method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>','').replace('</b>','')
-                    oled.fill(0)
-                    oled.DispChar(method, 0, 0, 1, True)
-                    oled.show()
-                    time.sleep(5)
-                elif route.get('status') != 0:
-                    oled.fill(0)
-                    oled.DispChar(str(route), 0, 0, 1, True)
-                    oled.show()
-                    time.sleep(5)
-                    oled.fill(0)
-                    oled.DispChar('导航结束！', 0, 0)
-                    oled.show()
-                    time.sleep(2)
-                    oled.fill(0)
-                    oled.show()
-                    break
+                method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>','').replace('</b>','')
+                oled.fill(0)
+                oled.DispChar(method, 0, 0, 1, True)
+                oled.show()
+                time.sleep(5)
+            elif route.get('status') != 0:
+                oled.fill(0)
+                oled.DispChar(str(route), 0, 0, 1, True)
+                oled.show()
+                time.sleep(5)
+                oled.fill(0)
+                oled.DispChar('导航结束！', 0, 0)
+                oled.show()
+                time.sleep(2)
+                oled.fill(0)
+                oled.show()
+                break
             
 
 
@@ -374,17 +376,6 @@ def heartbeat():
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
 
     resp = resp.json()
-    
-
-    if resp.get('code') == 0:                   #返回数据类型正常
-        continue
-    elif resp.get('code') == 1:
-        print('拐杖未注册')
-    else:
-        oled.fill(0)
-        oled.DispChar('心跳包错误', 0, 0, 1)
-        oled.DispChar(str(resp.get('msg')), 0, 16, 1, True) #查看是否正常回应
-        oled.show()
 
 
 
@@ -428,6 +419,15 @@ if user_set.get('code') == 0:
         if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
+            if resp.get('code') == 0:                   #返回数据类型正常
+                continue
+            elif resp.get('code') == 1:
+                print('拐杖未注册')
+            else:
+                oled.fill(0)
+                oled.DispChar('心跳包错误', 0, 0, 1)
+                oled.DispChar(str(resp.get('msg')), 0, 16, 1, True) #查看是否正常回应
+                oled.show()
         
 else:
     print('账户连接失败，请重新启动')
