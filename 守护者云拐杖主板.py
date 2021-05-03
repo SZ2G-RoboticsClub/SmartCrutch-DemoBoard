@@ -1,6 +1,5 @@
 from machine import UART
 from mpython import *
-from bluebit import *
 from nplus.ai import *
 import math
 import network
