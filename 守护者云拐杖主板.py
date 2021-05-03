@@ -82,7 +82,7 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
-
+dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 lat_fall = 0     #摔倒获取的经纬信息
 lon_fall = 0
 location2 = []
@@ -125,45 +125,45 @@ def help():
     oled.fill(0)
     oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
     oled.show()
-    for freq in range(880, 1760, 16):
+    for freq in range(880, 1930, 35):
         music.pitch(freq, 50)
-    for freq in range(1760, 880, -16):
+    for freq in range(1930, 880, -35):
         music.pitch(freq, 50)
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
-    global i                                                  
+    global i
     for i in range(2):
         my_rgb.fill( (255, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (255, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 255) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 255) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (255, 255, 255) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
         my_rgb.fill( (0, 0, 0) )
         my_rgb.write()
-        time.sleep_ms(50)
+        time.sleep_ms(100)
 
 
 #平常状态之流水彩虹灯(ok)
@@ -272,22 +272,23 @@ def fall_det():
         heartbeat_Loc = loc_fall
         
         flashlight()
-        music.play(music.POWER_UP, wait=True, loop=False)   #示警鸣笛声
+
 
     if fall == 2:
-        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
+        loc_fall = {"latitude":lat_fall,
                     "longitude":lon_fall}
         status = 'emergency'
         heartbeat_Loc = loc_fall
-
         flashlight()
-        music.play(music.POWER_UP, wait=True, loop=False)
-        uart2.write('AT+SETVOLTE=1')
-        uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+        help()
+        if dial == 0:
+            uart2.write('AT+SETVOLTE=1')
+            uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
 
     if fall == 0:
         music.stop()
         common()
+        dial = 0
         status = 'ok'
         heartbeat_Loc = None
 
@@ -295,7 +296,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, nav_file 
+    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, nav_file, r_audio 
     if button_a.was_pressed():
         # while True:
         loc_get1 = uart1.readline()

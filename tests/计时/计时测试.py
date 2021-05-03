@@ -48,8 +48,10 @@ def liushuideng():
     time.sleep(0.5)
     m = m + 1
 
-time_on = time.time()
+time_on = None
 while True:
+    if time_on == None:
+        time_on = time.time()
     oled.fill(0)
     oled.DispChar(str(time.time() - time_on), 1, 1)
     oled.show()
