@@ -3,6 +3,7 @@ from mpython import *
 # from nplus.ai import *
 import math
 import network
+import ntptime
 import music
 import neopixel
 import time
@@ -37,12 +38,23 @@ my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 uuid = '3141592653589793'        #拐杖身份证
 status = ''                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
+heartbeat_time = None
+falltime_lock = 0                #记录时间      1：已记录一次      0：未记录过
+date_list = []
+time_list = []
+f_date = ''
+f_time = ''
+
 
 
 #初始化服务器传输
 BASE_URL = 'http://39.103.138.199:5283/demoboard'
-my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
+
+
+#搭建WiFi，连接app用户手机数据
+my_wifi = wifi()
 my_wifi.connectWiFi("QFCS-MI","999999999")
+timezone = 0   #时区
 
 
 #路径规划初始化
@@ -91,13 +103,7 @@ b1 = 0
 b2 = 0
 c1 = 0
 c2 = 0
-loc_fall = ''
 
-capture_lock = 0
-#（fall_det调用）
-# 2：摔倒30s拍过一次照;
-# 1：摔倒10s拍过一次照；   
-# 0：准备拍照；   
 
 oled.fill(0)
 oled.DispChar('初始化完毕', 0, 0)
@@ -194,7 +200,8 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global z, time_on, capture_lock, down, fall, capture_lock, lat_fall, lon_fall, loc_fall, status, loc_fall, heartbeat_Loc
+    global dial, loc_get2, location2, a3, a4, b3, b4, c3, c4, a, b, z, time_on, down, fall, lat_fall, lon_fall, status, heartbeat_Loc, date_list, time_list, f_time, f_date
+    
     z = accelerometer.get_z()
     #拐杖倒地判定
     if z >= -0.6:            #究其根本
@@ -204,37 +211,31 @@ def fall_det():
 
 
     if down == 1:
-        # ai.picture_capture(0)                 #AI拐杖记录仪拍照
         if time_on == None:
             time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
         my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
         my_rgb.write()
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
-            # if capture_lock == 0:
-                # ai.picture_capture(0)
-                # time.sleep_ms(100)
-                # ai.picture_capture(0)
-                # time.sleep_ms(100)
-                # ai.picture_capture(0)
-                # capture_lock = 1
             fall = 1
-
         #30s内没起来
         if time.time() - time_on > 30:
-            # if capture_lock == 1:
-            #     ai.picture_capture(0)
-            #     time.sleep_ms(100)
-            #     ai.picture_capture(0)
-            #     time.sleep_ms(100)
-            #     ai.picture_capture(0)
-            # capture_lock = 2
             fall = 2
     elif down == 0:
         fall = 0
 
 
     if fall == 1:
+        if falltime_lock == 0:
+            date_list = [time.localtime()[0], '年', time.localtime()[1], '月', time.localtime()[2], '日']
+            time_list = [time.localtime()[3], '时', time.localtime()[4], '分', time.localtime()[5], '秒']
+            f_date = ''.join(str(a) for a in date_list)
+            f_time = ''.join(str(b) for b in time_list)
+            falltime_lock = 1
+
+        heartbeat_time = {"date": f_date,
+                          "time": f_time}
+
         loc_get2 = uart1.readline()
         location2 = (str(loc_get2).split(','))
         if location2[2] == 'N':
@@ -265,37 +266,40 @@ def fall_det():
             lon_fall = 0
 
 
-        loc_fall = {"latitude":lat_fall,               #修改心跳包状态
-                    "longitude":lon_fall}
+        heartbeat_Loc = {"latitude":lat_fall,               #修改心跳包状态
+                         "longitude":lon_fall}
         status = 'emergency'
-        heartbeat_Loc = loc_fall
         
         flashlight()
 
 
     if fall == 2:
-        loc_fall = {"latitude":lat_fall,
-                    "longitude":lon_fall}
+        heartbeat_time = {"date": f_date,
+                          "time": f_time}
+        heartbeat_Loc = {"latitude":lat_fall,
+                         "longitude":lon_fall}
         status = 'emergency'
-        heartbeat_Loc = loc_fall
         flashlight()
         help()
         if dial == 0:
             uart2.write('AT+SETVOLTE=1')
             uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+            dial = 1
 
     if fall == 0:
         music.stop()
         common()
         dial = 0
+        falltime_lock = 0
         status = 'ok'
         heartbeat_Loc = None
+        heartbeat_time = None
 
 
 
 #"带你回家"
 def take_u_home():
-    global route, backhome, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, nav_file, r_audio 
+    global method, _dat, _f, a1, a2, b1, b2, c1, c2, para1, nav, route, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, data_audio, nav_file, r_audio 
     if button_a.was_pressed():
         # while True:
         loc_get1 = uart1.readline()
@@ -385,11 +389,12 @@ def take_u_home():
 
 #心跳包发送(ok)
 def heartbeat():
-    global uuid, status, heartbeat_Loc, data, resp
+    global uuid, status, heartbeat_Loc, heartbeat_time, data, resp
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
     "loc": heartbeat_Loc
+    "falltime": heartbeat_time
     }
 
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
@@ -431,6 +436,20 @@ if user_set.get('code') == 0:
     time.sleep(1)
     oled.fill(0)
     oled.show()
+
+    if lon_home >= 0:
+        if lon_home % 15 < 7.5:
+            timezone = math.floor(lon_home)
+        elif lon_home % 15 >= 7.5:
+            timezone = math.ceil(lon_home)
+    elif lon_home < 0:
+        if lon_home % 15 < 7.5:
+            timezone = math.ceil(lon_home)
+        elif lon_home % 15 >= 7.5:
+            timezone = math.floor(lon_home)
+    
+    ntptime.settime(timezone, "time.windows.com")
+
     while True:
         if time_set == None:
             time_set = time.time()
@@ -441,6 +460,7 @@ if user_set.get('code') == 0:
             time_set = None
             status = 'ok'
             heartbeat_Loc = None
+            heartbeat_time = None
             if resp.get('code') == 0:                   #返回数据类型正常
                 continue
             elif resp.get('code') == 1:
