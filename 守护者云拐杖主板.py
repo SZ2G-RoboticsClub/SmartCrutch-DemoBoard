@@ -1,6 +1,6 @@
 from machine import UART
 from mpython import *
-from nplus.ai import *
+# from nplus.ai import *
 import math
 import network
 import music
@@ -104,7 +104,7 @@ oled.DispChar('初始化完毕', 0, 0)
 oled.show()
 
 
-# ============ Module ============
+# ============ Modules ============
 
 #平常状态之彩虹灯效设定(ok)
 def make_rainbow(_neopixel, _num, _bright, _offset):          
@@ -190,7 +190,7 @@ def common():
 
 
 
-# ============ Function ============
+# ============ Functions ============
 
 #摔倒检测(ok)
 def fall_det():
@@ -204,31 +204,31 @@ def fall_det():
 
 
     if down == 1:
-        ai.picture_capture(0)                 #AI拐杖记录仪拍照
+        # ai.picture_capture(0)                 #AI拐杖记录仪拍照
         if time_on == None:
             time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
         my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
         my_rgb.write()
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
-            if capture_lock == 0:
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-                capture_lock = 1
+            # if capture_lock == 0:
+                # ai.picture_capture(0)
+                # time.sleep_ms(100)
+                # ai.picture_capture(0)
+                # time.sleep_ms(100)
+                # ai.picture_capture(0)
+                # capture_lock = 1
             fall = 1
 
         #30s内没起来
         if time.time() - time_on > 30:
-            if capture_lock == 1:
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-                time.sleep_ms(100)
-                ai.picture_capture(0)
-            capture_lock = 2
+            # if capture_lock == 1:
+            #     ai.picture_capture(0)
+            #     time.sleep_ms(100)
+            #     ai.picture_capture(0)
+            #     time.sleep_ms(100)
+            #     ai.picture_capture(0)
+            # capture_lock = 2
             fall = 2
     elif down == 0:
         fall = 0
@@ -401,8 +401,8 @@ def heartbeat():
 
 # ============ Main ============
 
-ai = NPLUS_AI()
-ai.mode_change(1)
+# ai = NPLUS_AI()
+# ai.mode_change(1)
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
