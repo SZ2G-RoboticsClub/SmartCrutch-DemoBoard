@@ -35,7 +35,7 @@ my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 
 #心跳包数据初始化
 uuid = '3141592653589793'        #拐杖身份证
-status = ""                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
+status = ''                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
 
 
