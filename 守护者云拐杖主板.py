@@ -121,11 +121,14 @@ def make_rainbow(_neopixel, _num, _bright, _offset):
 
 #呼叫路人来帮忙(ok)
 def help():
+    global freq
     oled.fill(0)
     oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
     oled.show()
-    music.play(music.POWER_UP, wait=True, loop=False)
-
+    for freq in range(880, 1760, 16):
+        music.pitch(freq, 50)
+    for freq in range(1760, 880, -16):
+        music.pitch(freq, 50)
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
@@ -166,9 +169,9 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb, 23, 80, move)
+    make_rainbow(my_rgb, 24, 80, move)
     my_rgb.write()
-    time.sleep(0.25)
+    # time.sleep(0.25)  
     move = move + 1
 
 
