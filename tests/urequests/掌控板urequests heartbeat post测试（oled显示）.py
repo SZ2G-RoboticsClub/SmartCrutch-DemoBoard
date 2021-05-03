@@ -1,8 +1,8 @@
 import requests
 
 
-BASE_URL = 'http://0.0.0.0:8000/demoboard'
-uuid = '3141592653589793'
+BASE_URL = 'http://39.103.138.199:5283/demoboard'
+uuid = 'testuuid'
 
 data = {                #心跳包数据存储
     "uuid": uuid,

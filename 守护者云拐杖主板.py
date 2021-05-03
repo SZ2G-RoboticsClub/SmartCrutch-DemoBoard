@@ -40,7 +40,7 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.31.125:8000/demoboard'
+BASE_URL = 'http://39.103.138.199:5283/demoboard'
 my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
 my_wifi.connectWiFi("QFCS-MI","999999999")
 

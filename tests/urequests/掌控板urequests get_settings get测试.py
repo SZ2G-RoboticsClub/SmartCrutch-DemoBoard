@@ -6,8 +6,8 @@ import time
 my_wifi = wifi()
 my_wifi.connectWiFi("QFCS-MI","999999999")
 
-BASE_URL = 'http://192.168.31.125:8000/demoboard'
-uuid = '3141592653589793'
+BASE_URL = 'http://39.103.138.199:5283/demoboard'
+uuid = 'testuuid'
 
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 print(s)
