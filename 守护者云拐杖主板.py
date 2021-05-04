@@ -393,7 +393,7 @@ def heartbeat():
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
-    "loc": heartbeat_Loc
+    "loc": heartbeat_Loc,
     "falltime": heartbeat_time
     }
 

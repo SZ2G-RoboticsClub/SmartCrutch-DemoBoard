@@ -11,4 +11,9 @@ while True:
     oled.DispChar(('y轴：' + str(y)), 0, 32, 1)
     oled.DispChar(('z轴：' + str(z)), 0, 48, 1)
     oled.show()
-    time.sleep(0.25)
+    if z >= -0.6:            #究其根本
+        rgb.fill((int(255), int(0), int(0)))
+        rgb.write()
+    else:
+        rgb.fill((0, 0, 0))
+        rgb.write()
