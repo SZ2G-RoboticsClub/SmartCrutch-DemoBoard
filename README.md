@@ -43,6 +43,7 @@ SmartCrutch-v4 demoboard Repo
 - 远端报警——掌控板urequests post:
     - 位置经纬度
     - status：“emergency”
+    - falltime: 老人摔倒时间
 
 - 拨打电话——SIM卡模块：
     - uart1.write('AT+SETVOLTE=1')
@@ -52,13 +53,13 @@ SmartCrutch-v4 demoboard Repo
 ### Video recording 拐杖记录仪
 
 #### Description
-拐杖记录仪，老人摔倒时开启录像六十秒
+拐杖记录仪，全天拍摄
 
 #### Sensor
 - 四个摄像头（传感器类型）
 
 #### Method
-- 器材未到，待定
+- 独立于掌控板，全天摄像，存入内存卡或者本地app，可通过摔倒时发送的摔倒时间来查看录像
 
 
 ### Take you home “带你回家”
@@ -80,8 +81,8 @@ SmartCrutch-v4 demoboard Repo
     - 起止点坐标上传至百度地图获得路径
 
 - 带你回家：
-    - 掌控板屏幕显示（目前）
-    - 语音（待定）
+    - 掌控板屏幕显示
+    - 语音（目前）
     - ……
 
 
@@ -103,6 +104,9 @@ SmartCrutch-v4 demoboard Repo
     - loc:
         - latitude: 摔倒纬度
         - longitude: 摔倒经度
+    - falltime:
+        - date: 摔倒日期(年月日)
+        - time: 摔倒时间(时分秒)
 
 - 其他错误
     - status: "error"
