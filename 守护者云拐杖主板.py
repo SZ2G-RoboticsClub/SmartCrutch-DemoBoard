@@ -402,7 +402,7 @@ if user_set.get('code') == 0:
 
         heartbeat_Loc = {
             "latitude":lat_now,
-            "longitude":lon_now
+            "longitude":lon_now,
             "info": loc_info
             }
 
