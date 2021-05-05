@@ -46,7 +46,7 @@ while True:
     if time_set == None:
         time_set = time.time()
     
-    print('没有问题1')
+    # print('没有问题1')
     
     if button_b.is_pressed():
         rgb.fill( (int(255), int(255), int(255)) )
@@ -70,11 +70,11 @@ while True:
         rgb.fill( (0, 0, 0) )
         rgb.write()
         # heartbeat_time = None
-        heartbeat_Loc = None
+        heartbeat_Loc = {"latitude": 22.576035, "longitude": 113.943418}
         status = 'ok'
     
-    print('没有问题2')
-    print(time.time() - time_set)
+    # print('没有问题2')
+    # print(time.time() - time_set)
     
     if time.time() - time_set >= 5:
         heartbeat()
@@ -89,7 +89,7 @@ while True:
         heartbeat_Loc = None
         # heartbeat_time = None
         
-        print('没有问题3')
+        # print('没有问题3')
         
         if resp.get('code') == 0:                   #返回数据类型正常
             continue
