@@ -64,7 +64,9 @@ ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
-nav_file = None
+nav_file = 'nav_file.mp3'
+end_file = 'end.mp3'
+end = 0
 
 lat_home = 0     #家庭住址经纬信息
 lon_home = 0
@@ -306,20 +308,7 @@ def take_u_home():
             # time.sleep(2)
             # oled.fill(0)
             # oled.show()
-            data_audio = {
-                "API_Key": api_key,
-                "Secret_Key": secret_key,
-                "text": '导航结束！',
-                "filename": nav_file
-            }
-            r_audio = urequests.post("http://119.23.66.134:8085/baidu_tts", params=data_audio)
-            with open(nav_file, "w") as _f:
-                while True:
-                    dat = r_audio.recv(1024)
-                    if not dat:
-                        break
-                    _f.write(dat)
-            audio.play(nav_file)
+            audio.play('nav_end.mp3')
             time.sleep(3)
             
             backhome = 0
@@ -422,7 +411,7 @@ if user_set.get('code') == 0:
             time_set = time.time()
 
         take_u_home()
-        
+
         if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
