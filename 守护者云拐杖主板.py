@@ -1,6 +1,5 @@
 from machine import UART
 from mpython import *
-# from nplus.ai import *
 import math
 import network
 import ntptime
@@ -15,17 +14,16 @@ import audio
 #引脚：
 #p16tx&p15rx：串口uart2(SIM卡模块)
 #p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#p0&p1：小方舟模块
 #p13：灯带
 #掌控板a键：“带我回家”按钮
 
 
-#摔倒判断：z轴加速度
+#摔倒判断：z轴加速度是否大于-0.6（垂直于屏幕向上为正方向）
 
 #位置获取：
 # a: list
 # b, c: float
-# 奇数为纬度数据，偶数为经度数据
+# 奇数（如a1b1c1）为纬度数据，偶数(如a2b2c2）为经度数据
 
 #摔倒位置：loc_get2, location2, a/b/c:3&4
 #想回家时位置：loc_get1, location1, a/b/c:1&2
