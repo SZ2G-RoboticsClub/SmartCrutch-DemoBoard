@@ -23,10 +23,10 @@ import audio
 #位置获取：
 # a: list
 # b, c: float
-# 奇数（如a1b1c1）为纬度数据，偶数(如a2b2c2）为经度数据
+# a1b1c1为纬度数据，a2b2c2为经度数据
 
-#摔倒位置：loc_get2, location2, a/b/c:3&4
-#想回家时位置：loc_get1, location1, a/b/c:1&2
+# 实时定位位置：loc_get1, location1, a/b/c:1&2
+
 
 p0 = MPythonPin(0, PinMode.IN)
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
@@ -53,7 +53,6 @@ BASE_URL = 'http://39.103.138.199:5283/demoboard'
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
 my_wifi.connectWiFi("QFCS-MI","999999999")
-timezone = 0   #时区
 
 
 #路径规划初始化
@@ -71,9 +70,16 @@ lat_home = 0     #家庭住址经纬信息
 lon_home = 0
 home_loc = ''
 
-lat_now = 0       #导航过程记录的经纬信息
+backhome = 0
+ori_loc = ''
+para1 = ''
+
+
+#实时获取老人定位
+lat_now = 0
 lon_now = 0
-loc_get1 = ''
+loc_info = ''
+loc_cycle = ''
 location1 = []
 a1 = []
 a2 = []
@@ -81,10 +87,6 @@ b1 = 0
 b2 = 0
 c1 = 0
 c2 = 0
-backhome = 0
-ori_loc = ''
-para1 = ''
-
 
 
 #全局变量定义       
@@ -95,17 +97,7 @@ fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔�
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
 dial = 0         #拨号：      1：已拨号一次         0：未拨过号
-lat_fall = 0     #摔倒获取的经纬信息
-lon_fall = 0
-loc_info = ''
-loc_fall = ''
-location2 = []
-a1 = []
-a2 = []
-b1 = 0
-b2 = 0
-c1 = 0
-c2 = 0
+
 
 
 oled.fill(0)
@@ -203,7 +195,7 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global loc_fall, loc_info, d, dial, loc_get2, location2, a3, a4, b3, b4, c3, c4, a, b, z, time_on, down, fall, lat_fall, lon_fall, status, heartbeat_Loc, date_list, time_list, f_time, f_date
+    global loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, a, b, z, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc, date_list, time_list, f_time, f_date
     
     z = accelerometer.get_z()
     #拐杖倒地判定
@@ -229,63 +221,12 @@ def fall_det():
 
 
     if fall == 1:
-        # if falltime_lock == 0:
-        #     date_list = [time.localtime()[0], '年', time.localtime()[1], '月', time.localtime()[2], '日']
-        #     time_list = [time.localtime()[3], '时', time.localtime()[4], '分', time.localtime()[5], '秒']
-        #     f_date = ''.join(str(a) for a in date_list)
-        #     f_time = ''.join(str(b) for b in time_list)
-        #     falltime_lock = 1
-
-        # heartbeat_time = {"date": f_date,
-        #                   "time": f_time}
-        loc_get2 = uart1.readline()
-        location2 = (str(loc_get2).split(','))
-        if location2[2] == 'N':
-            a3 = list(str(location2[1]))
-            b3 = float(''.join(a3[2:]))
-            c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-            lat_fall = math.floor(float(location2[1]) * 0.01) + c3 * 0.01
-        elif location2[2] == 'S':
-            a3 = list(str(location2[1]))
-            b3 = float(''.join(a3[2:]))
-            c3 = ((100 - 0) / (60 - 0)) * (b3 - 0) + 0
-            lat_fall = math.floor(float(location2[1]) * 0.01 * -1) + c3 * 0.01
-        else:
-            lat_fall = 0
-
-
-        if location2[4] == 'E':
-            a4 = list(str(location2[3]))
-            b4 = float(''.join(a4[3:]))
-            c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-            lon_fall = math.floor(float(location2[3]) * 0.01) + c4 * 0.01
-        elif location2[4] == 'W':
-            a4 = list(str(location2[3]))
-            b4 = float(''.join(a4[3:]))
-            c4 = ((100 - 0) / (60 - 0)) * (b4 - 0) + 0
-            lon_fall = math.floor(float(location2[3]) * 0.01 * -1) + c4 * 0.01
-        else:
-            lon_fall = 0
-
-        loc_fall = lat_fall + ',' + lon_fall
-        d = urequests.post(url=R_GEO_URL+'ak='+ak+'&output=json&coordtype=wgs84ll&location='+loc_fall)
-        d = d.json()
-        loc_info = d.get('result').get('formatted_address')
-
-        heartbeat_Loc = {"latitude":lat_fall,               #修改心跳包状态
-                         "longitude":lon_fall
-                         "info":loc_info}
         status = 'emergency'
-        
         flashlight()
+        help()
 
 
     if fall == 2:
-        # heartbeat_time = {"date": f_date,
-        #                   "time": f_time}
-        heartbeat_Loc = {"latitude":lat_fall,
-                         "longitude":lon_fall
-                         "info": loc_info}
         status = 'emergency'
         flashlight()
         help()
@@ -298,51 +239,21 @@ def fall_det():
         music.stop()
         common()
         dial = 0
-        # falltime_lock = 0
         status = 'ok'
-        heartbeat_Loc = None
-        # heartbeat_time = None
 
 
 
 #"带你回家"
 def take_u_home():
-    global method, _dat, _f, a1, a2, b1, b2, c1, c2, para1, nav, route, ak, MAP_URL, lat_now, lon_now, loc_get1, location1, ori_loc, data_audio, nav_file, r_audio 
+    global method, _dat, _f, para1, nav, route, ak, MAP_URL, lat_now, lon_now ori_loc, data_audio, nav_file, r_audio 
     
     if p1.read_digital() == 1:
         backhome = backhome + 1
     
-    if backhome != 0:
-        # while True:
-        loc_get1 = uart1.readline()
-        location1 = (str(loc_get1).split(','))
-        if location1[2] == 'N':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-        elif location1[2] == 'S':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-        else:
-            lat_now = 0
-        
-        #经度存取，东正西负，否则0°
-        if location1[4] == 'E':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-        elif location1[4] == 'W':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-        else:
-            lon_now = 0
-            
+    if backhome == 0:
+        fall_det()
+    elif backhome != 0:
+        fall_det()
         ori_loc = str(lat_now) + ',' + str(lon_now)
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
@@ -389,12 +300,27 @@ def take_u_home():
             # oled.DispChar(str(route), 0, 0, 1, True)
             # oled.show()
             # time.sleep(5)
-            oled.fill(0)
-            oled.DispChar('导航结束！', 0, 0)
-            oled.show()
-            time.sleep(2)
-            oled.fill(0)
-            oled.show()
+            # oled.fill(0)
+            # oled.DispChar('导航结束！', 0, 0)
+            # oled.show()
+            # time.sleep(2)
+            # oled.fill(0)
+            # oled.show()
+            data_audio = {
+                "API_Key": api_key,
+                "Secret_Key": secret_key,
+                "text": '导航结束！',
+                "filename": nav_file
+            }
+            r_audio = urequests.post("http://119.23.66.134:8085/baidu_tts", params=data_audio)
+            with open(nav_file, "w") as _f:
+                while True:
+                    dat = r_audio.recv(1024)
+                    if not dat:
+                        break
+                    _f.write(dat)
+            audio.play(nav_file)
+            time.sleep(3)
             
             backhome = 0
                 # break
@@ -451,31 +377,55 @@ if user_set.get('code') == 0:
     oled.fill(0)
     oled.show()
 
-    # if lon_home >= 0:
-    #     if lon_home % 15 < 7.5:
-    #         timezone = math.floor(lon_home)
-    #     elif lon_home % 15 >= 7.5:
-    #         timezone = math.ceil(lon_home)
-    # elif lon_home < 0:
-    #     if lon_home % 15 < 7.5:
-    #         timezone = math.ceil(lon_home)
-    #     elif lon_home % 15 >= 7.5:
-    #         timezone = math.floor(lon_home)
-    
-    # ntptime.settime(timezone, "time.windows.com")
-
     while True:
+        loc_get1 = uart1.readline()
+        location1 = (str(loc_get1).split(','))
+        if location1[2] == 'N':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+        elif location1[2] == 'S':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+        else:
+            lat_now = 0
+
+
+        if location1[4] == 'E':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+        elif location1[4] == 'W':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+        else:
+            lon_now = 0
+
+        loc_cycle = lat_now + ',' + lon_now
+        d = urequests.post(url=R_GEO_URL+'ak='+ak+'&output=json&coordtype=wgs84ll&location='+loc_cycle)
+        d = d.json()
+        loc_info = d.get('result').get('formatted_address')
+
+        heartbeat_Loc = {
+            "latitude":lat_now,
+            "longitude":lon_now
+            "info": loc_info
+            }
 
         if time_set == None:
             time_set = time.time()
-        fall_det()
+
         take_u_home()
+        
         if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
-            status = 'ok'
-            heartbeat_Loc = None
-            # heartbeat_time = None
             if resp.get('code') == 0:                   #返回数据类型正常
                 continue
             elif resp.get('code') == 1:
