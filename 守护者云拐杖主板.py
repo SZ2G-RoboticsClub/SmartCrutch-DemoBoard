@@ -61,12 +61,12 @@ R_GEO_URL= 'http://api.map.baidu.com/reverse_geocoding/v3/?'
 MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
 ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
 
+
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
 nav_file = 'nav_file.mp3'
-end_file = 'end.mp3'
-end = 0
+
 
 lat_home = 0     #家庭住址经纬信息
 lon_home = 0
@@ -247,7 +247,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global method, _dat, _f, para1, nav, route, ak, MAP_URL, lat_now, lon_now ori_loc, data_audio, nav_file, r_audio 
+    global loc_cycle, method, _dat, _f, para1, nav, route, ak, MAP_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
     if p1.read_digital() == 1:
         backhome = backhome + 1
@@ -322,8 +322,7 @@ def heartbeat():
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
-    "loc": heartbeat_Loc,
-    # "falltime": heartbeat_time
+    "loc": heartbeat_Loc
     }
 
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
