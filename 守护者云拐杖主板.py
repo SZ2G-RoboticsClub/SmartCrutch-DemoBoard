@@ -249,7 +249,7 @@ def fall_det():
 def take_u_home():
     global loc_cycle, method, _dat, _f, para1, nav, route, ak, MAP_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
-    if p1.read_digital() == 1:
+    if p0.read_digital() == 1:
         backhome = backhome + 1
     
     if backhome == 0:
