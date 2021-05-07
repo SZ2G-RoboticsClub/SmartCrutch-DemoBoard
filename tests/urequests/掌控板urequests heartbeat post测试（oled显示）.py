@@ -5,7 +5,7 @@ import time
 import ntptime
 
 my_wifi = wifi()
-my_wifi.connectWiFi('Tenda_7C8540', '31832352')
+my_wifi.connectWiFi('QFCS-MI', '999999999')
 ntptime.settime(8, "time.windows.com")
 oled.fill(0)
 oled.DispChar('初始化成功', 0, 0)
