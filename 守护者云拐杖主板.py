@@ -21,11 +21,14 @@ import audio
 
 
 #位置获取：
+# 使用高德地图api 
 # a: list
 # b, c: float
 # a1b1c1为纬度数据，a2b2c2为经度数据
 
-# 实时定位位置：loc_get1, location1, a/b/c:1&2
+
+# 实时定位位置：
+# loc_get1, location1, a/b/c:1&2
 
 
 p0 = MPythonPin(0, PinMode.IN)
@@ -36,13 +39,6 @@ my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 uuid = '3141592653589793'        #拐杖身份证
 status = ''                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
-
-# heartbeat_time = None
-# falltime_lock = 0                #记录时间      1：已记录一次      0：未记录过
-# date_list = []
-# time_list = []
-# f_date = ''
-# f_time = ''
 
 
 
@@ -56,10 +52,10 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 #路径规划初始化
-GEO_URL = 'http://api.map.baidu.com/geocoding/v3/?address='
-R_GEO_URL= 'http://api.map.baidu.com/reverse_geocoding/v3/?'
-MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
-ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
+GEO_URL = 'https://restapi.amap.com/v3/geocode/geo?address='
+R_GEO_URL= 'https://restapi.amap.com/v3/geocode/regeo?output='
+NAV_URL = 'https://restapi.amap.com/v3/direction/walking?origin='
+key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
@@ -74,7 +70,7 @@ home_loc = ''
 
 backhome = 0
 ori_loc = ''
-para1 = ''
+para_nav = ''
 
 
 #实时获取老人定位
@@ -131,6 +127,7 @@ def help():
         music.pitch(freq, 50)
     for freq in range(1930, 880, -35):
         music.pitch(freq, 50)
+
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
@@ -247,7 +244,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global loc_cycle, method, _dat, _f, para1, nav, route, ak, MAP_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+    global loc_cycle, method, _dat, _f, para_nav, nav, route, ak, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
     if p0.read_digital() == 1:
         backhome = backhome + 1
@@ -256,7 +253,7 @@ def take_u_home():
         fall_det()
     elif backhome != 0:
         fall_det()
-        ori_loc = str(lat_now) + ',' + str(lon_now)
+        ori_loc = str(lon_now) + ',' + str(lat_now)
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
         # oled.DispChar(ori_loc, 0, 32)
@@ -265,20 +262,20 @@ def take_u_home():
         # oled.fill(0)
         # oled.show()
         # print(ori_loc)
-        para1 = 'origin='+ori_loc+'&destination='+home_loc+'&ak='+ak
-        # print(para1)
-        nav = urequests.get(url=MAP_URL+str(para1))
+        para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key
+        # print(para_nav)
+        nav = urequests.get(url=NAV_URL+str(para_nav))
         # print(nav)
-        route = nav.json()
-        # print(route)
-        if route.get('status') == 0:
+        nav = nav.json()
+        # print(nav)
+        if nav.get('status') == "1":
             # oled.fill(0)
-            # oled.DispChar(str(route), 0, 0, 1, True)
+            # oled.DispChar(str(nav), 0, 0, 1, True)
             # oled.show()
             # time.sleep(5)
             # oled.fill(0)
             # oled.show()
-            method = route.get('result').get('routes')[0].get('steps')[0].get('instruction').replace('<b>','').replace('</b>','')
+            method = nav.get('route').get('paths')[0].get('steps')[0].get('instruction')
             data_audio = {
                 "API_Key": api_key,
                 "Secret_Key": secret_key,
@@ -297,9 +294,9 @@ def take_u_home():
             # oled.DispChar(method, 0, 0, 1, True)
             # oled.show()
             time.sleep(5)
-        elif route.get('status') != 0:
+        elif nav.get('status') != "1":
             # oled.fill(0)
-            # oled.DispChar(str(route), 0, 0, 1, True)
+            # oled.DispChar(str(nav), 0, 0, 1, True)
             # oled.show()
             # time.sleep(5)
             # oled.fill(0)
@@ -353,11 +350,11 @@ if user_set.get('code') == 0:
     
     #家庭住址经纬度获取
     home = user_set.get('settings').get('home')
-    h = urequests.get(url=GEO_URL+home+'&output=json&ak='+ak)
+    h = urequests.get(url=GEO_URL+home+'&output=json&key='+key)
     h = h.json()
     lat_home = h.get('result').get('location').get('lat')
     lon_home = h.get('result').get('location').get('lng')
-    home_loc = str(lat_home) + ',' + str(lon_home)
+    home_loc = str(lon_home) + ',' + str(lat_home)
     oled.DispChar('家庭位置记录完毕', 0, 16)
     oled.DispChar(home_loc, 0, 32)
     oled.show()
@@ -395,10 +392,10 @@ if user_set.get('code') == 0:
         else:
             lon_now = 0
 
-        loc_cycle = lat_now + ',' + lon_now
-        d = urequests.post(url=R_GEO_URL+'ak='+ak+'&output=json&coordtype=wgs84ll&location='+loc_cycle)
+        loc_cycle = lon_now + ',' + lat_now
+        d = urequests.post(url=R_GEO_URL+'&output=json&location='+loc_cycle+'&key='+key+'&radius=1000&extensions=all')
         d = d.json()
-        loc_info = d.get('result').get('formatted_address')
+        loc_info = d.get('regeocode').get('formatted_address')
 
         heartbeat_Loc = {
             "latitude":lat_now,
