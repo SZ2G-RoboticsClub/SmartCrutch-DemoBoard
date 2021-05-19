@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\qinfeng\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "python.pythonPath": "C:\\Users\\qinfeng\\.mPython\\python3.6.6\\python.exe",
     "C_Cpp.errorSquiggles": "Enabled",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,

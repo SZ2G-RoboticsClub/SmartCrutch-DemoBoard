@@ -354,7 +354,7 @@ if user_set.get('code') == 0:
     h = h.json()
     lat_home = h.get('result').get('location').get('lat')
     lon_home = h.get('result').get('location').get('lng')
-    home_loc = str(lon_home) + ',' + str(lat_home)
+    home_loc = h.get('geocodes')[0].get('location')
     oled.DispChar('家庭位置记录完毕', 0, 16)
     oled.DispChar(home_loc, 0, 32)
     oled.show()
