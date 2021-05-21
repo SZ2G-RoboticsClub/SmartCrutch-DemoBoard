@@ -13,6 +13,7 @@ import audio
 #p16tx&p15rx：串口uart2(SIM卡模块)
 #p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
 #p0: "带我回家"按钮
+#p1：照明灯开关
 #p13：灯带
 
 
@@ -30,7 +31,7 @@ import audio
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-
+p1 = MPythonPin(1, PinMode.IN)
 p0 = MPythonPin(0, PinMode.IN)
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 
@@ -181,7 +182,7 @@ def common():
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if light.read() < 20:
+    if light.read() < 20 or p1.read_digital() == 1:
         my_rgb.fill( (255, 255, 255) )
         my_rgb.write()
     else:
