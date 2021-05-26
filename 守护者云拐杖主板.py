@@ -190,13 +190,12 @@ def common():
 
 
 
-
 # ============ Functions ============
 
 #摔倒检测(ok)
 def fall_det():
-    global loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, a, b, z, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc, date_list, time_list, f_time, f_date
-    
+    global loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, z, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
+
     z = accelerometer.get_z()
     #拐杖倒地判定
     if z >= -0.6:            #究其根本
@@ -245,7 +244,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global loc_cycle, method, _dat, _f, para_nav, nav, route, ak, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+    global loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
     if p0.read_digital() == 1:
         backhome = backhome + 1
