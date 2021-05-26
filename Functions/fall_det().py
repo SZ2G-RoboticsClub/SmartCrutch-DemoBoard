@@ -91,6 +91,7 @@ c2 = 0
 
 
 #全局变量定义
+x = 1
 switch = 0
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
@@ -218,8 +219,6 @@ def common():
 #摔倒检测(ok)
 def fall_det():
     global o, loc_cycle, loc_info, dial, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
-
-    x = accelerometer.get_x()
     
     # debug1
     o += 1
@@ -340,6 +339,8 @@ if user_set.get('code') == 0:
     oled.show()
 
     while True:
+        x = accelerometer.get_x()
+        print(x)
         # loc_get1 = uart1.readline()
         # location1 = (str(loc_get1).split(','))
         # if location1[2] == 'N':
