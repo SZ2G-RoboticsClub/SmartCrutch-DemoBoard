@@ -33,8 +33,8 @@ import audio
 
 p1 = MPythonPin(1, PinMode.IN)
 p0 = MPythonPin(0, PinMode.IN)
-my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
-
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
 
 #心跳包数据初始化
 uuid = 'abfb6a0d'        #拐杖身份证
@@ -183,8 +183,8 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb1, 63, 80, move)
-    make_rainbow(my_rgb2, 63, 80, move)
+    make_rainbow(my_rgb1, 24, 80, move)
+    make_rainbow(my_rgb2, 24, 80, move)
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  

@@ -1,7 +1,7 @@
 from machine import UART
 from mpython import *
 import math
-import network
+# import network
 import music
 import neopixel
 import time
@@ -51,7 +51,7 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 #路径规划初始化
-NAV_URL = 'https://restapi.amap.com/v3/direction/walking?'
+NAV_URL = 'http://restapi.amap.com/v3/direction/walking?origin='
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
@@ -119,10 +119,10 @@ def take_u_home():
         # oled.show()
         print(ori_loc)
         print(home_loc)
-        para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key
+        para_nav = ori_loc+'&destination='+home_loc+'&key='+key
         print(NAV_URL+para_nav)
-        nav = urequests.get(url=NAV_URL+para_nav)
-        # print(nav)
+        nav = urequests.get(url=NAV_URL+para_nav, headers={})
+        print(nav)
         nav = nav.json()
         print(nav)
         if nav.get('status') == "1":
@@ -140,6 +140,7 @@ def take_u_home():
                 "text": method,
                 "filename": nav_file
             }
+            
             r_audio = urequests.post("http://119.23.66.134:8085/baidu_tts", params=data_audio)
             with open(nav_file, "w") as _f:
                 while True:
