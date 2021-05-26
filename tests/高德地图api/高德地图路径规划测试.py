@@ -1,6 +1,6 @@
-import requests
+import urequests
 
-r = requests.get(url='https://restapi.amap.com/v3/direction/walking?origin=116.434307,39.90909&destination=116.434446,39.90816&key=10d4ac81004a9581c1d9de89eac4035b')
+r = urequests.get(url='https://restapi.amap.com/v3/direction/walking?origin=113.9375,22.57033&destination=113.931577,22.487280&key=10d4ac81004a9581c1d9de89eac4035b')
 
 print(r)
 print(r.json())

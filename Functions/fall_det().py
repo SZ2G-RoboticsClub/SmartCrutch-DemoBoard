@@ -142,45 +142,53 @@ def help():
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
-    my_rgb.fill( (255, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (255, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 255) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 255) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (255, 255, 255) )
-    my_rgb.write()
-    time.sleep_ms(100)
-    my_rgb.fill( (0, 0, 0) )
-    my_rgb.write()
-    time.sleep_ms(100)
+    global r1, r2, r3
+    for r1 in range(2):
+        my_rgb1.fill( (255, 0, 0) )
+        my_rgb2.fill( (0, 0, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+
+    for r2 in range(2):
+        my_rgb2.fill( (255, 0, 0) )
+        my_rgb1.fill( (0, 0, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+
+    for r3 in range(2):
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb2.fill( (255, 255, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
 
 
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb, 24, 80, move)
-    my_rgb.write()
+    make_rainbow(my_rgb1, 63, 80, move)
+    make_rainbow(my_rgb2, 63, 80, move)
+    my_rgb1.write()
+    my_rgb2.write()
     # time.sleep(0.25)  
-    move = move + 1
+    move = move - 1
 
 
 #平常状态(ok)
@@ -195,8 +203,10 @@ def common():
         switch += 1
 
     if light.read() < 20 or switch % 2 == 1:
-        my_rgb.fill( (255, 255, 255) )
-        my_rgb.write()
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb2.fill( (255, 255, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
     elif light.read() >= 20 and switch % 2 == 0:
         rainbow()
 
@@ -206,7 +216,7 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global o, loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
+    global o, loc_cycle, loc_info, dial, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
 
     x = accelerometer.get_x()
     
@@ -224,8 +234,10 @@ def fall_det():
     if down == 1:
         if time_on == None:
             time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
-        my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
-        my_rgb.write()
+        my_rgb1.fill( (255, 0, 0) )            #10s内先亮红灯
+        my_rgb2.fill( (255, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
             fall = 1

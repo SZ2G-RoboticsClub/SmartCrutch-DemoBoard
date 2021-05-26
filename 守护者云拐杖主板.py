@@ -57,7 +57,7 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 #路径规划初始化
 GEO_URL = 'https://restapi.amap.com/v3/geocode/geo?address='
 R_GEO_URL= 'https://restapi.amap.com/v3/geocode/regeo?output='
-NAV_URL = 'https://restapi.amap.com/v3/direction/walking?origin='
+NAV_URL = 'https://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
@@ -142,36 +142,41 @@ def help():
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
-    my_rgb1.fill( (255, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (255, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 255) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 255) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (255, 255, 255) )
-    my_rgb1.write()
-    time.sleep_ms(100)
-    my_rgb1.fill( (0, 0, 0) )
-    my_rgb1.write()
-    time.sleep_ms(100)
+    for r1 in range(2):
+        my_rgb1.fill( (255, 0, 0) )
+        my_rgb2.fill( (0, 0, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+
+    for r2 in range(2):
+        my_rgb2.fill( (255, 0, 0) )
+        my_rgb1.fill( (0, 0, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+
+    for r3 in range(2):
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb2.fill( (255, 255, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb2.fill( (0, 0, 0) )
+        my_rgb1.write()
+        my_rgb2.write()
+        time.sleep_ms(100)
 
 
 #平常状态之流水彩虹灯(ok)
@@ -182,7 +187,7 @@ def rainbow():
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  
-    move = move + 1
+    move = move - 1
 
 
 #平常状态(ok)
@@ -276,7 +281,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+    global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
     if p0.read_digital() == 1:
         backhome = backhome + 1

@@ -25,7 +25,7 @@ def rainbow():
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  
-    move = move + 1
+    move = move - 1
     
     
 while True:
