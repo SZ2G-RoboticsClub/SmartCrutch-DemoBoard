@@ -15,7 +15,7 @@ import audio
 #p0: "带我回家"按钮
 #p1：照明灯开关
 #p13：灯带1（灯数：63）
-#p14：灯带2（灯数：63）
+#p15：灯带2（灯数：63）
 
 
 #摔倒判断：
@@ -35,7 +35,7 @@ import audio
 p1 = MPythonPin(1, PinMode.IN)
 p0 = MPythonPin(0, PinMode.IN)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=63, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
 
 #心跳包数据初始化
@@ -46,7 +46,7 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
+BASE_URL = 'http://192.168.31.130:8000/demoboard'
 
 
 #搭建WiFi，连接app用户手机数据
@@ -55,9 +55,9 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 #路径规划初始化
-GEO_URL = 'https://restapi.amap.com/v3/geocode/geo?address='
-R_GEO_URL= 'https://restapi.amap.com/v3/geocode/regeo?output='
-NAV_URL = 'https://restapi.amap.com/v3/direction/walking?'
+GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
+R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output='
+NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
@@ -142,6 +142,7 @@ def help():
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
+    global r1, r2, r3
     for r1 in range(2):
         my_rgb1.fill( (255, 0, 0) )
         my_rgb2.fill( (0, 0, 255) )
@@ -230,7 +231,9 @@ def fall_det():
             time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
         
         my_rgb1.fill( (255, 0, 0) )            #10s内先亮红灯
+        my_rgb2.fill( (255, 0, 0) )
         my_rgb1.write()
+        my_rgb2.write()
 
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
@@ -473,4 +476,4 @@ else:
     oled.show()
 
 
-#状态：倒地，充电，common()，导航
+#状态：倒地，common()，导航

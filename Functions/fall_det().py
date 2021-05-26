@@ -14,7 +14,8 @@ import audio
 #p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
 #p0: "带我回家"按钮
 #p1：照明灯开关
-#p13：灯带
+#p13：灯带1（灯数：63）
+#p15：灯带2（灯数：63）
 
 
 #摔倒判断：
@@ -33,8 +34,8 @@ import audio
 
 p1 = MPythonPin(1, PinMode.IN)
 p0 = MPythonPin(0, PinMode.IN)
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
 #心跳包数据初始化
 uuid = 'abfb6a0d'        #拐杖身份证
@@ -54,7 +55,7 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 # #路径规划初始化
-GEO_URL = 'https://restapi.amap.com/v3/geocode/geo?address='
+GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
 # R_GEO_URL= 'https://restapi.amap.com/v3/geocode/regeo?output='
 # NAV_URL = 'https://restapi.amap.com/v3/direction/walking?origin='
 key = '10d4ac81004a9581c1d9de89eac4035b'
@@ -183,8 +184,8 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb1, 24, 80, move)
-    make_rainbow(my_rgb2, 24, 80, move)
+    make_rainbow(my_rgb1, 63, 80, move)
+    make_rainbow(my_rgb2, 63, 80, move)
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  
@@ -234,16 +235,19 @@ def fall_det():
     if down == 1:
         if time_on == None:
             time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
+        
         my_rgb1.fill( (255, 0, 0) )            #10s内先亮红灯
         my_rgb2.fill( (255, 0, 0) )
         my_rgb1.write()
         my_rgb2.write()
+
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
             fall = 1
         #30s内没起来
         if time.time() - time_on > 30:
             fall = 2
+        
     elif down == 0:
         fall = 0
         time_on = None
