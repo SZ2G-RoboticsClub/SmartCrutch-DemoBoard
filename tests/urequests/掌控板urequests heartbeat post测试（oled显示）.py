@@ -2,18 +2,18 @@ from mpython import *
 import urequests
 import network
 import time
-import ntptime
+# import ntptime
 
 my_wifi = wifi()
 my_wifi.connectWiFi('QFCS-MI', '999999999')
-ntptime.settime(8, "time.windows.com")
+# ntptime.settime(8, "time.windows.com")
 oled.fill(0)
 oled.DispChar('初始化成功', 0, 0)
 oled.show()
 
 
-BASE_URL = 'http://39.103.138.199:5283/demoboard'
-uuid = 'testuuid'
+BASE_URL = 'http://192.168.31.130:8000/demoboard'
+uuid = 'abfb6a0d'
 status = 'ok'
 heartbeat_Loc = None
 # heartbeat_time = None
@@ -46,9 +46,9 @@ while True:
     if time_set == None:
         time_set = time.time()
     
-    # print('没有问题1')
+    print('没有问题1')
     
-    if button_b.is_pressed():
+    if button_a.is_pressed():
         rgb.fill( (int(255), int(255), int(255)) )
         rgb.write()
         status = 'emergency'
@@ -73,8 +73,8 @@ while True:
         heartbeat_Loc = {"latitude": 22.576035, "longitude": 113.943418}
         status = 'ok'
     
-    # print('没有问题2')
-    # print(time.time() - time_set)
+    print('没有问题2')
+    print(time.time() - time_set)
     
     if time.time() - time_set >= 5:
         heartbeat()
@@ -89,7 +89,7 @@ while True:
         heartbeat_Loc = None
         # heartbeat_time = None
         
-        # print('没有问题3')
+        print('没有问题3')
         
         if resp.get('code') == 0:                   #返回数据类型正常
             continue
@@ -102,4 +102,3 @@ while True:
             oled.show()
 
 
-    

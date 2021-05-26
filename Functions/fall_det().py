@@ -1,73 +1,113 @@
 from machine import UART
 from mpython import *
-from bluebit import *
-from nplus.ai import *
 import math
 import network
 import music
 import neopixel
 import time
 import urequests
-import json
+import audio
 
+
+#引脚：
+#p15tx&p16rx：串口uart2(SIM卡模块)
+#p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
+#p0: "带我回家"按钮
+#p1：照明灯开关
+#p13：灯带
+
+
+#摔倒判断：
+# x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
+
+
+#位置获取：
+# 使用高德地图api 
+# a: list
+# b, c: float
+# a1b1c1为纬度数据，a2b2c2为经度数据
+
+
+# 实时定位位置：
+# loc_get1, location1, a/b/c:1&2
+
+p1 = MPythonPin(1, PinMode.IN)
+p0 = MPythonPin(0, PinMode.IN)
 my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 
 
 #心跳包数据初始化
-uuid = '3141592653589793'        #拐杖身份证
-status = ""                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
+uuid = 'abfb6a0d'        #拐杖身份证
+status = 'ok'                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
 
+# debug1
+o = 0
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
-my_wifi = wifi()         #搭建WiFi，连接app用户手机数据
-my_wifi.connectWiFi("idk","12345678")
+BASE_URL = 'http://192.168.31.130:8000/demoboard'
 
-oled.fill(0)
-oled.DispChar('初始化完毕', 0, 0)
-oled.show()
-time.sleep(2)
-oled.fill(0)
-oled.show()
+
+#搭建WiFi，连接app用户手机数据
+my_wifi = wifi()
+my_wifi.connectWiFi("QFCS-MI","999999999")
+
 
 # #路径规划初始化
-# MAP_URL = 'http://api.map.baidu.com/directionlite/v1/walking?'
-# ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
-# lat_first = 0     #出门获取的经纬信息
-# lon_first = 0
-# location1 = []
-# loc_get1 = []
-# des_loc = ''
-# lat_now = 0       #按下带我回家按钮记录的经纬信息
-# lon_now = 0
-# location3 = []
-# log_get3 = []
-# ori_loc = ''
-# para1 = ''
+GEO_URL = 'https://restapi.amap.com/v3/geocode/geo?address='
+# R_GEO_URL= 'https://restapi.amap.com/v3/geocode/regeo?output='
+# NAV_URL = 'https://restapi.amap.com/v3/direction/walking?origin='
+key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
+# api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
+# secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
+# method = ''
+# nav_file = 'nav_file.mp3'
 
-#全局变量定义                                            
-backhome = 0    #1：按下带我回家按钮；   0：导航到家或空状态
+
+lat_home = 0     #家庭住址经纬信息
+lon_home = 0
+home_loc = ''
+
+backhome = 0
+ori_loc = ''
+para_nav = ''
+
+
+#实时获取老人定位
+lat_now = 0
+lon_now = 0
+loc_info = ''
+loc_cycle = ''
+location1 = []
+a1 = []
+a2 = []
+b1 = 0
+b2 = 0
+c1 = 0
+c2 = 0
+
+
+#全局变量定义
+switch = 0
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
-switch = 1      #0：充电状态；     1：不在充电
-time_set = None
-lat_fall = 0     #摔倒获取的经纬信息
-lon_fall = 0
-location2 = []
-loc_get2 = []
-loc_fall = ''
-ai_lock = 0
-#（fall_det调用）
-# 2：摔倒30s拍过一次照;
-# 1：摔倒10s拍过一次照；   
-# 0：准备拍照；  
+time_set = None    #心跳包发送初始时间
+dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
+
+oled.fill(0)
+oled.DispChar('初始化完毕', 0, 0)
+oled.show()
+
+
+# ============ Modules ============
+
+#平常状态之彩虹灯效设定(ok)
 def make_rainbow(_neopixel, _num, _bright, _offset):          
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
     for i in range(_num):
@@ -79,69 +119,162 @@ def make_rainbow(_neopixel, _num, _bright, _offset):
         _neopixel[(i + _offset) % _num] = (r, g, b)
 
 
+#呼叫路人来帮忙(ok)
 def help():
+    # global freq
     oled.fill(0)
-    oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
+    oled.DispChar('我摔跤了,请帮帮我！', 10, 20)
     oled.show()
+    # for freq in range(580, 685, 35):
+    #     music.pitch(freq, 50)
+    # for freq in range(685, 580, -35):
+    #     music.pitch(freq, 50)
+    
+    # TEST4
+    # for i in range(2):
+    #   audio.play('alarm.mp3')
+    #   time.sleep(1)
+    
+    # TEST5
+    music.play(music.JUMP_UP, wait=True, loop=False)
+    
 
 
-def flashlight():                                                  
-    for i in range(2):
-        my_rgb.fill( (255, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (255, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 255) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 255) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (255, 255, 255) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
-        time.sleep_ms(50)
-        
-        
+#倒地闪红蓝白报警灯(ok)
+def flashlight():
+    my_rgb.fill( (255, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (255, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 255) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 255) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (255, 255, 255) )
+    my_rgb.write()
+    time.sleep_ms(100)
+    my_rgb.fill( (0, 0, 0) )
+    my_rgb.write()
+    time.sleep_ms(100)
+
+
+#平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
     make_rainbow(my_rgb, 24, 80, move)
     my_rgb.write()
-    time.sleep(1)
+    # time.sleep(0.25)  
     move = move + 1
-    
-    
+
+
+#平常状态(ok)
 def common():
+    global switch
     oled.fill(0)
     oled.DispChar('守护者云拐杖', 24, 16)
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if light.read() < 20:
+    if p1.read_digital() == 1:
+        switch += 1
+
+    if light.read() < 20 or switch % 2 == 1:
         my_rgb.fill( (255, 255, 255) )
         my_rgb.write()
-    else:
+    elif light.read() >= 20 and switch % 2 == 0:
         rainbow()
+
+
+
+# ============ Functions ============
+
+#摔倒检测(ok)
+def fall_det():
+    global o, loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
+
+    x = accelerometer.get_x()
+    
+    # debug1
+    o += 1
+    print('次数', o)
+    
+    #拐杖倒地判定
+    if x <= 0.5:            #究其根本
+        down = 1
+    else:
+        down = 0
+
+
+    if down == 1:
+        if time_on == None:
+            time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
+        my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
+        my_rgb.write()
+        #10s内没起来
+        if time.time() - time_on > 10 and time.time() - time_on <= 30:
+            fall = 1
+        #30s内没起来
+        if time.time() - time_on > 30:
+            fall = 2
+    elif down == 0:
+        fall = 0
+        time_on = None
+
+
+    if fall == 1:
+        status = 'emergency'
+        flashlight()
+        help()
+
+
+    if fall == 2:
+        status = 'emergency'
+        flashlight()
+        help()
+        if dial == 0:
+
+            # TEST1
+            oled.fill(0)
+            oled.DispChar('已拨打电话', 0, 0)
+            oled.show()
+            print('已拨打电话')
+            time.sleep(1)
+            oled.fill(0)
+            oled.show()
+
+            # uart2.write('AT+SETVOLTE=1')
+            # time.sleep(3)
+            # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+            
+            dial = 1
+
+    if fall == 0:
+        music.stop()
+        common()
+        dial = 0
+        status = 'ok'
+
 
 
 #心跳包发送(ok)
 def heartbeat():
+    global uuid, status, heartbeat_Loc, data, resp
     data = {                #心跳包数据存储
     "uuid": uuid,
     "status":status,
@@ -149,150 +282,118 @@ def heartbeat():
     }
 
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
-    user_set = resp.json()
-    print(user_set)
-    
-    
 
-ai = NPLUS_AI()                   #小方舟初始化
-ai.mode_change(1)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
-# uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
-while True:
-#     if switch == 0:
-#         my_rgb.fill( (0, 0, 0) )
-#         my_rgb.write()
-#         oled.fill(0)
-#         oled.show()
-#         if button_b.was_pressed():      #记录初始位置
-#             while True:
-#                 time.sleep(0.1)
-#                 loc_get1 = uart1.readline()              #先读取串口一行数据
-#                 if 'GNGLL' in loc_get1:
-#                     location1 = (str(loc_get1).split(','))
-#                     if location1[2] == 'N':
-#                         lat_first = float(location1[1]) * 0.01
-#                     elif location1[2] == 'S':
-#                         lat_first = float(location1[1]) * 0.01 * -1
-#                     else:
-#                         lat_first = 0
+    resp = resp.json()
 
-#                     if location1[4] == 'E':
-#                         lon_first = float(location1[3]) * 0.01
-#                     elif location1[4] == 'W':
-#                         lon_first = float(location1[3]) * 0.01 * -1
-#                     else:
-#                         lon_first = 0
-#                     des_loc = str(lat_first) + ',' + str(lon_first)
-#                     switch = 1             
-#                     break
 
-#     if switch == 1:
-#         common()
-#         fall_det()
-#         tim1.init(period=5000, mode=Timer.PERIODIC, callback=heartbeat)
-#         get_u_home()
+
+
+# ============ Main ============
+
+
+audio.player_init(i2c)
+audio.set_volume(100)
+# uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
+# uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
 
 #获得settingdata拐杖状态
-    s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
-    user_set = s.json()
-    if user_set['code'] == 0:
-        oled.DispChar('获取账户连接成功', 0, 0)
-        oled.show()
-        time.sleep(1)
+s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
+user_set = s.json()
+if user_set.get('code') == 0:
+    oled.DispChar('获取账户连接成功', 0, 0)
+    oled.show()
+    time.sleep(1)
+    oled.fill(0)
+    oled.show()
+    
+    #家庭住址经纬度获取
+    home = user_set.get('settings').get('home')
+    h = urequests.get(url=GEO_URL+home+'&output=json&key='+key)
+    h = h.json()
+    
+    # debug2
+    print(GEO_URL+home+'&output=json&key='+key)
+    print(h)
+    
+    home_loc = h.get('geocodes')[0].get('location')
+    oled.DispChar('家庭位置记录完毕', 0, 16)
+    oled.DispChar(home_loc, 0, 32)
+    oled.show()
+    time.sleep(1)
+    oled.fill(0)
+    oled.show()
+
     while True:
+        # loc_get1 = uart1.readline()
+        # location1 = (str(loc_get1).split(','))
+        # if location1[2] == 'N':
+        #     a1 = list(str(location1[1]))
+        #     b1 = float(''.join(a1[2:]))
+        #     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+        #     lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+        # elif location1[2] == 'S':
+        #     a1 = list(str(location1[1]))
+        #     b1 = float(''.join(a1[2:]))
+        #     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+        #     lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+        # else:
+        #     lat_now = 0
+
+
+        # if location1[4] == 'E':
+        #     a2 = list(str(location1[3]))
+        #     b2 = float(''.join(a2[3:]))
+        #     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+        #     lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+        # elif location1[4] == 'W':
+        #     a2 = list(str(location1[3]))
+        #     b2 = float(''.join(a2[3:]))
+        #     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+        #     lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+        # else:
+        #     lon_now = 0
+
+        # TEST2
+        lon_now = 113.937507
+        lat_now = 22.570334
+
+        loc_cycle = str(lon_now) + ',' + str(lat_now)
+
+        heartbeat_Loc = {
+            "latitude":lat_now,
+            "longitude":lon_now
+            }
+
         if time_set == None:
             time_set = time.time()
             
-        z = accelerometer.get_z()
-        if not (z > -2 and z < -0.6):
-            down = 1
-        else:
-            down = 0
-            
+        fall_det()
 
-        if down == 1:
-            ai.picture_capture(0)                 #AI拐杖记录仪拍照
-            if time_on == None:
-                time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
-            my_rgb.fill( (255, 0, 0) )                #10s内先亮红灯
-            my_rgb.write()
-            #10s内没起来
-            if time.time() - time_on > 5 and time.time() - time_on <= 30:
-                if ai_lock == 0:
-                    ai.picture_capture(0)
-                    time.sleep_ms(100)
-                    ai.picture_capture(0)
-                    time.sleep_ms(100)
-                    ai.picture_capture(0)
-                ai_lock = 1
-                fall = 1
-    
-    
-            #30s内没起来
-            if time.time() - time_on > 30:
-                if ai_lock == 1:
-                    ai.picture_capture(0)
-                    time.sleep_ms(100)
-                    ai.picture_capture(0)
-                    time.sleep_ms(100)
-                    ai.picture_capture(0)
-                ai_lock = 2
-                fall = 2
-        elif down == 0:
-            fall = 0
-            
-            
-        if fall == 1:
-            # while True:
-            #     time.sleep(0.1)
-            #     loc_get2 = uart1.readline()
-            #     if 'GNGLL' in loc_get2:
-            #         location2 = (str(loc_get2).split(','))
-            #         if location2[2] == 'N':
-            #             lat_fall = float(location2[1]) * 0.01
-            #         elif location2[2] == 'S':
-            #             lat_fall = float(location2[1]) * 0.01 * -1
-            #         else:
-            #             lat_fall = 0
-    
-    
-            #         if location2[4] == 'E':
-            #             lon_fall = float(location2[3]) * 0.01
-            #         elif location2[4] == 'W':
-            #             lon_fall = float(location2[3]) * 0.01 * -1
-            #         else:
-            #             lon_fall = 0
-    
-            #         break
-    
-            loc_fall = {"latitude":22.57149,               #修改心跳包状态
-                        "longitude":114.1023}
-            status = 'emergency'
-            heartbeat_Loc = loc_fall
-            
-            flashlight()
-            help()
-            music.play(music.POWER_UP, wait=False, loop=True)   #示警鸣笛声
-    
-        if fall == 2:
-            loc_fall = {"latitude":22.57149,               #修改心跳包状态
-                        "longitude":114.1023}
-            status = 'emergency'
-            heartbeat_Loc = loc_fall
-            flashlight()
-            help()
-            music.play(music.POWER_UP, wait=False, loop=True)
-            # uart2.write('AT+SETVOLTE=1')
-            # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
-    
-        if fall == 0:
-            music.stop()
-            common()
-            status = "ok"
-            heartbeat_Loc = None
-            
         if time.time() - time_set >= 5:
             heartbeat()
             time_set = None
+            if resp.get('code') == 0:                   #返回数据类型正常
+                continue
+            elif resp.get('code') == 1:
+                print('拐杖未注册')
+            else:
+                oled.fill(0)
+                oled.DispChar('心跳包错误', 0, 0, 1)
+                oled.show()
+
+                # TEST3
+                print(resp.get('msg'))
+
+                # time.sleep(1)
+                # oled.fill(0)
+                # oled.DispChar(str(resp.get('msg')), 0, 0, 1, True) #查看是否正常回应
+                # oled.show()
         
+else:
+    # print('账户连接失败，请重新启动')
+    oled.fill(0)
+    oled.DispChar('账户连接失败，请重新启动', 0, 0, 1, True)
+    oled.show()
+
+
+#状态：倒地，充电，common()，导航
