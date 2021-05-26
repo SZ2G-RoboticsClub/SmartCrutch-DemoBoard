@@ -10,11 +10,12 @@ import audio
 
 
 #引脚：
-#p16tx&p15rx：串口uart2(SIM卡模块)
+#p15tx&p16rx：串口uart2(SIM卡模块)
 #p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
 #p0: "带我回家"按钮
 #p1：照明灯开关
-#p13：灯带
+#p13：灯带1（灯数：）
+#p14：灯带2（灯数：）
 
 
 #摔倒判断：
@@ -33,18 +34,19 @@ import audio
 
 p1 = MPythonPin(1, PinMode.IN)
 p0 = MPythonPin(0, PinMode.IN)
-my_rgb = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P14), n=24, bpp=3, timing=1)
 
 
 #心跳包数据初始化
-uuid = '3141592653589793'        #拐杖身份证
-status = ''                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
+uuid = 'abfb6a0d'        #拐杖身份证
+status = 'ok'                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
 
 
 
 #初始化服务器传输
-BASE_URL = 'http://39.103.138.199:5283/demoboard'
+BASE_URL = 'http://192.168.43.199:8000/demoboard'
 
 
 #搭建WiFi，连接app用户手机数据
@@ -89,7 +91,7 @@ c2 = 0
 
 
 #全局变量定义       
-i = 0                                     
+switch = 0                                     
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
@@ -134,58 +136,62 @@ def help():
 def flashlight():
     global i
     for i in range(2):
-        my_rgb.fill( (255, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (255, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (255, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (255, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 255) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 255) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 255) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 255) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (255, 255, 255) )
-        my_rgb.write()
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb1.write()
         time.sleep_ms(100)
-        my_rgb.fill( (0, 0, 0) )
-        my_rgb.write()
+        my_rgb1.fill( (0, 0, 0) )
+        my_rgb1.write()
         time.sleep_ms(100)
 
 
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb, 24, 80, move)
-    my_rgb.write()
+    make_rainbow(my_rgb1, 24, 80, move)
+    my_rgb1.write()
     # time.sleep(0.25)  
     move = move + 1
 
 
 #平常状态(ok)
 def common():
+    global switch
     oled.fill(0)
     oled.DispChar('守护者云拐杖', 24, 16)
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if light.read() < 20 or p1.read_digital() == 1:
-        my_rgb.fill( (255, 255, 255) )
-        my_rgb.write()
-    else:
+    if p1.read_digital() == 1:
+        switch += 1
+
+    if light.read() < 20 or switch % 2 == 1:
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb1.write()
+    elif light.read() >= 20 and switch % 2 == 0:
         rainbow()
 
 
@@ -207,8 +213,8 @@ def fall_det():
     if down == 1:
         if time_on == None:
             time_on = time.time()                 #记录初始时间，计时10s，10s拐杖还没起来表示老人摔倒
-        my_rgb.fill( (255, 0, 0) )            #10s内先亮红灯
-        my_rgb.write()
+        my_rgb1.fill( (255, 0, 0) )            #10s内先亮红灯
+        my_rgb1.write()
         #10s内没起来
         if time.time() - time_on > 10 and time.time() - time_on <= 30:
             fall = 1
@@ -231,6 +237,7 @@ def fall_det():
         help()
         if dial == 0:
             uart2.write('AT+SETVOLTE=1')
+            time.sleep(3)
             uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
             dial = 1
 
@@ -336,7 +343,7 @@ def heartbeat():
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P15)
+uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
@@ -352,8 +359,7 @@ if user_set.get('code') == 0:
     home = user_set.get('settings').get('home')
     h = urequests.get(url=GEO_URL+home+'&output=json&key='+key)
     h = h.json()
-    lat_home = h.get('result').get('location').get('lat')
-    lon_home = h.get('result').get('location').get('lng')
+
     home_loc = h.get('geocodes')[0].get('location')
     oled.DispChar('家庭位置记录完毕', 0, 16)
     oled.DispChar(home_loc, 0, 32)
@@ -392,15 +398,11 @@ if user_set.get('code') == 0:
         else:
             lon_now = 0
 
-        loc_cycle = lon_now + ',' + lat_now
-        d = urequests.post(url=R_GEO_URL+'&output=json&location='+loc_cycle+'&key='+key+'&radius=1000&extensions=all')
-        d = d.json()
-        loc_info = d.get('regeocode').get('formatted_address')
+        # loc_cycle = str(lon_now) + ',' + str(lat_now)
 
         heartbeat_Loc = {
-            "latitude":lat_now,
-            "longitude":lon_now,
-            "info": loc_info
+            "latitude": lat_now,
+            "longitude": lon_now
             }
 
         if time_set == None:
