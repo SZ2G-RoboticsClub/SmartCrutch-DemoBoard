@@ -1,7 +1,7 @@
 from machine import UART
 from mpython import *
 import math
-# import network
+import network
 import music
 import neopixel
 import time
@@ -47,7 +47,7 @@ p0 = MPythonPin(0, PinMode.IN)
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("QFCS-MI","999999999")
+my_wifi.connectWiFi("idk", "12345678")
 
 
 #路径规划初始化
@@ -58,7 +58,6 @@ key = '10d4ac81004a9581c1d9de89eac4035b'
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
-nav_file = 'nav_file.mp3'
 
 
 lat_home = 0     #家庭住址经纬信息
@@ -102,7 +101,7 @@ oled.show()
 
 #"带你回家"
 def take_u_home():
-    global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+    global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, r_audio 
     
     if p0.read_digital() == 1:
         backhome = backhome + 1
@@ -117,65 +116,76 @@ def take_u_home():
         # time.sleep(3)
         # oled.fill(0)
         # oled.show()
+        
+        oled.fill(0)
+        oled.DispChar('开始导航！', 0, 0)
+        oled.show()
+        time.sleep(2)
+        oled.fill(0)
+        oled.show()
+        
         print(ori_loc)
         print(home_loc)
         para_nav = ori_loc+'&destination='+home_loc+'&key='+key
-        print(NAV_URL+para_nav)
+        # print(NAV_URL+para_nav)
         nav = urequests.get(url=NAV_URL+para_nav, headers={})
-        print(nav)
+        # print(nav)
         nav = nav.json()
-        print(nav)
-        if nav.get('status') == "1":
+        # print(nav)
+        # if nav.get('status') == "1":
             # oled.fill(0)
             # oled.DispChar(str(nav), 0, 0, 1, True)
             # oled.show()
             # time.sleep(5)
             # oled.fill(0)
             # oled.show()
-            method = nav.get('route').get('paths')[0].get('steps')[0].get('instruction')
-            print(method)
-            data_audio = {
-                "API_Key": api_key,
-                "Secret_Key": secret_key,
-                "text": method,
-                "filename": nav_file
-            }
+        method = nav.get('route').get('paths')[0].get('steps')[0].get('instruction')
+        print(method)
+        data_audio = {
+            "API_Key": api_key,
+            "Secret_Key": secret_key,
+            "text": method,
+            "filename": 'nav_file.mp3'
+        }
+        
+        # print(data_audio)
+        
+        r_audio = urequests.post("http://119.23.66.134:8085/baidu_tts", params=data_audio)
+        # print('audio post ok')
+        with open('nav_file.mp3', "w") as _f:
+            while True:
+                dat = r_audio.recv(1024)
+                if not dat:
+                    break
+                _f.write(dat)
+            # print('now')
+        # print('准备播放音频：')
+        # time.sleep(5)
+        audio.play('nav_file.mp3')
+        # oled.fill(0)
+        # oled.DispChar(method, 0, 0, 1, True)
+        # oled.show()
+        time.sleep(5)
+        # elif nav.get('status') != "1":
+        #     # oled.fill(0)
+        #     # oled.DispChar(str(nav), 0, 0, 1, True)
+        #     # oled.show()
+        #     # time.sleep(5)
+        #     oled.fill(0)
+        #     oled.DispChar('导航结束！', 0, 0)
+        #     oled.show()
+        #     time.sleep(2)
+        #     oled.fill(0)
+        #     oled.show()
+        #     audio.play('nav_end.mp3')
+        #     time.sleep(3)
             
-            r_audio = urequests.post("http://119.23.66.134:8085/baidu_tts", params=data_audio)
-            with open(nav_file, "w") as _f:
-                while True:
-                    dat = r_audio.recv(1024)
-                    if not dat:
-                        break
-                    _f.write(dat)
-            audio.play(nav_file)
-            # oled.fill(0)
-            # oled.DispChar(method, 0, 0, 1, True)
-            # oled.show()
-            time.sleep(5)
-        elif nav.get('status') != "1":
-            # oled.fill(0)
-            # oled.DispChar(str(nav), 0, 0, 1, True)
-            # oled.show()
-            # time.sleep(5)
-            oled.fill(0)
-            oled.DispChar('导航结束！', 0, 0)
-            oled.show()
-            time.sleep(2)
-            oled.fill(0)
-            oled.show()
-            # audio.play('nav_end.mp3')
-            # time.sleep(3)
-            
-            backhome = 0
+        backhome = 0
                 # break
-            
+    elif backhome == 0:
+        audio.stop()
 
 
-# ============ Main ============
-
-# ai = NPLUS_AI()
-# ai.mode_change(1)
 audio.player_init(i2c)
 audio.set_volume(100)
 # uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)

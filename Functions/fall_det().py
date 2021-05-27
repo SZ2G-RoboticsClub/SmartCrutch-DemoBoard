@@ -32,8 +32,8 @@ import audio
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-p1 = MPythonPin(1, PinMode.IN)
-p0 = MPythonPin(0, PinMode.IN)
+# p1 = MPythonPin(1, PinMode.IN)
+p0 = MPythonPin(0, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
@@ -46,12 +46,12 @@ heartbeat_Loc = None             #location
 o = 0
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.31.130:8000/demoboard'
+BASE_URL = 'http://192.168.43.199:8000/demoboard'
 
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("QFCS-MI","999999999")
+my_wifi.connectWiFi("idk","12345678")
 
 
 # #路径规划初始化
@@ -193,6 +193,14 @@ def rainbow():
     move = move - 1
 
 
+# A键开关灯
+def on_button_a_pressed(_):
+    global switch
+    switch += 1
+
+button_a.event_pressed = on_button_a_pressed
+
+
 #平常状态(ok)
 def common():
     global switch
@@ -201,15 +209,12 @@ def common():
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if p1.read_digital() == 1:
-        switch += 1
-
-    if light.read() < 20 or switch % 2 == 1:
+    if p0.read_analog() < 150 or switch % 2 == 1:
         my_rgb1.fill( (255, 255, 255) )
         my_rgb2.fill( (255, 255, 255) )
         my_rgb1.write()
         my_rgb2.write()
-    elif light.read() >= 20 and switch % 2 == 0:
+    elif p0.read_analog() >= 150 and switch % 2 == 0:
         rainbow()
 
 
@@ -218,12 +223,9 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global o, loc_cycle, loc_info, dial, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
-    
-    # debug1
-    o += 1
-    print('次数', o)
-    
+    global loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
+
+    x = accelerometer.get_x()
     #拐杖倒地判定
     if x <= 0.5:            #究其根本
         down = 1
@@ -246,7 +248,7 @@ def fall_det():
         #30s内没起来
         if time.time() - time_on > 30:
             fall = 2
-        
+
     elif down == 0:
         fall = 0
         time_on = None
@@ -327,8 +329,8 @@ if user_set.get('code') == 0:
     h = h.json()
     
     # debug2
-    print(GEO_URL+home+'&output=json&key='+key)
-    print(h)
+    # print(GEO_URL+home+'&output=json&key='+key)
+    # print(h)
     
     home_loc = h.get('geocodes')[0].get('location')
     oled.DispChar('家庭位置记录完毕', 0, 16)
@@ -340,7 +342,7 @@ if user_set.get('code') == 0:
 
     while True:
         x = accelerometer.get_x()
-        print(x)
+        # print(x)
         # loc_get1 = uart1.readline()
         # location1 = (str(loc_get1).split(','))
         # if location1[2] == 'N':
@@ -370,9 +372,9 @@ if user_set.get('code') == 0:
         # else:
         #     lon_now = 0
 
-        # TEST2
-        lon_now = 113.937507
-        lat_now = 22.570334
+        # TEST2(教科院)
+        lon_now = 114.095582
+        lat_now = 22.565531
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
 
@@ -399,7 +401,7 @@ if user_set.get('code') == 0:
                 oled.show()
 
                 # TEST3
-                print(resp.get('msg'))
+                # print(resp.get('msg'))
 
                 # time.sleep(1)
                 # oled.fill(0)
@@ -413,4 +415,4 @@ else:
     oled.show()
 
 
-#状态：倒地，充电，common()，导航
+#状态：倒地，common()，导航

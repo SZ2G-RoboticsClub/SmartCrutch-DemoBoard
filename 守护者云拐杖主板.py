@@ -10,10 +10,11 @@ import audio
 
 
 #引脚：
-#p15tx&p16rx：串口uart2(SIM卡模块)
+#p1tx&p16rx：串口uart2(SIM卡模块)
 #p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#p0: "带我回家"按钮
-#p1：照明灯开关
+#A键: "带我回家"按钮
+#B键：照明灯开关
+#p0：光敏电阻（光线传感）
 #p13：灯带1（灯数：63）
 #p15：灯带2（灯数：63）
 
@@ -32,8 +33,8 @@ import audio
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-p1 = MPythonPin(1, PinMode.IN)
-p0 = MPythonPin(0, PinMode.IN)
+# p1 = MPythonPin(1, PinMode.IN)
+p0 = MPythonPin(0, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
@@ -46,12 +47,12 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.31.130:8000/demoboard'
+BASE_URL = 'http://192.168.43.199:8000/demoboard'
 
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("QFCS-MI","999999999")
+my_wifi.connectWiFi("idk","12345678")
 
 
 #路径规划初始化
@@ -191,6 +192,14 @@ def rainbow():
     move = move - 1
 
 
+# A键开关灯
+def on_button_a_pressed(_):
+    global switch
+    switch += 1
+
+button_a.event_pressed = on_button_a_pressed
+
+
 #平常状态(ok)
 def common():
     global switch
@@ -199,15 +208,12 @@ def common():
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if p1.read_digital() == 1:
-        switch += 1
-
-    if light.read() < 20 or switch % 2 == 1:
+    if p0.read_analog() < 20 or switch % 2 == 1:
         my_rgb1.fill( (255, 255, 255) )
         my_rgb2.fill( (255, 255, 255) )
         my_rgb1.write()
         my_rgb2.write()
-    elif light.read() >= 20 and switch % 2 == 0:
+    elif p0.read_analog() >= 20 and switch % 2 == 0:
         rainbow()
 
 
@@ -280,6 +286,13 @@ def fall_det():
         dial = 0
         status = 'ok'
 
+
+# B键带我回家
+def on_button_b_pressed(_):
+    global backhome
+    backhome = 1
+
+button_b.event_pressed = on_button_b_pressed
 
 
 #"带你回家"
