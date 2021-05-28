@@ -305,6 +305,7 @@ def fall_det():
 
     if fall == 0:
         music.stop()
+        uart2.write('AT+CHUP') #(挂断所有通话)
         common()
         dial = 0
         status = 'ok'
