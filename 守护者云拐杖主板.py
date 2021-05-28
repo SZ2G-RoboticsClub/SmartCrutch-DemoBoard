@@ -208,13 +208,24 @@ def common():
     oled.DispChar('开', 56, 32)
     oled.show()
     #光感手电
-    if p0.read_analog() < 20 or switch % 2 == 1:
+    if switch % 3 == 0:
+        my_rgb2.fill((0,0,0))
+        my_rgb1.fill((0,0,0))
+        my_rgb1.write()
+        my_rgb2.write()
+    elif switch % 3 == 1:
+        if p0.read_analog() < 100:
+            my_rgb1.fill( (255, 255, 255) )
+            my_rgb2.fill( (255, 255, 255) )
+            my_rgb1.write()
+            my_rgb2.write()
+        elif p0.read_analog() >= 100:
+            rainbow()    
+    elif switch % 3 == 2:
         my_rgb1.fill( (255, 255, 255) )
         my_rgb2.fill( (255, 255, 255) )
         my_rgb1.write()
         my_rgb2.write()
-    elif p0.read_analog() >= 20 and switch % 2 == 0:
-        rainbow()
 
 
 
