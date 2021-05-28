@@ -12,8 +12,8 @@ import audio
 #引脚：
 #p1tx&p16rx：串口uart2(SIM卡模块)
 #p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#A键: "带我回家"按钮
-#B键：照明灯开关
+#B键(绿色按钮): "带我回家"按钮
+#A键(红色按钮)：照明灯开关
 #p0：光敏电阻（光线传感）
 #p13：灯带1（灯数：63）
 #p15：灯带2（灯数：63）
@@ -228,6 +228,16 @@ def common():
         my_rgb2.write()
 
 
+# 倒地10s短信通知
+def message():
+    pass
+
+
+# 倒地30s短信通知
+def sec_message():
+    pass
+
+
 
 # ============ Functions ============
 
@@ -268,26 +278,28 @@ def fall_det():
         status = 'emergency'
         flashlight()
         help()
+        message()
 
 
     if fall == 2:
         status = 'emergency'
         flashlight()
         help()
+        sec_message()
         if dial == 0:
 
             # TEST1
-            oled.fill(0)
-            oled.DispChar('已拨打电话', 0, 0)
-            oled.show()
-            print('已拨打电话')
-            time.sleep(1)
-            oled.fill(0)
-            oled.show()
+            # oled.fill(0)
+            # oled.DispChar('已拨打电话', 0, 0)
+            # oled.show()
+            # print('已拨打电话')
+            # time.sleep(1)
+            # oled.fill(0)
+            # oled.show()
 
-            # uart2.write('AT+SETVOLTE=1')
-            # time.sleep(3)
-            # uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
+            uart2.write('AT+SETVOLTE=1')
+            time.sleep(3)
+            uart2.write('ATD' + str(user_set.get('settings').get('phone')))         #倒地30s后SIM模块拨打setting中紧急联系人电话                                                     #拨打电话（SIM卡）          
             
             dial = 1
 
@@ -310,13 +322,7 @@ button_b.event_pressed = on_button_b_pressed
 def take_u_home():
     global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
-    if p0.read_digital() == 1:
-        backhome = backhome + 1
-    
-    if backhome == 0:
-        fall_det()
-    elif backhome != 0:
-        fall_det()
+    if backhome == 1:
         ori_loc = loc_cycle
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
@@ -334,10 +340,8 @@ def take_u_home():
         # print(nav)
         if nav.get('status') == "1":
             # oled.fill(0)
-            # oled.DispChar(str(nav), 0, 0, 1, True)
-            # oled.show()
-            # time.sleep(5)
-            # oled.fill(0)
+            # oled.DispChar('守护者云拐杖', 24, 16)
+            # oled.DispChar('正在带您回家', 24, 40)
             # oled.show()
             method = nav.get('route').get('paths')[0].get('steps')[0].get('instruction')
             data_audio = {
@@ -358,19 +362,16 @@ def take_u_home():
             # oled.DispChar(method, 0, 0, 1, True)
             # oled.show()
             time.sleep(5)
+            audio.stop()
+
         elif nav.get('status') != "1":
             # oled.fill(0)
-            # oled.DispChar(str(nav), 0, 0, 1, True)
-            # oled.show()
-            # time.sleep(5)
-            # oled.fill(0)
-            # oled.DispChar('导航结束！', 0, 0)
-            # oled.show()
-            # time.sleep(2)
-            # oled.fill(0)
+            # oled.DispChar('守护者云拐杖', 24, 16)
+            # oled.DispChar('导航结束', 40, 32)
             # oled.show()
             audio.play('nav_end.mp3')
             time.sleep(3)
+            audio.stop()
             
             backhome = 0
                 # break
@@ -426,7 +427,12 @@ if user_set.get('code') == 0:
     oled.show()
 
     while True:
-        loc_get1 = uart1.readline()
+        
+        while True:
+            loc_get1 = uart1.readline()
+            if loc_get1:
+                break
+
         location1 = (str(loc_get1).split(','))
         if location1[2] == 'N':
             a1 = list(str(location1[1]))
