@@ -4,7 +4,7 @@ SmartCrutch-v4 demoboard Repo
 
 
 ## Hardware required
-- 掌控宝 × 1
+- 掌控宝 × 1(ESP32模组)
 - 灯带（63颗） × 2
 - 按钮 × 2（AB按键）
 - SIM卡模块 × 1
@@ -109,16 +109,19 @@ SmartCrutch-v4 demoboard Repo
 #### Data——post上传
 - 正常情况
     - status: "ok"
-    - loc: None
+    - loc: 
+        - latitude: 实时获取纬度
+        - longitude: 实时获取经度
 
 - 摔倒
     - status: "emergency"
     - loc:
         - latitude: 摔倒纬度
         - longitude: 摔倒经度
-    - falltime:
+    
+    - 可做历史记录【falltime:
         - date: 摔倒日期(年月日)
-        - time: 摔倒时间(时分秒)
+        - time: 摔倒时间(时分秒)】
 
 - 其他错误
     - status: "error"
