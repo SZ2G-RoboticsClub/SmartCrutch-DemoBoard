@@ -243,7 +243,7 @@ def sec_message():
 
 #摔倒检测(ok)
 def fall_det():
-    global loc_cycle, loc_info, d, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
+    global loc_cycle, loc_info, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
 
     x = accelerometer.get_x()
     #拐杖倒地判定
@@ -304,10 +304,13 @@ def fall_det():
             dial = 1
 
     if fall == 0:
+
+        if dial == 1:
+            uart2.write('AT+CHUP') #(挂断所有通话)
+            dial = 0
+
         music.stop()
-        uart2.write('AT+CHUP') #(挂断所有通话)
         common()
-        dial = 0
         status = 'ok'
 
 
