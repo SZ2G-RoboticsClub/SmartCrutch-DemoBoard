@@ -62,7 +62,8 @@ NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
-api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        #百度语音导航初始化
+#百度语音导航初始化
+api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
 nav_file = 'nav_file.mp3'
