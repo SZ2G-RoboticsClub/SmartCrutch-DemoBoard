@@ -19,6 +19,7 @@ status = 'ok'
 heartbeat_Loc = None
 time_set = None
 
+
 def heartbeat():
     global uuid, status, heartbeat_Loc, data, resp
     data = {                #心跳包数据存储
