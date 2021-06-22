@@ -15,8 +15,8 @@ import audio
 #B键(绿色按钮): "带我回家"按钮
 #A键(红色按钮)：照明灯开关
 #p0：光敏电阻（光线传感）
-#p13：灯带1（灯数：63）
-#p15：灯带2（灯数：63）
+#p13：灯带1（灯数：24）
+#p15：灯带2（灯数：24）
 
 
 #摔倒判断：
@@ -35,8 +35,8 @@ import audio
 
 # p1 = MPythonPin(1, PinMode.IN)
 p0 = MPythonPin(0, PinMode.ANALOG)
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
 
 
 #心跳包数据初始化
@@ -47,12 +47,12 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
+BASE_URL = 'http://192.168.1.127:8000/demoboard'
 
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("idk","12345678")
+my_wifi.connectWiFi("QFCS1","12345678")
 
 
 #路径规划初始化
@@ -133,12 +133,12 @@ def help():
     # for freq in range(1930, 880, -35):
     #     music.pitch(freq, 50)
 
-    # TEST4
+    # TEST5
     # for p in range(2):
     #   audio.play('alarm.mp3')
     #   time.sleep(1)
 
-    # TEST5
+    # TEST6
     music.play(music.JUMP_UP, wait=True, loop=False)
 
 
@@ -185,8 +185,8 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb1, 63, 80, move)
-    make_rainbow(my_rgb2, 63, 80, move)
+    make_rainbow(my_rgb1, 24, 80, move)
+    make_rainbow(my_rgb2, 24, 80, move)
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  
@@ -279,37 +279,38 @@ def fall_det():
         status = 'emergency'
         flashlight()
         help()
-        message()
+        # message()
 
 
     if fall == 2:
         status = 'emergency'
         flashlight()
         help()
-        sec_message()
-        if dial == 0:
+        print('the second alarm!!!')
+        # sec_message()
+        # if dial == 0:
 
-            # TEST1
-            # oled.fill(0)
-            # oled.DispChar('已拨打电话', 0, 0)
-            # oled.show()
-            # print('已拨打电话')
-            # time.sleep(1)
-            # oled.fill(0)
-            # oled.show()
+        #     # TEST1
+        #     # oled.fill(0)
+        #     # oled.DispChar('已拨打电话', 0, 0)
+        #     # oled.show()
+        #     # print('已拨打电话')
+        #     # time.sleep(1)
+        #     # oled.fill(0)
+        #     # oled.show()
 
-            # 倒地30s后SIM模块拨打setting中紧急联系人电话
-            uart2.write('AT+SETVOLTE=1')
-            time.sleep(3)
-            uart2.write('ATD' + str(user_set.get('settings').get('phone')))
+        #     # 倒地30s后SIM模块拨打setting中紧急联系人电话
+        #     uart2.write('AT+SETVOLTE=1')
+        #     time.sleep(3)
+        #     uart2.write('ATD' + str(user_set.get('settings').get('phone')))
             
-            dial = 1
+        #     dial = 1
 
     if fall == 0:
 
-        if dial == 1:
-            uart2.write('AT+CHUP') #(挂断所有通话)
-            dial = 0
+        # if dial == 1:
+        #     uart2.write('AT+CHUP') #(挂断所有通话)
+        #     dial = 0
 
         music.stop()
         common()
@@ -329,6 +330,9 @@ def take_u_home():
     global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
     if backhome == 1:
+        # debug3
+        # print('开始导航')
+        
         ori_loc = loc_cycle
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
@@ -339,7 +343,7 @@ def take_u_home():
         # oled.show()
         # print(ori_loc)
         para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key
-        # print(para_nav)
+        print(NAV_URL+str(para_nav))
         nav = urequests.get(url=NAV_URL+str(para_nav))
         # print(nav)
         nav = nav.json()
@@ -364,17 +368,23 @@ def take_u_home():
                         break
                     _f.write(dat)
             audio.play(nav_file)
+            
+            # debug4
             # oled.fill(0)
             # oled.DispChar(method, 0, 0, 1, True)
             # oled.show()
+            
             time.sleep(5)
             audio.stop()
 
             if nav.get('route').get('paths')[0].get('steps')[0].get('assistant_action') == "到达目的地":
+                
+                # TEST7
                 # oled.fill(0)
                 # oled.DispChar('守护者云拐杖', 24, 16)
                 # oled.DispChar('导航结束', 40, 32)
                 # oled.show()
+                
                 audio.play('nav_end.mp3')
                 time.sleep(3)
                 audio.stop()
@@ -408,8 +418,8 @@ def heartbeat():
 # ai.mode_change(1)
 audio.player_init(i2c)
 audio.set_volume(100)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
+# uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
+# uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
@@ -423,10 +433,22 @@ if user_set.get('code') == 0:
     
     #家庭住址经纬度获取
     home = user_set.get('settings').get('home')
+
+    # debug1
+    # print(user_set)
+    # print("home", home)
+
     h = urequests.get(url=GEO_URL+home+'&output=json&key='+key)
     h = h.json()
 
+    # debug2
+    # print(h)
+
     home_loc = h.get('geocodes')[0].get('location')
+    
+    # debug5
+    # print(home_loc)
+    
     oled.DispChar('家庭位置记录完毕', 0, 16)
     oled.DispChar(home_loc, 0, 32)
     oled.show()
@@ -436,42 +458,49 @@ if user_set.get('code') == 0:
 
     while True:
         
-        while True:
-            loc_get1 = uart1.readline()
-            if loc_get1:
-                break
+        # while True:
+        #     loc_get1 = uart1.readline()
+        #     if loc_get1:
+        #         break
 
-        location1 = (str(loc_get1).split(','))
-        if location1[2] == 'N':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-        elif location1[2] == 'S':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-        else:
-            lat_now = 0
+        # location1 = (str(loc_get1).split(','))
+        
+# TEST8
+# 113.937507,22.570334
+
+        # m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+        # location1 = m.split(',')
+        
+        # if location1[2] == 'N':
+        #     a1 = list(str(location1[1]))
+        #     b1 = float(''.join(a1[2:]))
+        #     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+        #     lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+        # elif location1[2] == 'S':
+        #     a1 = list(str(location1[1]))
+        #     b1 = float(''.join(a1[2:]))
+        #     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+        #     lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+        # else:
+        #     lat_now = 0
 
 
-        if location1[4] == 'E':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-        elif location1[4] == 'W':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-        else:
-            lon_now = 0
+        # if location1[4] == 'E':
+        #     a2 = list(str(location1[3]))
+        #     b2 = float(''.join(a2[3:]))
+        #     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+        #     lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+        # elif location1[4] == 'W':
+        #     a2 = list(str(location1[3]))
+        #     b2 = float(''.join(a2[3:]))
+        #     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+        #     lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+        # else:
+        #     lon_now = 0
 
         # TEST2
-        # lon_now = 113.937507
-        # lat_now = 22.570334
+        lon_now = 113.937507
+        lat_now = 22.570334
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
 
@@ -482,7 +511,7 @@ if user_set.get('code') == 0:
 
         if time_set == None:
             time_set = time.time()
-
+        
         take_u_home()
 
         if time.time() - time_set >= 5:
@@ -498,15 +527,16 @@ if user_set.get('code') == 0:
                 oled.show()
 
                 # TEST3
-                print(resp.get('msg'))
+                # print(resp.get('msg'))
 
+                # TEST4
                 # time.sleep(1)
                 # oled.fill(0)
                 # oled.DispChar(str(resp.get('msg')), 0, 0, 1, True) #查看是否正常回应
                 # oled.show()
 
 
-        
+
 else:
     # print('账户连接失败，请重新启动')
     oled.fill(0)
