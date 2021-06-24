@@ -9,21 +9,21 @@ import urequests
 import audio
 
 
-#引脚：
-#p1tx&p16rx：串口uart2(SIM卡模块)
-#p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#B键(绿色按钮): "带我回家"按钮
-#A键(红色按钮)：照明灯开关
-#p0：光敏电阻（光线传感）
-#p13：灯带1（灯数：24）
-#p15：灯带2（灯数：24）
+# 掌控板引脚：
+# p1tx&p16rx：串口uart2(SIM卡模块)
+# p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
+# B键(绿色按钮): "带我回家"按钮
+# A键(红色按钮)：照明灯开关
+# p0：光敏电阻（光线传感）
+# p13：灯带1（灯数：24）
+# p15：灯带2（灯数：24）
 
 
-#摔倒判断：
+# 摔倒判断：
 # x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
 
 
-#位置获取：
+# 位置获取：
 # 使用高德地图api 
 # a: list
 # b, c: float
@@ -47,12 +47,22 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.1.127:8000/demoboard'
+
+# 本地
+BASE_URL = 'http://192.168.1.105:8000/demoboard'     #QFCS1
+# BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
+# BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
+# BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
+
+# 公网服务器
+# BASE_URL = 'http://39.103.138.199:8000/demoboard'
+
 
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
 my_wifi.connectWiFi("QFCS1","12345678")
+
 
 
 #路径规划初始化
@@ -62,6 +72,7 @@ NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
+
 #百度语音导航初始化
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
@@ -69,13 +80,18 @@ method = ''
 nav_file = 'nav_file.mp3'
 
 
-lat_home = 0     #家庭住址经纬信息
+
+#家庭住址经纬信息
+lat_home = 0
 lon_home = 0
 home_loc = ''
 
 backhome = 0
 ori_loc = ''
 para_nav = ''
+
+st = 0
+
 
 
 #实时获取老人定位
@@ -84,12 +100,14 @@ lon_now = 0
 loc_info = ''
 loc_cycle = ''
 location1 = []
+m = ''
 a1 = []
 a2 = []
 b1 = 0
 b2 = 0
 c1 = 0
 c2 = 0
+
 
 
 #全局变量定义       
@@ -104,7 +122,7 @@ dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
 oled.fill(0)
-oled.DispChar('初始化完毕', 0, 0)
+oled.DispChar('网络连接初始化完毕', 0, 0)
 oled.show()
 
 
@@ -193,7 +211,7 @@ def rainbow():
     move = move - 1
 
 
-# A键开关灯
+#A键开关灯
 def on_button_a_pressed(_):
     global switch
     switch += 1
@@ -229,12 +247,12 @@ def common():
         my_rgb2.write()
 
 
-# 倒地10s短信通知
+#倒地10s短信通知
 def message():
     pass
 
 
-# 倒地30s短信通知
+#倒地30s短信通知
 def sec_message():
     pass
 
@@ -327,13 +345,17 @@ button_b.event_pressed = on_button_b_pressed
 
 #"带你回家"
 def take_u_home():
-    global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+    global st, backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
     if backhome == 1:
         # debug3
         # print('开始导航')
-        
-        ori_loc = loc_cycle
+        if st == 0:
+            ori_loc = loc_cycle
+            st = 1
+        elif st == 1:
+            ori_loc = '113.937507,22.570334'
+            st = 0
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
         # oled.DispChar(ori_loc, 0, 32)
@@ -419,7 +441,7 @@ def heartbeat():
 audio.player_init(i2c)
 audio.set_volume(100)
 # uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-# uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
+# uart2 = machine.UART(2, baudrate=9600, tx=Pin.P1, rx=Pin.P16)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
@@ -457,7 +479,7 @@ if user_set.get('code') == 0:
     oled.show()
 
     while True:
-        
+
         # while True:
         #     loc_get1 = uart1.readline()
         #     if loc_get1:
@@ -465,42 +487,40 @@ if user_set.get('code') == 0:
 
         # location1 = (str(loc_get1).split(','))
         
-# TEST8
-# 113.937507,22.570334
 
-        # m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
-        # location1 = m.split(',')
+        m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+        location1 = m.split(',')
         
-        # if location1[2] == 'N':
-        #     a1 = list(str(location1[1]))
-        #     b1 = float(''.join(a1[2:]))
-        #     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-        #     lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-        # elif location1[2] == 'S':
-        #     a1 = list(str(location1[1]))
-        #     b1 = float(''.join(a1[2:]))
-        #     c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-        #     lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-        # else:
-        #     lat_now = 0
+        if location1[2] == 'N':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+        elif location1[2] == 'S':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+        else:
+            lat_now = 0
 
 
-        # if location1[4] == 'E':
-        #     a2 = list(str(location1[3]))
-        #     b2 = float(''.join(a2[3:]))
-        #     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-        #     lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-        # elif location1[4] == 'W':
-        #     a2 = list(str(location1[3]))
-        #     b2 = float(''.join(a2[3:]))
-        #     c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-        #     lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-        # else:
-        #     lon_now = 0
+        if location1[4] == 'E':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+        elif location1[4] == 'W':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+        else:
+            lon_now = 0
 
         # TEST2
-        lon_now = 113.937507
-        lat_now = 22.570334
+        # lon_now = 113.937507
+        # lat_now = 22.570334
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
 

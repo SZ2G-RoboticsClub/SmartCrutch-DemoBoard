@@ -9,21 +9,21 @@ import urequests
 import audio
 
 
-#引脚：
-#p1tx&p16rx：串口uart2(SIM卡模块)
-#p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#B键(绿色按钮): "带我回家"按钮
-#A键(红色按钮)：照明灯开关
-#p0：光敏电阻（光线传感）
-#p13：灯带1（灯数：63）
-#p15：灯带2（灯数：63）
+# 掌控板引脚：
+# p1tx&p16rx：串口uart2(SIM卡模块)
+# p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
+# B键(绿色按钮): "带我回家"按钮
+# A键(红色按钮)：照明灯开关
+# p0：光敏电阻（光线传感）
+# p13：灯带1（灯数：63）
+# p15：灯带2（灯数：63）
 
 
-#摔倒判断：
+# 摔倒判断：
 # x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
 
 
-#位置获取：
+# 位置获取：
 # 使用高德地图api 
 # a: list
 # b, c: float
@@ -39,7 +39,8 @@ my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
 
-#心跳包数据初始化
+
+# 心跳包数据初始化
 uuid = 'abfb6a0d'        #拐杖身份证
 status = 'ok'                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
@@ -47,29 +48,42 @@ heartbeat_Loc = None             #location
 
 
 #初始化服务器传输
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
+
+# 本地
+# BASE_URL = 'http://192.168.1.105:8000/demoboard'     #QFCS1
+# BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
+# BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
+BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
+
+# 公网服务器
+# BASE_URL = 'http://39.103.138.199:8000/demoboard'
 
 
-#搭建WiFi，连接app用户手机数据
+
+# 搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
 my_wifi.connectWiFi("idk","12345678")
 
 
-#路径规划初始化
+
+# 路径规划初始化
 GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
 R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output='
 NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
 
-#百度语音导航初始化
+
+# 百度语音导航初始化
 api_key = 'Lcr1un815AuFGa7DZDQv1sqx'        
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
 nav_file = 'nav_file.mp3'
 
 
-lat_home = 0     #家庭住址经纬信息
+
+# 家庭住址经纬信息
+lat_home = 0
 lon_home = 0
 home_loc = ''
 
@@ -78,7 +92,8 @@ ori_loc = ''
 para_nav = ''
 
 
-#实时获取老人定位
+
+# 实时获取老人定位
 lat_now = 0
 lon_now = 0
 loc_info = ''
@@ -92,7 +107,8 @@ c1 = 0
 c2 = 0
 
 
-#全局变量定义       
+
+# 全局变量定义       
 switch = 0                                     
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
@@ -104,7 +120,7 @@ dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
 oled.fill(0)
-oled.DispChar('初始化完毕', 0, 0)
+oled.DispChar('网络连接初始化完毕', 0, 0)
 oled.show()
 
 
@@ -409,7 +425,7 @@ def heartbeat():
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P15, rx=Pin.P16)
+uart2 = machine.UART(2, baudrate=9600, tx=Pin.P1, rx=Pin.P16)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
