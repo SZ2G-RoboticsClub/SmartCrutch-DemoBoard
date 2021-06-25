@@ -1,0 +1,20 @@
+* 安装卸载需要管理员权限。
+
+ Version        : 2.0.0.133
+ Date           : 2019/10/11
+ Modification   : 1. 整理inf文件
+                  2. unisoc_iot.inf增加串口个数
+                  3. Win7/8和Win10分开签名
+                  
+                  
+ Version        : 2.0.0.133
+ Date           : 2020/01/12
+ Modification   : 1. 修改unisoc_iot.inf和unisoc_iot_npi.inf
+                     HKR,,"UseContinuousRead",%REG_DWORD%,1
+                     HKR,,"RxFifoSize",%REG_DWORD%,15360
+
+
+ Version	: 2.20.11.133
+ Date		: 2020/03/03
+ Modification	: 1. 增加4E00的PID配置。
+                            
