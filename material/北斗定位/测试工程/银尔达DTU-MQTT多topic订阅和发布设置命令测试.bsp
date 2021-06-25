@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<BSSignalRegistry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>银尔达DTU-基本命令</Name>
+  <Latency>0</Latency>
+  <Signals>
+    <BSSignal>
+      <Name>读取IMEI</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,imei\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取iccid</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,iccid\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取固件版本</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,firmwarever\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取信号质量</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,csq\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>同步网络时间</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,nettime\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>同步基站定位</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,lbsloc\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取电池电压</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,vbatt\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询密码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,password\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询参数源</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,paramsrc\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置参数源为串口</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,paramsrc,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询ttluart参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,ttluart\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询RS232参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,rs232\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询RS485参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,rs485\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询通道1链接状态</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询通道2链接状态</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,2\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询通道1链接信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询通道2链接信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,2\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>删除通道1链接信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>删除通道2链接信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,2\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>配置MQTT绑定RS232,订阅sub1,sub2; 发布pus1,数据识别码为aaa,发布pus2,识别码为bbb;无遗嘱,无注册信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,1,rs232,120,47.106.167.188,61613,,admin,password,1,1,0,0,0,sub1;sub2,headingcode:aaa/pus1;headingcode:bbb/pus2;,0,,,,,0,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数，设备会自动重启，并且参数生效</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>发送pus1数据,aaa是识别码,</Name>
+      <DataFormat>String</DataFormat>
+      <Data>aaasend to topic pus1</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>发送pus1数据,无识别码(数据将丢失，发送不用不成功)</Name>
+      <DataFormat>String</DataFormat>
+      <Data>send to topic pus1</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>发送pus2数据，bbb 是识别码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>bbbsend to topic pus2</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>发送pus2数据,无识别码(数据将丢失，发送不用不成功)</Name>
+      <DataFormat>String</DataFormat>
+      <Data>send to topic pus2</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+  </Signals>
+</BSSignalRegistry>

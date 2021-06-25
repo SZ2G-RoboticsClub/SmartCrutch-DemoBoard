@@ -1,0 +1,13 @@
+[
+  {
+    "No": 1,
+    "Recevie": "AT+INIT",
+    "HexRecevie": true,
+    "Send": "AT+INIT2",
+    "Delay": 1000,
+    "HexSend": true,
+    "AppendCrLf": true,
+    "RecevieVerify": "ModbusCrc16",
+    "explain": "No是序号可以不用填，Recevie是接收的数据，HexRecevie是16进制接收，Send是发送的数据，Delay是发送延时单位ms，HexSend是发送16进制，AppendCrLf是添加回车换行，RecevieVerify是添加校验可以不填，或者填ModbusCrc16"
+  }
+]

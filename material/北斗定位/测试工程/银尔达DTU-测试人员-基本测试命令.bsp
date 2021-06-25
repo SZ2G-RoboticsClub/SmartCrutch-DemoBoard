@@ -1,0 +1,2380 @@
+<?xml version="1.0"?>
+<BSSignalRegistry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>银尔达DTU-基本测试命令</Name>
+  <Latency>0</Latency>
+  <Signals>
+    <BSSignal>
+      <Name>测试要求</Name>
+      <DataFormat>Hex</DataFormat>
+      <Data>正确的命令能够正常执行，并且结果一致</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>Hex</DataFormat>
+      <Data>测试错误的命令，回复正确的错误命令，并且程序不能崩溃</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>Hex</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>错误的配置数据数据</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,imei</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get!imei,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get!imei,123\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取IMEI</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,imei\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取iccid</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,iccid\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取固件版本</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,firmwarever\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取信号质量</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,csq\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>同步网络时间</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,nettime\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>同步基站定位</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,lbsloc\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>读取电池电压</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,vbatt\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>重启设备</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reboot\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>------------------------------------------</Name>
+      <DataFormat>Hex</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>参数相关命令</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>恢复出厂设置</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reset\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>Hex</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>获取参数版本</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,paramver\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-------------------------------------</Name>
+      <DataFormat>Hex</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询密码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,password\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置密码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,password,1234\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>参数错误</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,password\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置密码为空</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,password,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-------------------------------------</Name>
+      <DataFormat>Hex</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>验证密码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,vspassword,123456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,vspassword,1234\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>参数错误</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,vspassword\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>验证密码密码为空</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,vspassword,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>---------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询参数源</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,paramsrc\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置参数源串口</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,paramsrc,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置参数源web</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,paramsrc,2\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>错误设置参数源</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,paramsrc,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,paramsrc,3\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>如果加密，不验证提示错误</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询自动重启时间命令</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,reboottime\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>自动重启时间命令</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reboottime,60\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reboottime\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reboottime,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reboottime,A\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>日志输出命令</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,log\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,log,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,log,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,log\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,log,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,log,3\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,log,A\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>固件自动升级命令</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,ota\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ota,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ota,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ota\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ota,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ota,3\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ota,A\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询网络分帧时间</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netouttime\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置网络分帧时间</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,netouttime,10\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,netouttime,a\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,netouttime\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询识别码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,headingcode\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置识别码</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,0,111,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,1,111,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,0,111,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,4,111,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,a,111,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,,111,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,0,111,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,0,111,a\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,0,111,3\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,headingcode,0,111,-1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询APN</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,apn\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置APN</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,0,cmnet,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,0,cmnet,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,0,cmnet,123,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,cmnet\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,apn,cmnet,123\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>配置串口</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询ttluart参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,ttluart\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>ttluart,9600,8位，无校验，1位停止，560ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,2400,8,0,1,560\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>ttluart,9600,7位，无校验，1位停止，80ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,7,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>ttluart,9600,8位，寄校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,1,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>ttluart,9600,8位，偶校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,2,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>ttluart,9600,8位，寄校验，2位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,115200,8,2,2,25\r\n</Data>
+      <Latency>0</Latency>
+      <Active>true</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数，设备会自动重启，并且参数生效</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>true</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,,8,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,0,,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,0,1,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,a,8,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,b,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,c,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,0,d,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,0,1,b\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,111,8,2,2,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,9,2,2,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,3,2,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ttluart,9600,8,2,0,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询rs232参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,rs232\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs232,9600,8位，无校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs232,460800,8,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs232,9600,7位，无校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs232,9600,7,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs232,9600,8位，寄校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs232,9600,8,1,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs232,9600,8位，偶校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs232,9600,8,2,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs232,9600,8位，偶校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs232,9600,8,2,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs232,9600,8位，寄校验，2位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs232,9600,8,2,2,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数，设备会自动重启，并且参数生效</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询rs485参数</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,rs485\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs485,9600,8位，无校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs485,460800,8,0,1,560\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs485,9600,7位，无校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs485,9600,7,0,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs485,9600,8位，寄校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs485,9600,8,1,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs485,9600,8位，偶校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs485,9600,8,2,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs485,9600,8位，偶校验，1位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs485,9600,8,2,1,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>rs485,9600,8位，寄校验，2位停止，25ms超时</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,rs485,115200,8,2,2,25\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数，设备会自动重启，并且参数生效</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询网络1链接状态</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,8\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,9\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,-1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,1,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netstatus,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,netstatus\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>查询注册信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,reg\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,0,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,1,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,2,01 02 03 04\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,3,01020304yinerda\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,4,1234\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,-1,1234\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,0\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,reg,a,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数，设备会自动重启，并且参数生效</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>获取网络通道信息</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,2\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,3\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,4\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,5\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,6\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,7\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,8\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,a\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,-1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,9\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>删除网络通道</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,2\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,8\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delnetchan,a\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-----------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>保存参数，设备会自动重启，并且参数生效</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1、心跳开、字符串、心跳数据hello、 ip 、端口、 ttluart</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,ttluart,1,1,hello,60,47.106.167.188,8088\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道0</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,0,ttluart,1,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道2</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,2,ttluart,1,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道3</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,3,ttluart,1,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，心跳关</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,ttluart,0,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，心跳2</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,ttluart,2,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，,hex</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,ttluart,1,0,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，,2</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,ttluart,1,2,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，,a</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,ttluart,1,a,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，rs232</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,rs232,1,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>通道1，rs485</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,rs485,1,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,tcp,1,rs,1,1,hello,60,47.106.167.188,80\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置UDP</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,udp,1,ttluart,1,1,hello,60,47.106.167.188,9090\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>-------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,3\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>mqtt</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,1,1,1,1,1,/bbb,/aaa,1,0,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,1,0,0,0,0,/bbb,/aaa,1,0,0,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,1,0,0,0,/bbb,/aaa,0,1,0,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,1,0,0,/bbb,/aaa,0,0,1,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,0,1,0,/bbb,/aaa,0,0,0,1,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,0,0,1,/bbb,/aaa,0,0,0,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,0,0,0,/bbb,/aaa,0,0,0,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,0,0,0,/bbb,/aaa,0,1,0,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,0,0,0,/bbb,/aaa,0,1,1,0,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,47.106.167.188,80,123,12345,56789,0,0,0,0,0,/bbb,/aaa,0,1,1,1,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,3,ttluart,60,abcd,123,123,12345,56789,1,0,0,2,2,/bbb,/aaa,1,1,0,1,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,mqtt,8,ttluart,60,47.106.167.188,9099,123,12345,56789,1,0,0,2,2,"/bbb",/aaa,1,1,0,1,/willtopic,willdata\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>Hex</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>---------------------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>阿里一型一密</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ali,1,rs232,yxym,120,cn-shanghai,a1Ul8cgfQCv,yrL3PggCdaFL4AeZ,1,1,1,/a1Ul8cgfQCv/${deviceName}/user/get,/a1Ul8cgfQCv/${deviceName}/user/update\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ali,1,rs232,yxym,120,cn-shanghai,a1Ul8cgfQCv,yrL3PggCdaFL4AeZ,1,1,1,/a1Ul8cgfQCv/deviceName/user/get,/a1Ul8cgfQCv/${deviceName}/user/update\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,ali,1,rs232,yxym,120,cn-shanghai,a1Ul8cgfQCv,yrL3PggCdaFL4AeZ,1,1,0,/a1Ul8cgfQCv/deviceName/user/get,/a1Ul8cgfQCv/${deviceName}/user/update\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,netchaninfo,4\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>设置HTTP</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,http,4,ttluart,0,www.baidu.com,80,,30,,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,http,4,ttluart,0,47.106.167.188,80,/updata,30,123=2,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,http,4,rs485,1,http://dtu.yinerda.com,91,/getparam,30,,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>{"imei":"867435050094879","iccid":12345678900987654321","pro_ver":"123","param_ver":1}</Data>
+      <Latency>10</Latency>
+      <Active>true</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>自动轮询</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>---------------------------------------</Name>
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,save\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,autopoll,ttluart\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,autopoll,rs232\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,get,autopoll,rs485\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1000,5,1,01 02 03 04 05 06,aa bb cc dd ee ff\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,rs232,1000,5,0,010203040506,aabbccddeeff\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,rs485,1000,5,0,112233445566,665544332211\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>错误</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,,,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttl,,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,100,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,-1,,,,\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,-1,-1,0,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,-1,0,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,0,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,1,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,2,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,-1,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,a,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,,123,456\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,0,123,456,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,0,,456,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,0,1111,111,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,autopoll,ttluart,1,1,0,1111,,1\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name>删除自动轮询</Name>
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delautopoll,ttluart\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delautopoll,rs232\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data>config,set,delautopoll,rs485\r\n</Data>
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+    <BSSignal>
+      <Name />
+      <DataFormat>String</DataFormat>
+      <Data />
+      <Latency>0</Latency>
+      <Active>false</Active>
+    </BSSignal>
+  </Signals>
+</BSSignalRegistry>
