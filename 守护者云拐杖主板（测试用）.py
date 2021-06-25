@@ -49,7 +49,7 @@ heartbeat_Loc = None             #location
 #初始化服务器传输
 
 # 本地
-BASE_URL = 'http://192.168.1.105:8000/demoboard'     #QFCS1
+BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
 # BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk

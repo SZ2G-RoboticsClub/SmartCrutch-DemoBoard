@@ -1,0 +1,65 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>守护者云拐杖路径图</title>  
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2"></script>  
+</head>  
+<body>  
+<div  style="width:1000px;height:800px;border:1px solid gray" id="container"></div>
+  
+<script type="text/javascript">  
+    window.onload = function(){
+    	var map = new BMap.Map("container");  
+        map.centerAndZoom(new BMap.Point(108.847098,34.553311), 19);  
+        map.addControl(new BMap.NavigationControl());               // 添加平移缩放控件  
+        map.addControl(new BMap.ScaleControl());                    // 添加比例尺控件  
+        map.addControl(new BMap.OverviewMapControl());              //添加缩略地图控件  
+
+        map.clearOverlays();                        //清除地图上所有的覆盖物  
+        var driving = new BMap.DrivingRoute(map);    //创建驾车实例  
+    	// 坐标点数据
+    	var pointArr = [
+		{lng:113.94252,lat:22.5772720},
+            {lng:113.943543,lat:22.580534}];
+		// 生成坐标点
+		var trackPoint = [];
+		for (var i = 0, j = pointArr.length; i < j; i++) {
+			trackPoint.push(new BMap.Point(pointArr[i].lng, pointArr[i].lat));
+		}
+
+
+    	for (var i = 0; i < trackPoint.length; i++) {
+        	if(i != trackPoint.length -1 ){
+        		driving.search(trackPoint[i], trackPoint[i+1]);
+           	}
+    	}
+        driving.setSearchCompleteCallback(function(){  
+            var pts = driving.getResults().getPlan(0).getRoute(0).getPath();    //通过驾车实例，获得一系列点的数组  
+      
+            var polyline = new BMap.Polyline(pts);       
+            map.addOverlay(polyline);  
+
+        	// 画图标、想要展示的起点终点途经点
+        	for (var i = 0; i < trackPoint.length; i++) {
+        		var lab;
+            	if(i == 0){
+            		lab = new BMap.Label("起点",{position:trackPoint[i]});
+                }else if(i == trackPoint.length - 1){
+                	lab = new BMap.Label("终点",{position:trackPoint[i]});
+                }else{
+                	/* lab = new BMap.Label("途径点",{position:trackPoint[i]}) */
+                }
+        	    var marker = new BMap.Marker(trackPoint[i])
+        	    map.addOverlay(marker);
+        	    map.addOverlay(lab);
+        	}
+        	map.setViewport(trackPoint);  
+        });  
+    }
+</script>  
+
+</body>  
+</html>  
+</body>
+</html>
