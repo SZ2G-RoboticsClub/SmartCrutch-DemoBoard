@@ -269,7 +269,23 @@ def message():
 
 # 倒地30s短信通知
 def sec_message():
-    pass
+    #TEXT中文模式
+    # uart2.write('AT+CMGF=1')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMP=17,167,0,8')
+    # time.sleep(1.5)
+    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>')
+    # time.sleep(1)
+
+    #TEXT英文模式
+    # uart2.write('AT+CMGF=1')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMP=17,11,0,0')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMS="IRA"')
+    # time.sleep(1.5)
+    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>')
+    # time.sleep(1)
 
 
 
