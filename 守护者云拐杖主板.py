@@ -269,6 +269,7 @@ def message():
 
 # 倒地30s短信通知
 def sec_message():
+    pass
     #TEXT中文模式
     # uart2.write('AT+CMGF=1')
     # time.sleep(1.5)
