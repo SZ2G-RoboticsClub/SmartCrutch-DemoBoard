@@ -15,6 +15,7 @@ import audio
 # B键(绿色按钮): "带我回家"按钮
 # A键(红色按钮)：照明灯开关
 # p0：光敏电阻（光线传感）
+# p2：中断导航按钮
 # p13：灯带1（灯数：63）
 # p15：灯带2（灯数：63）
 
@@ -33,7 +34,7 @@ import audio
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-# p1 = MPythonPin(1, PinMode.IN)
+p2 = MPythonPin(2, PinMode.IN)
 p0 = MPythonPin(0, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
@@ -378,7 +379,15 @@ button_b.event_pressed = on_button_b_pressed
 def take_u_home():
     global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
     
+    if stop == 0:
+        if p0.read_digital() == 1:
+            stop = 1
+
+    if stop == 1:
+        backhome = 0
+
     if backhome == 1:
+        stop = 0
         ori_loc = loc_cycle
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
