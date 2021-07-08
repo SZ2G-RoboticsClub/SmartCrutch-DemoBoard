@@ -465,17 +465,15 @@ def take_u_home():
 #心跳包发送(ok)
 def heartbeat():
     global uuid, status, heartbeat_Loc, data, resp
-    data = {                #心跳包数据存储
-    "uuid": uuid, 
-    "status":status, 
-    "loc": heartbeat_Loc
+    data = {
+        "uuid": uuid, 
+        "status":status, 
+        "loc": heartbeat_Loc
     }
     
     # debug7
     print(data)
-
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
-
     resp = resp.json()
 
 
@@ -493,6 +491,7 @@ audio.set_volume(100)
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 user_set = s.json()
+
 if user_set.get('code') == 0:
     oled.fill(0)
     oled.DispChar('获取账户连接成功', 0, 0)
@@ -575,7 +574,7 @@ if user_set.get('code') == 0:
 
         heartbeat_Loc = {
             "longitude": lon_now, 
-            # "info": '深圳市第二高级中学', 
+            "info": '', 
             "latitude": lat_now
             }
             

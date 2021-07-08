@@ -44,7 +44,7 @@ while True:
         time_set = time.time()
         # print(time_set)
     
-    # print('没有问题1')
+    print('没有问题1')
 
     m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
     location1 = m.split(',')

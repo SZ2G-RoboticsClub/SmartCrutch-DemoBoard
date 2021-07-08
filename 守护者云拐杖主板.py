@@ -541,7 +541,7 @@ if user_set.get('code') == 0:
         heartbeat_Loc = {
             "latitude": lat_now,
             "longitude": lon_now,
-            "info": "啊哈哈"
+            # "info": "啊哈哈"
             }
 
         if time_set == None:
