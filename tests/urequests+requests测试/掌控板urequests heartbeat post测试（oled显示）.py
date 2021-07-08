@@ -12,10 +12,10 @@ oled.DispChar('初始化成功', 0, 0)
 oled.show()
 
 
-BASE_URL = 'http://192.168.31.130:8000/demoboard'
-uuid = 'abfb6a0d'
+BASE_URL = 'http://192.168.31.132:8000/demoboard'
+uuid = 'dytest'
 status = 'ok'
-heartbeat_Loc = None
+# heartbeat_Loc = None
 # heartbeat_time = None
 
 time_set = None
@@ -52,7 +52,7 @@ while True:
         rgb.fill( (int(255), int(255), int(255)) )
         rgb.write()
         status = 'emergency'
-        heartbeat_Loc = {"latitude": 22.551343, "longitude": 114.063825}
+        heartbeat_Loc = {"latitude": 22.551343, "longitude": 114.063825, "info": '啊哈哈哈'}
         # if lock == 0:
         #     date_list = [time.localtime()[0], '年', time.localtime()[1], '月', time.localtime()[2], '日']
         #     time_list = [time.localtime()[3], '时', time.localtime()[4], '分', time.localtime()[5], '秒']
@@ -70,7 +70,7 @@ while True:
         rgb.fill( (0, 0, 0) )
         rgb.write()
         # heartbeat_time = None
-        heartbeat_Loc = {"latitude": 22.576035, "longitude": 113.943418}
+        heartbeat_Loc = {"latitude": 22.576035, "longitude": 113.943418, "info": '深圳市第二高级中学'}
         status = 'ok'
     
     print('没有问题2')
@@ -83,6 +83,8 @@ while True:
         oled.DispChar(str(data.get('status')), 0, 0)
         oled.DispChar(str(resp), 0, 16, 1, True)
         oled.show()
+        
+        print(resp)
 
         time_set = None
         status = 'ok'
@@ -98,7 +100,7 @@ while True:
         else:
             oled.fill(0)
             oled.DispChar('心跳包错误', 0, 0, 1)
-            oled.DispChar(str(resp.get('msg')), 0, 16, 1, True) #查看是否正常回应
+            # oled.DispChar(str(resp.get('msg')), 0, 16, 1, True) #查看是否正常回应
             oled.show()
 
 

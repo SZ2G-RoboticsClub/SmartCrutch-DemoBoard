@@ -33,14 +33,14 @@ import audio
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-# p1 = MPythonPin(1, PinMode.IN)
+# p2 = MPythonPin(2, PinMode.IN)
 p0 = MPythonPin(0, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=24, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
 
 
 #心跳包数据初始化
-uuid = 'abfb6a0d'        #拐杖身份证
+uuid = 'fbb72bd8'        #拐杖身份证
 status = 'ok'                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
 
@@ -49,9 +49,9 @@ heartbeat_Loc = None             #location
 #初始化服务器传输
 
 # 本地
-BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
+# BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
-# BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
+BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 
 # 公网服务器
@@ -61,7 +61,7 @@ BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("QFCS1","12345678")
+my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 
@@ -111,7 +111,8 @@ c2 = 0
 
 
 #全局变量定义       
-switch = 0                                     
+switch = 0                    
+stop = 0        #中断导航变量
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
@@ -140,6 +141,7 @@ def make_rainbow(_neopixel, _num, _bright, _offset):
         _neopixel[(i + _offset) % _num] = (r, g, b)
 
 
+
 #呼叫路人来帮忙(ok)
 def help():
     # global freq
@@ -158,6 +160,7 @@ def help():
 
     # TEST6
     music.play(music.JUMP_UP, wait=True, loop=False)
+
 
 
 #倒地闪红蓝白报警灯(ok)
@@ -200,6 +203,7 @@ def flashlight():
         time.sleep_ms(100)
 
 
+
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
@@ -211,12 +215,14 @@ def rainbow():
     move = move - 1
 
 
+
 #A键开关灯
 def on_button_a_pressed(_):
     global switch
     switch += 1
 
 button_a.event_pressed = on_button_a_pressed
+
 
 
 #平常状态(ok)
@@ -247,14 +253,40 @@ def common():
         my_rgb2.write()
 
 
-#倒地10s短信通知
+
+# 倒地10s短信通知
 def message():
     pass
+    #TEXT中文模式
+    # uart2.write('AT+CMGF=1')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMP=17,167,0,8')
+    # time.sleep(1.5)
+    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>')
+    # time.sleep(1)
+
+    #TEXT英文模式
+    # uart2.write('AT+CMGF=1')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMP=17,11,0,0')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMS="IRA"')
+    # time.sleep(1.5)
+    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>')
+    # time.sleep(1)
 
 
-#倒地30s短信通知
+
+# 倒地30s短信通知
 def sec_message():
     pass
+    #TEXT中文模式
+    # uart2.write('AT+CMGF=1')
+    # time.sleep(1.5)
+    # uart2.write('AT+CSMP=17,167,0,8')
+    # time.sleep(1.5)
+    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>')
+    # time.sleep(1)
 
 
 
@@ -338,16 +370,17 @@ def fall_det():
 # B键带我回家
 def on_button_b_pressed(_):
     global backhome
-    backhome = 1
+    backhome += 1
 
 button_b.event_pressed = on_button_b_pressed
 
 
 #"带你回家"
 def take_u_home():
-    global st, backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
-    
-    if backhome == 1:
+    global stop, st, backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+
+    if backhome % 2 == 1:
+        stop = 1
         # debug3
         # print('开始导航')
         if st == 0:
@@ -413,8 +446,19 @@ def take_u_home():
                 
                 backhome = 0
                     # break
-    elif backhome == 0:
-        fall_det()
+    elif backhome % 2 == 0:
+        if stop == 1:
+            my_rgb1.fill( (0, 0, 255) )
+            my_rgb2.fill( (0, 0, 255) )
+            my_rgb1.write()
+            my_rgb2.write()
+            time.sleep(2)
+            my_rgb1.fill( (0, 0, 0) )
+            my_rgb2.fill( (0, 0, 0) )
+            my_rgb1.write()
+            my_rgb2.write()
+        elif stop == 0:
+            fall_det()
             
 
 
@@ -422,10 +466,13 @@ def take_u_home():
 def heartbeat():
     global uuid, status, heartbeat_Loc, data, resp
     data = {                #心跳包数据存储
-    "uuid": uuid,
-    "status":status,
+    "uuid": uuid, 
+    "status":status, 
     "loc": heartbeat_Loc
     }
+    
+    # debug7
+    print(data)
 
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
 
@@ -447,6 +494,7 @@ audio.set_volume(100)
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 user_set = s.json()
 if user_set.get('code') == 0:
+    oled.fill(0)
     oled.DispChar('获取账户连接成功', 0, 0)
     oled.show()
     time.sleep(1)
@@ -523,11 +571,15 @@ if user_set.get('code') == 0:
         # lat_now = 22.570334
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
+        
 
         heartbeat_Loc = {
-            "latitude": lat_now,
-            "longitude": lon_now
+            "longitude": lon_now, 
+            # "info": '深圳市第二高级中学', 
+            "latitude": lat_now
             }
+            
+        # heartbeat_Loc = None
 
         if time_set == None:
             time_set = time.time()
@@ -535,6 +587,11 @@ if user_set.get('code') == 0:
         take_u_home()
 
         if time.time() - time_set >= 5:
+            
+            # debug6
+            print(loc_cycle)
+            print(heartbeat_Loc)
+            
             heartbeat()
             time_set = None
             if resp.get('code') == 0:                   #返回数据类型正常
@@ -547,7 +604,7 @@ if user_set.get('code') == 0:
                 oled.show()
 
                 # TEST3
-                # print(resp.get('msg'))
+                print(resp)
 
                 # TEST4
                 # time.sleep(1)

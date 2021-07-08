@@ -12,10 +12,9 @@ import audio
 # 掌控板引脚：
 # p1tx&p16rx：串口uart2(SIM卡模块)
 # p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-# B键(绿色按钮): "带我回家"按钮
+# B键(绿色按钮): "带我回家"按钮+中断导航
 # A键(红色按钮)：照明灯开关
 # p0：光敏电阻（光线传感）
-# p2：中断导航按钮
 # p13：灯带1（灯数：63）
 # p15：灯带2（灯数：63）
 
@@ -34,7 +33,7 @@ import audio
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-p2 = MPythonPin(2, PinMode.IN)
+# p2 = MPythonPin(2, PinMode.IN)
 p0 = MPythonPin(0, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
@@ -42,7 +41,7 @@ my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
 
 # 心跳包数据初始化
-uuid = 'abfb6a0d'        #拐杖身份证
+uuid = 'fbb72bd8'        #拐杖身份证
 status = 'ok'                      #拐杖状态（"ok"/"emergency"/"error"/"offline"）
 heartbeat_Loc = None             #location
 
@@ -53,8 +52,8 @@ heartbeat_Loc = None             #location
 # 本地
 # BASE_URL = 'http://192.168.1.105:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
-# BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
-BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
+BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
+# BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -63,7 +62,7 @@ BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 
 # 搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("idk","12345678")
+my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 
@@ -110,7 +109,8 @@ c2 = 0
 
 
 # 全局变量定义       
-switch = 0                                     
+switch = 0                            
+stop = 0        #中断导航变量         
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
@@ -370,7 +370,7 @@ def fall_det():
 # B键带我回家
 def on_button_b_pressed(_):
     global backhome
-    backhome = 1
+    backhome += 1
 
 button_b.event_pressed = on_button_b_pressed
 
@@ -378,16 +378,9 @@ button_b.event_pressed = on_button_b_pressed
 #"带你回家"
 def take_u_home():
     global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
-    
-    if stop == 0:
-        if p0.read_digital() == 1:
-            stop = 1
 
-    if stop == 1:
-        backhome = 0
-
-    if backhome == 1:
-        stop = 0
+    if backhome % 2 == 1:
+        stop = 1
         ori_loc = loc_cycle
         # oled.fill(0)
         # oled.DispChar('当前位置记录完毕', 0, 16)
@@ -440,7 +433,18 @@ def take_u_home():
                 
                 backhome = 0
                     # break
-    elif backhome == 0:
+    elif backhome % 2 == 0:
+        if stop == 1:
+            my_rgb1.fill( (0, 0, 255) )
+            my_rgb2.fill( (0, 0, 255) )
+            my_rgb1.write()
+            my_rgb2.write()
+            time.sleep(2)
+            my_rgb1.fill( (0, 0, 0) )
+            my_rgb2.fill( (0, 0, 0) )
+            my_rgb1.write()
+            my_rgb2.write()
+            stop = 0
         fall_det()
             
 
@@ -536,7 +540,8 @@ if user_set.get('code') == 0:
 
         heartbeat_Loc = {
             "latitude": lat_now,
-            "longitude": lon_now
+            "longitude": lon_now,
+            "info": "啊哈哈"
             }
 
         if time_set == None:
