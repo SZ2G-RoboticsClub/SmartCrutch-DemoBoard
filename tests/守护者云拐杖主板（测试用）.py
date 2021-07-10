@@ -299,53 +299,53 @@ def sec_message():
     
 
 
-# 位置描述加密
-def encrypt(signStr):
-    hash_algorithm = hashlib.sha256()
-    hash_algorithm.update(signStr.encode('utf-8'))
-    return hash_algorithm.hexdigest()
+# # 位置描述加密
+# def encrypt(signStr):
+#     hash_algorithm = hashlib.sha256()
+#     hash_algorithm.update(signStr.encode('utf-8'))
+#     return hash_algorithm.hexdigest()
 
 
 
-# 加密描述截取
-def truncate(q):
-    if q is None:
-        return None
-    size = len(q)
-    return q if size <= 20 else q[0:10] + str(size) + q[size - 10:size]
+# # 加密描述截取
+# def truncate(q):
+#     if q is None:
+#         return None
+#     size = len(q)
+#     return q if size <= 20 else q[0:10] + str(size) + q[size - 10:size]
 
 
 
-# location info 翻译发送
-def do_request(data):
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    return requests.post(YOUDAO_URL, data=data, headers=headers)
+# # location info 翻译发送
+# def do_request(data):
+#     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+#     return requests.post(YOUDAO_URL, data=data, headers=headers)
     
     
     
-# youdao翻译
-def translate():
-    global response,loc_info
+# # youdao翻译
+# def translate():
+#     global response,loc_info
     
-    data = {}
-    data['to'] = 'en'
-    data['from'] = 'zh-CHS'
-    data['signType'] = 'v3'
-    curtime = str(int(time.time()))
-    data['curtime'] = curtime
-    uuid = 'fbb72bd8'
-    signStr = APP_KEY + truncate(loc_info) + uuid + curtime + APP_SECRET
-    sign = encrypt(signStr)
-    data['appKey'] = APP_KEY
-    data['q'] = loc_info
-    data['salt'] = uuid
-    data['sign'] = sign
+#     data = {}
+#     data['to'] = 'en'
+#     data['from'] = 'zh-CHS'
+#     data['signType'] = 'v3'
+#     curtime = str(int(time.time()))
+#     data['curtime'] = curtime
+#     uuid = 'fbb72bd8'
+#     signStr = APP_KEY + truncate(loc_info) + uuid + curtime + APP_SECRET
+#     sign = encrypt(signStr)
+#     data['appKey'] = APP_KEY
+#     data['q'] = loc_info
+#     data['salt'] = uuid
+#     data['sign'] = sign
 
-    response = do_request(data)
-    response = response.json()
+#     response = do_request(data)
+#     response = response.json()
     
-    # debug12
-    # print(response)
+#     # debug12
+#     # print(response)
 
 
 
@@ -645,15 +645,15 @@ if user_set.get('code') == 0:
         # debug10
         # print(loc_info)
         
-        translate()
-        tran = response.get('translation')[0]
+        # translate()
+        # tran = response.get('translation')[0]
         
-        # debug13
-        # print(tran)
+        # # debug13
+        # # print(tran)
         
         heartbeat_Loc = {
             "longitude": lon_now, 
-            "info": tran, 
+            "info": loc_info, 
             "latitude": lat_now
             }
             
