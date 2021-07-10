@@ -1,4 +1,0 @@
-
-s = '\xfe\xff\x00*\x02\x00\x00\x00\xff'
-
-print s.encode('gb2312')

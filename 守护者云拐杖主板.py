@@ -54,6 +54,7 @@ heartbeat_Loc = None             #location
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
 BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
+# BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -68,7 +69,7 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 # 路径规划初始化
 GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
-R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output='
+R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output=json&location='
 NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
@@ -459,7 +460,6 @@ def heartbeat():
     }
 
     resp = urequests.post(url=BASE_URL+'/heartbeat', json=data)       #发送心跳包
-
     resp = resp.json()
 
 
@@ -538,10 +538,18 @@ if user_set.get('code') == 0:
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
 
+        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
+        r_geo = r_geo.json()
+
+        # debug9
+        # print(r_geo)
+
+        loc_info = r_geo.get('regeocode').get('formatted_address')
+
         heartbeat_Loc = {
             "latitude": lat_now,
             "longitude": lon_now,
-            # "info": "啊哈哈"
+            "info": loc_info
             }
 
         if time_set == None:
