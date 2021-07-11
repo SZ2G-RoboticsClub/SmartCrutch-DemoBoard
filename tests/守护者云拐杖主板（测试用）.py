@@ -6,7 +6,7 @@ import music
 import neopixel
 import time
 import urequests
-import hashlib
+import ubinascii
 import audio
 
 
@@ -52,9 +52,9 @@ heartbeat_Loc = None             #location
 # 本地
 # BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
-# BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
+BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
-BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
+# BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -63,7 +63,7 @@ BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("Tenda_7C8540","31832352")
+my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 
@@ -72,13 +72,6 @@ GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
 R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output=json&location='
 NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 key = '10d4ac81004a9581c1d9de89eac4035b'
-
-
-
-#有道翻译初始化
-YOUDAO_URL = 'https://openapi.youdao.com/api'
-APP_KEY = '219d8e0190feffd6'
-APP_SECRET = 'ApRNqK0gCGMWq7t6ANTuQxLCEw3X6CJa'
 
 
 
@@ -297,56 +290,6 @@ def sec_message():
     # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>')
     # time.sleep(1)
     
-
-
-# # 位置描述加密
-# def encrypt(signStr):
-#     hash_algorithm = hashlib.sha256()
-#     hash_algorithm.update(signStr.encode('utf-8'))
-#     return hash_algorithm.hexdigest()
-
-
-
-# # 加密描述截取
-# def truncate(q):
-#     if q is None:
-#         return None
-#     size = len(q)
-#     return q if size <= 20 else q[0:10] + str(size) + q[size - 10:size]
-
-
-
-# # location info 翻译发送
-# def do_request(data):
-#     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-#     return requests.post(YOUDAO_URL, data=data, headers=headers)
-    
-    
-    
-# # youdao翻译
-# def translate():
-#     global response,loc_info
-    
-#     data = {}
-#     data['to'] = 'en'
-#     data['from'] = 'zh-CHS'
-#     data['signType'] = 'v3'
-#     curtime = str(int(time.time()))
-#     data['curtime'] = curtime
-#     uuid = 'fbb72bd8'
-#     signStr = APP_KEY + truncate(loc_info) + uuid + curtime + APP_SECRET
-#     sign = encrypt(signStr)
-#     data['appKey'] = APP_KEY
-#     data['q'] = loc_info
-#     data['salt'] = uuid
-#     data['sign'] = sign
-
-#     response = do_request(data)
-#     response = response.json()
-    
-#     # debug12
-#     # print(response)
-
 
 
 # ============ Functions ============
@@ -645,15 +588,16 @@ if user_set.get('code') == 0:
         # debug10
         # print(loc_info)
         
-        # translate()
-        # tran = response.get('translation')[0]
+        tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+        tran = tran.decode()
         
-        # # debug13
-        # # print(tran)
+        # debug12
+        print(tran)
+        print(type(tran))
         
         heartbeat_Loc = {
             "longitude": lon_now, 
-            "info": loc_info, 
+            "info": tran, 
             "latitude": lat_now
             }
             

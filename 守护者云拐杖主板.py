@@ -6,6 +6,7 @@ import music
 import neopixel
 import time
 import urequests
+import ubinascii
 import audio
 
 
@@ -546,10 +547,20 @@ if user_set.get('code') == 0:
 
         loc_info = r_geo.get('regeocode').get('formatted_address')
 
+        # debug10
+        # print(loc_info)
+        
+        tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+        tran = tran.decode()
+        
+        # debug12
+        # print(tran)
+        # print(type(tran))
+
         heartbeat_Loc = {
             "latitude": lat_now,
             "longitude": lon_now,
-            "info": loc_info
+            "info": tran
             }
 
         if time_set == None:
