@@ -598,31 +598,6 @@ if user_set.get('code') == 0:
         
         # debug10
         # print(loc_info)
-
-        
-        
-        # 百度地图
-        # conv_loc = urequests.get(url=CONV_URL+loc_cycle+'&from=3&to=5&ak='+ak)
-        # conv_loc = conv_loc.json()
-        # loc_new_x = conv_loc.get('result')[0].get('x')
-        # loc_new_y = conv_loc.get('result')[0].get('y')
-        # loc_new = str(loc_new_y) + ',' + str(loc_new_x)
-        
-        # # # debug11
-        # # print(R_GEO_BAIDU_URL+ak+'&output=json&location='+loc_new)
-        
-        # r_geo = urequests.get(url=R_GEO_BAIDU_URL+ak+'&output=json&location='+loc_new)
-        # r_geo = r_geo.json()
-        
-        # # # debug9
-        # # # print(r_geo)
-        
-        # loc_info = r_geo.get('result').get('formatted_address')
-        
-        # # # debug10
-        # # # print(loc_info)
-        
-        
         
         tran = ubinascii.hexlify(loc_info.encode('utf-8'))
         tran = tran.decode()
