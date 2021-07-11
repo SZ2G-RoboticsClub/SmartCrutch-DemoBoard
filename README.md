@@ -17,6 +17,7 @@ SmartCrutch-v4 demoboard Repo
 - 稳压器
 - 喇叭（接掌控宝扩展板喇叭引脚）
 
+最终将上述模块集成至以ESP32为核心的PCB电路板上
 
 
 ## Functions
@@ -59,7 +60,15 @@ SmartCrutch-v4 demoboard Repo
     - uart1.write('ATD号码')，**中间无'+'号**
 
 - 发送短信——SIM卡模块：
-    - （暂时未知）
+中文模式
+    - uart2.write('AT+CMGF=1')
+    - uart2.write('AT+CSMP=17,167,0,8')
+    - uart2.write('AT+CMGS="18126281060"\n>**此处填写短信内容**<ctrl-Z>')（16进制格式）
+英文模式
+    - uart2.write('AT+CMGF=1')
+    - uart2.write('AT+CSMP=17,11,0,0')
+    - uart2.write('AT+CSMS="IRA"')
+    - uart2.write('AT+CMGS="18126281060"\n>**HERE WRITE YOUR TEXT**<ctrl-Z>')
 
 
 ### Video recording 拐杖记录仪
@@ -71,7 +80,8 @@ SmartCrutch-v4 demoboard Repo
 - 行车记录仪摄像头 × 2
 
 #### Method
-- 独立于掌控板，全天摄像，存入内存卡或者本地app，可通过摔倒时发送的摔倒时间来查看录像
+- 独立于掌控板，全天摄像，存入内存卡，可通过摔倒时发送的摔倒时间来查看录像，作为老人出行黑匣子
+- 未来将使用数据流实时传输至云端存储
 
 
 ### Take you home “带你回家”
@@ -80,7 +90,7 @@ SmartCrutch-v4 demoboard Repo
 带你回家，当老人按下按钮时，导航带老人回家
 
 #### Sensor
-- 北斗+GPS定位模块
+- 北斗导航定位模块
 
 #### Method
 - 初始位置获取：
@@ -112,14 +122,16 @@ SmartCrutch-v4 demoboard Repo
     - loc: 
         - latitude: 实时获取纬度
         - longitude: 实时获取经度
+        - info: 实时位置描述
 
 - 摔倒
     - status: "emergency"
     - loc:
         - latitude: 摔倒纬度
         - longitude: 摔倒经度
+        - info: 实时位置描述
     
-    - 可做历史记录【falltime:
+    - 未来可做历史记录【falltime:
         - date: 摔倒日期(年月日)
         - time: 摔倒时间(时分秒)】
 
