@@ -6,7 +6,7 @@ info = '深圳市第二高级中学'
 # 转码
 loc_info = binascii.hexlify(info.encode('utf-8'))
 print("转码后:" + str(loc_info), "\ninfo:", info)
-# print('loc_info:', loc_info)
+print('loc_info:', type(loc_info))
 
 # new_info = str(loc_info).replace("b", "").replace("'", "")
 new_info = loc_info.decode()
@@ -24,10 +24,10 @@ print(nb_info)
 
 
 
-
 # output
 # 转码后:b'e6b7b1e59cb3e5b882e7acace4ba8ce9ab98e7baa7e4b8ade5ada6' 
 # info: 深圳市第二高级中学
+# loc_info: <class 'bytes'>
 # str格式 e6b7b1e59cb3e5b882e7acace4ba8ce9ab98e7baa7e4b8ade5ada6
 
 
