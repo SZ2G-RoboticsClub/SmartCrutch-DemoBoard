@@ -68,10 +68,17 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 
 
 #路径规划初始化
-GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
-R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output=json&location='
+GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='   #高德地图
 NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
-key = '10d4ac81004a9581c1d9de89eac4035b'
+R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output=json&location='
+key_dy = '10d4ac81004a9581c1d9de89eac4035b'
+key_zhs = '9e13f3028c7714a7a15af2e7e45a915c'
+
+R_GEO_BAIDU_URL = 'http://api.map.baidu.com/reverse_geocoding/v3/?ak='
+CONV_URL = 'http://api.map.baidu.com/geoconv/v1/?coords='
+ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
+
+
 
 
 
@@ -399,7 +406,7 @@ def take_u_home():
         # oled.fill(0)
         # oled.show()
         # print(ori_loc)
-        para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key
+        para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key_dy
         print(NAV_URL+str(para_nav))
         nav = urequests.get(url=NAV_URL+str(para_nav))
         # print(nav)
@@ -510,7 +517,7 @@ if user_set.get('code') == 0:
     # print(user_set)
     # print("home", home)
 
-    h = urequests.get(url=GEO_URL+home+'&output=json&key='+key)
+    h = urequests.get(url=GEO_URL+home+'&output=json&key='+key_dy)
     h = h.json()
 
     # debug2
@@ -573,11 +580,15 @@ if user_set.get('code') == 0:
         # lat_now = 22.570334
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
-        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
+        # loc_new = str(lat_now) + ',' + str(lon_now)
+        
+        
+        # 高德地图
         
         # debug11
-        # print(R_GEO_URL+loc_cycle+'&key='+key)
+        # print(R_GEO_URL+loc_cycle+'&key='+key_zhs)
                 
+        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_zhs)
         r_geo = r_geo.json()
 
         # debug9
@@ -587,13 +598,38 @@ if user_set.get('code') == 0:
         
         # debug10
         # print(loc_info)
+
+        
+        
+        # 百度地图
+        # conv_loc = urequests.get(url=CONV_URL+loc_cycle+'&from=3&to=5&ak='+ak)
+        # conv_loc = conv_loc.json()
+        # loc_new_x = conv_loc.get('result')[0].get('x')
+        # loc_new_y = conv_loc.get('result')[0].get('y')
+        # loc_new = str(loc_new_y) + ',' + str(loc_new_x)
+        
+        # # # debug11
+        # # print(R_GEO_BAIDU_URL+ak+'&output=json&location='+loc_new)
+        
+        # r_geo = urequests.get(url=R_GEO_BAIDU_URL+ak+'&output=json&location='+loc_new)
+        # r_geo = r_geo.json()
+        
+        # # # debug9
+        # # # print(r_geo)
+        
+        # loc_info = r_geo.get('result').get('formatted_address')
+        
+        # # # debug10
+        # # # print(loc_info)
+        
+        
         
         tran = ubinascii.hexlify(loc_info.encode('utf-8'))
         tran = tran.decode()
         
         # debug12
-        print(tran)
-        print(type(tran))
+        # print(tran)
+        # print(type(tran))
         
         heartbeat_Loc = {
             "longitude": lon_now, 
