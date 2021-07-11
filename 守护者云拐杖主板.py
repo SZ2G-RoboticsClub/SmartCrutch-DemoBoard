@@ -72,7 +72,10 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='
 R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output=json&location='
 NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
-key = '10d4ac81004a9581c1d9de89eac4035b'
+
+key_dy = '10d4ac81004a9581c1d9de89eac4035b'
+key_zhs = '9e13f3028c7714a7a15af2e7e45a915c'
+key_hg = '09f9a9b0494e3d0eb8b75b16435e4d9f'
 
 
 
@@ -99,6 +102,7 @@ para_nav = ''
 lat_now = 0
 lon_now = 0
 loc_info = ''
+tran = ''
 loc_cycle = ''
 location1 = []
 a1 = []
@@ -118,6 +122,7 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
+geo_time = None    #获取位置描述初始时间
 dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
@@ -147,17 +152,6 @@ def help():
     oled.fill(0)
     oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
     oled.show()
-    # for freq in range(880, 1930, 35):
-    #     music.pitch(freq, 50)
-    # for freq in range(1930, 880, -35):
-    #     music.pitch(freq, 50)
-
-    # TEST4
-    # for p in range(2):
-    #   audio.play('alarm.mp3')
-    #   time.sleep(1)
-
-    # TEST5
     music.play(music.JUMP_UP, wait=True, loop=False)
 
 
@@ -499,63 +493,66 @@ if user_set.get('code') == 0:
     oled.show()
 
     while True:
-        
-        while True:
-            loc_get1 = uart1.readline()
-            if loc_get1:
-                break
+        if geo_time == None:
+            geo_time = time.time()
+            
+        if time.time() - geo_time >= 4:
+            while True:
+                loc_get1 = uart1.readline()
+                if loc_get1:
+                    break
+            location1 = (str(loc_get1).split(','))
 
-        location1 = (str(loc_get1).split(','))
-        if location1[2] == 'N':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-        elif location1[2] == 'S':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-        else:
-            lat_now = 0
+            if location1[2] == 'N':
+                a1 = list(str(location1[1]))
+                b1 = float(''.join(a1[2:]))
+                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+            elif location1[2] == 'S':
+                a1 = list(str(location1[1]))
+                b1 = float(''.join(a1[2:]))
+                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+            else:
+                lat_now = 0
 
+            if location1[4] == 'E':
+                a2 = list(str(location1[3]))
+                b2 = float(''.join(a2[3:]))
+                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+            elif location1[4] == 'W':
+                a2 = list(str(location1[3]))
+                b2 = float(''.join(a2[3:]))
+                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+            else:
+                lon_now = 0
 
-        if location1[4] == 'E':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-        elif location1[4] == 'W':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-        else:
-            lon_now = 0
+            # TEST2
+            # lon_now = 113.937507
+            # lat_now = 22.570334
 
-        # TEST2
-        # lon_now = 113.937507
-        # lat_now = 22.570334
+            loc_cycle = str(lon_now) + ',' + str(lat_now)
 
-        loc_cycle = str(lon_now) + ',' + str(lat_now)
+            r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
+            r_geo = r_geo.json()
 
-        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
-        r_geo = r_geo.json()
+            # debug9
+            # print(r_geo)
 
-        # debug9
-        # print(r_geo)
+            loc_info = r_geo.get('regeocode').get('formatted_address')
 
-        loc_info = r_geo.get('regeocode').get('formatted_address')
-
-        # debug10
-        # print(loc_info)
-        
-        tran = ubinascii.hexlify(loc_info.encode('utf-8'))
-        tran = tran.decode()
-        
-        # debug12
-        # print(tran)
-        # print(type(tran))
+            # debug10
+            # print(loc_info)
+            
+            tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+            tran = tran.decode()
+            geo_time = None
+            
+            # debug12
+            # print(tran)
+            # print(type(tran))
 
         heartbeat_Loc = {
             "latitude": lat_now,
@@ -589,7 +586,6 @@ if user_set.get('code') == 0:
                 # oled.show()
 
 
-        
 else:
     # print('账户连接失败，请重新启动')
     oled.fill(0)

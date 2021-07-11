@@ -71,14 +71,10 @@ my_wifi.connectWiFi("QFCS-MI","999999999")
 GEO_URL = 'http://restapi.amap.com/v3/geocode/geo?address='   #高德地图
 NAV_URL = 'http://restapi.amap.com/v3/direction/walking?'
 R_GEO_URL= 'http://restapi.amap.com/v3/geocode/regeo?output=json&location='
+
 key_dy = '10d4ac81004a9581c1d9de89eac4035b'
 key_zhs = '9e13f3028c7714a7a15af2e7e45a915c'
-
-R_GEO_BAIDU_URL = 'http://api.map.baidu.com/reverse_geocoding/v3/?ak='
-CONV_URL = 'http://api.map.baidu.com/geoconv/v1/?coords='
-ak = 'CZHBGZ6TXADxI2UecA1xfpq2GtKLMYam'
-
-
+key_hg = '09f9a9b0494e3d0eb8b75b16435e4d9f'
 
 
 
@@ -107,6 +103,7 @@ st = 0
 lat_now = 0
 lon_now = 0
 loc_info = ''
+tran = ''
 loc_cycle = ''
 location1 = []
 m = ''
@@ -127,6 +124,7 @@ down = 0        #0：拐杖没倒；    1：拐杖倒了
 fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔倒了30s
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
+geo_time = None
 dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
@@ -380,6 +378,7 @@ def fall_det():
 def on_button_b_pressed(_):
     global backhome
     backhome += 1
+    print(backhome)
 
 button_b.event_pressed = on_button_b_pressed
 
@@ -456,16 +455,15 @@ def take_u_home():
                 backhome = 0
                     # break
     elif backhome % 2 == 0:
+        print('停了')
         if stop == 1:
-            my_rgb1.fill( (0, 0, 255) )
-            my_rgb2.fill( (0, 0, 255) )
-            my_rgb1.write()
-            my_rgb2.write()
+            rgb.fill((int(0), int(0), int(255)))
+            rgb.write()
             time.sleep(2)
-            my_rgb1.fill( (0, 0, 0) )
-            my_rgb2.fill( (0, 0, 0) )
-            my_rgb1.write()
-            my_rgb2.write()
+            rgb.fill( (0, 0, 0) )
+            rgb.write()
+            time.sleep_ms(1)
+            stop = 0
         elif stop == 0:
             fall_det()
             
@@ -536,75 +534,83 @@ if user_set.get('code') == 0:
     oled.show()
 
     while True:
+        if geo_time == None:
+            geo_time = time.time()
+            
+        if time.time() - geo_time >= 4:
+            # while True:
+            #     loc_get1 = uart1.readline()
+            #     if loc_get1:
+            #         break
+            # location1 = (str(loc_get1).split(','))
 
-        # while True:
-        #     loc_get1 = uart1.readline()
-        #     if loc_get1:
-        #         break
+            m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+            location1 = m.split(',')
+            
+            if location1[2] == 'N':
+                a1 = list(str(location1[1]))
+                b1 = float(''.join(a1[2:]))
+                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+            elif location1[2] == 'S':
+                a1 = list(str(location1[1]))
+                b1 = float(''.join(a1[2:]))
+                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+                lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+            else:
+                lat_now = 0
+    
+            if location1[4] == 'E':
+                a2 = list(str(location1[3]))
+                b2 = float(''.join(a2[3:]))
+                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+            elif location1[4] == 'W':
+                a2 = list(str(location1[3]))
+                b2 = float(''.join(a2[3:]))
+                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+                lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+            else:
+                lon_now = 0
 
-        # location1 = (str(loc_get1).split(','))
+            # TEST2
+            # lon_now = 113.937507
+            # lat_now = 22.570334
+            
+            # TEST9
+            # lon_now = 114.095582
+            # lat_now = 22.565531
+    
+            loc_cycle = str(lon_now) + ',' + str(lat_now)
+            
+            # debug11
+            # print(R_GEO_URL+loc_cycle+'&key='+key_zhs)
+                    
+            # r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_zhs)
+            # r_geo = r_geo.json()
+    
+            # debug9
+            # print(r_geo)
+            
+            # country_ = r_geo.get('regeocode').get('addressComponent').get('country')
+            # province_ = r_geo.get('regeocode').get('addressComponent').get('province')
+            # city_ = r_geo.get('regeocode').get('addressComponent').get('city')
+            # loc_info = r_geo.get('regeocode').get('formatted_address')
+            # loc_info = loc_info.replace(country_, '').replace(province_, '').replace(city_, '')
+            
+            # debug10
+            # print(loc_info)
+            
+            # TEST8
+            loc_info = '南山区西丽街道南山垃圾分类科普体验馆西丽生态公园'
         
-
-        m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
-        location1 = m.split(',')
-        
-        if location1[2] == 'N':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-        elif location1[2] == 'S':
-            a1 = list(str(location1[1]))
-            b1 = float(''.join(a1[2:]))
-            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-        else:
-            lat_now = 0
-
-
-        if location1[4] == 'E':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-        elif location1[4] == 'W':
-            a2 = list(str(location1[3]))
-            b2 = float(''.join(a2[3:]))
-            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-        else:
-            lon_now = 0
-
-        # TEST2
-        # lon_now = 113.937507
-        # lat_now = 22.570334
-
-        loc_cycle = str(lon_now) + ',' + str(lat_now)
-        # loc_new = str(lat_now) + ',' + str(lon_now)
-        
-        
-        # 高德地图
-        
-        # debug11
-        # print(R_GEO_URL+loc_cycle+'&key='+key_zhs)
-                
-        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_zhs)
-        r_geo = r_geo.json()
-
-        # debug9
-        # print(r_geo)
-
-        loc_info = r_geo.get('regeocode').get('formatted_address')
-        
-        # debug10
-        # print(loc_info)
-        
-        tran = ubinascii.hexlify(loc_info.encode('utf-8'))
-        tran = tran.decode()
-        
-        # debug12
-        # print(tran)
-        # print(type(tran))
+            tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+            tran = tran.decode()
+            geo_time = None
+            
+            # debug12
+            # print(tran)
+            # print(type(tran))
         
         heartbeat_Loc = {
             "longitude": lon_now, 

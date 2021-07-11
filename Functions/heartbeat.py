@@ -4,7 +4,7 @@ import urequests
 import time
 
 my_wifi = wifi()
-my_wifi.connectWiFi('啊哈', 'dy666821')
+my_wifi.connectWiFi('QFCS-MI', '999999999')
 
 oled.fill(0)
 oled.DispChar('初始化成功', 0, 0)
@@ -13,8 +13,23 @@ time.sleep(2)
 oled.fill(0)
 oled.show()
 
-BASE_URL = 'http://192.168.43.199:8000/demoboard'
-uuid = '3141592653589793'
+
+
+#初始化服务器传输
+
+# 本地
+# BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
+# BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
+BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
+# BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
+# BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
+
+# 公网服务器
+# BASE_URL = 'http://39.103.138.199:8000/demoboard'
+
+
+
+uuid = 'fbb72bd8'
 status = 'ok'
 heartbeat_Loc = None
 time_set = None
@@ -50,11 +65,16 @@ while True:
         status = 'emergency'
         heartbeat_Loc = {
             "latitude": 22.5734267,
-            "longitude": 114.1235464
+            "longitude": 114.1235464,
+            "info": 'e6b7b1e59cb3e5b882e7acace4ba8ce9ab98e7baa7e4b8ade5ada6'
         }
     else:
         status = 'ok'
-        heartbeat_Loc = None
+        heartbeat_Loc = {
+            "latitude": 22.5734267,
+            "longitude": 114.1235464,
+            "info": 'e6b7b1e59cb3e5b882e7acace4ba8ce9ab98e7baa7e4b8ade5ada6'
+        }
         rgb.fill((0, 0, 0))
         rgb.write()
 
