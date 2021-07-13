@@ -247,21 +247,21 @@ def common():
 def message():
     pass
     #TEXT中文模式
-    # uart2.write('AT+CMGF=1')
+    # uart2.write('AT+CMGF=1\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,167,0,8')
+    # uart2.write('AT+CSMP=17,167,0,8\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>')
+    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>\n')
     # time.sleep(1)
 
     #TEXT英文模式
-    # uart2.write('AT+CMGF=1')
+    # uart2.write('AT+CMGF=1\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,11,0,0')
+    # uart2.write('AT+CSMP=17,11,0,0\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CSMS="IRA"')
+    # uart2.write('AT+CSMS="IRA"\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>')
+    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>\n')
     # time.sleep(1)
 
 
@@ -269,21 +269,21 @@ def message():
 def sec_message():
     pass
     #TEXT中文模式
-    # uart2.write('AT+CMGF=1')
+    # uart2.write('AT+CMGF=1\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,167,0,8')
+    # uart2.write('AT+CSMP=17,167,0,8\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>')
+    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>\n')
     # time.sleep(1)
 
     #TEXT英文模式
-    # uart2.write('AT+CMGF=1')
+    # uart2.write('AT+CMGF=1\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,11,0,0')
+    # uart2.write('AT+CSMP=17,11,0,0\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CSMS="IRA"')
+    # uart2.write('AT+CSMS="IRA"\n')
     # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>')
+    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>\n')
     # time.sleep(1)
 
 
@@ -347,16 +347,16 @@ def fall_det():
             # oled.show()
 
             # 倒地30s后SIM模块拨打setting中紧急联系人电话
-            uart2.write('AT+SETVOLTE=1')
+            uart2.write('AT+SETVOLTE=1\n')
             time.sleep(3)
-            uart2.write('ATD' + str(user_set.get('settings').get('phone')))
+            uart2.write('ATD' + str(user_set.get('settings').get('phone')) + '\n')
             
             dial = 1
 
     if fall == 0:
 
         if dial == 1:
-            uart2.write('AT+CHUP') #(挂断所有通话)
+            uart2.write('AT+CHUP\n') #(挂断所有通话)
             dial = 0
 
         music.stop()
