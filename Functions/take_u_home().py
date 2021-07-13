@@ -1,38 +1,9 @@
-from machine import UART
 from mpython import *
-import math
 import network
-import music
-import neopixel
 import time
 import urequests
 import audio
-
-
-#引脚：
-#p15tx&p16rx：串口uart2(SIM卡模块)
-#p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-#p0: "带我回家"按钮
-#p1：照明灯开关
-#p13：灯带1（灯数：63）
-#p14：灯带2（灯数：63）
-
-
-#摔倒判断：
-# x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
-
-
-#位置获取：
-# 使用高德地图api 
-# a: list
-# b, c: float
-# a1b1c1为纬度数据，a2b2c2为经度数据
-
-
-# 实时定位位置：
-# loc_get1, location1, a/b/c:1&2
-
-p0 = MPythonPin(0, PinMode.IN)
+import gc;gc.collect()
 
 
 #搭建WiFi，连接app用户手机数据
@@ -59,19 +30,6 @@ backhome = 0
 ori_loc = ''
 para_nav = ''
 
-
-#实时获取老人定位
-lat_now = 0
-lon_now = 0
-loc_info = ''
-loc_cycle = ''
-location1 = []
-a1 = []
-a2 = []
-b1 = 0
-b2 = 0
-c1 = 0
-c2 = 0
 
 stop = 0
 st = 0
@@ -112,14 +70,14 @@ def take_u_home():
         # time.sleep(3)
         # oled.fill(0)
         # oled.show()
-        print(ori_loc)
+        # print(ori_loc)
         
         para_nav = ori_loc+'&destination='+home_loc+'&key='+key_dy
-        print(NAV_URL+str(para_nav))
+        # print(NAV_URL+str(para_nav))
         nav = urequests.get(url=NAV_URL+str(para_nav))
-        print(nav)
+        # print(nav)
         nav = nav.json()
-        print(nav)
+        # print(nav)
         if nav.get('status') == "1":
             # oled.fill(0)
             # oled.DispChar('守护者云拐杖', 24, 16)
@@ -132,7 +90,7 @@ def take_u_home():
             # oled.fill(0)
             # oled.DispChar(method, 0, 0, 1, True)
             # oled.show()
-            print(method)
+            # print(method)
             
             data_audio = {
                 "API_Key": api_key,
@@ -167,7 +125,7 @@ def take_u_home():
                 backhome = 0
 
     elif backhome % 2 == 0:
-        print('停了')
+        # print('停了')
         if stop == 1:
             rgb.fill((int(0), int(0), int(255)))
             rgb.write()

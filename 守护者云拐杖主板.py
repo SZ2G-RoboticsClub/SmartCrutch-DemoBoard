@@ -8,6 +8,7 @@ import time
 import urequests
 import ubinascii
 import audio
+import gc
 
 
 # 掌控板引脚：
@@ -493,6 +494,8 @@ if user_set.get('code') == 0:
     oled.show()
 
     while True:
+        gc.collect()
+
         if geo_time == None:
             geo_time = time.time()
             
