@@ -88,6 +88,13 @@ nav_file = 'nav_file.mp3'
 
 
 
+# 短信发送
+fall_msg = '60a85bb680014eba73b05728645450124e86ff01ff018bf762535f005b8862a480054e9162d067560061007000704ee567e58be280014eba4f4d7f6eff01'
+msg = 0
+en_msg = 'Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!'
+
+
+
 # 家庭住址经纬信息
 lat_home = 0
 lon_home = 0
@@ -245,46 +252,64 @@ def common():
 
 # 倒地10s短信通知
 def message():
+    # global msg
     pass
-    #TEXT中文模式
-    # uart2.write('AT+CMGF=1\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,167,0,8\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>\n')
-    # time.sleep(1)
+    # if msg == 0:
+        #TEXT中文模式
+        # uart2.write('AT+CMGF=1')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSMP=17,167,2,25')
+        # # uart2.write('AT+CSMP=17,167,0,8')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSCS="UCS2"')
+        # time.sleep(1.5)
+        # uart2.write('AT+CMGS="18126281060"')
+        # time.sleep(1)
+        # uart2.write(fall_msg)
+        # time.sleep(1)
 
-    #TEXT英文模式
-    # uart2.write('AT+CMGF=1\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,11,0,0\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CSMS="IRA"\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>\n')
-    # time.sleep(1)
+        #TEXT英文模式
+        # uart2.write('AT+CMGF=1')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSCS="GSM"')
+        # time.sleep(1.5)
+        # uart2.write('AT+CMGS="18126281060"')
+        # uart2.write(1)
+        # uart2.write(en_msg)
+        # time.sleep(1)
+
+        # msg = 1
 
 
 # 倒地30s短信通知
 def sec_message():
+    # global msg
     pass
-    #TEXT中文模式
-    # uart2.write('AT+CMGF=1\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,167,0,8\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>e5ae88e68aa4e88085e4ba91e68b90e69d96e6b58be8af95e79fade4bfa1<ctrl-Z>\n')
-    # time.sleep(1)
+    # if msg == 1:
+        #TEXT中文模式
+        # uart2.write('AT+CMGF=1')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSMP=17,167,2,25')
+        # # uart2.write('AT+CSMP=17,167,0,8')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSCS="UCS2"')
+        # time.sleep(1.5)
+        # uart2.write('AT+CMGS="18126281060"')
+        # time.sleep(1)
+        # uart2.write(fall_msg)
+        # time.sleep(1)
 
-    #TEXT英文模式
-    # uart2.write('AT+CMGF=1\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CSMP=17,11,0,0\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CSMS="IRA"\n')
-    # time.sleep(1.5)
-    # uart2.write('AT+CMGS="18126281060"\n>Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>\n')
-    # time.sleep(1)
+        #TEXT英文模式
+        # uart2.write('AT+CMGF=1')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSMP=17,11,0,0')
+        # time.sleep(1.5)
+        # uart2.write('AT+CSMS="IRA"')
+        # time.sleep(1.5)
+        # uart2.write('AT+CMGS="18126281060">Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>\n')
+        # time.sleep(1)
+
+        # msg = 2
 
 
 
@@ -327,14 +352,14 @@ def fall_det():
         status = 'emergency'
         flashlight()
         help()
-        message()
+        # message()
 
 
     if fall == 2:
         status = 'emergency'
         flashlight()
         help()
-        sec_message()
+        # sec_message()
         if dial == 0:
 
             # TEST1
@@ -347,16 +372,16 @@ def fall_det():
             # oled.show()
 
             # 倒地30s后SIM模块拨打setting中紧急联系人电话
-            uart2.write('AT+SETVOLTE=1\n')
+            uart2.write('ATD' + str(user_set.get('settings').get('phone')) + ';')
             time.sleep(3)
-            uart2.write('ATD' + str(user_set.get('settings').get('phone')) + '\n')
-            
+
             dial = 1
 
     if fall == 0:
+        msg = 0
 
         if dial == 1:
-            uart2.write('AT+CHUP\n') #(挂断所有通话)
+            uart2.write('ATH') #(挂断所有通话)
             dial = 0
 
         music.stop()

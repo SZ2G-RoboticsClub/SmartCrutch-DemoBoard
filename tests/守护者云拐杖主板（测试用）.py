@@ -358,16 +358,14 @@ def fall_det():
         #     # oled.show()
 
         #     # 倒地30s后SIM模块拨打setting中紧急联系人电话
-        #     uart2.write('AT+SETVOLTE=1')
-        #     time.sleep(3)
         #     uart2.write('ATD' + str(user_set.get('settings').get('phone')))
-            
+        #     time.sleep(2)
         #     dial = 1
 
     if fall == 0:
 
         # if dial == 1:
-        #     uart2.write('AT+CHUP') #(挂断所有通话)
+        #     uart2.write('ATH') #(挂断所有通话)
         #     dial = 0
 
         music.stop()
