@@ -153,11 +153,6 @@ def make_rainbow(_neopixel, _num, _bright, _offset):
         _neopixel[(i + _offset) % _num] = (r, g, b)
 
 
-#呼叫路人来帮忙(ok)
-def help():
-    print('我摔跤了,请帮帮我！')
-    music.play(music.JUMP_UP, wait=True, loop=False)
-
 
 #倒地闪红蓝白报警灯(ok)
 def flashlight():
@@ -217,6 +212,8 @@ def common():
     global switch
     if p5.read_digital() == 1:      # A键开关灯
         switch += 1
+        time.sleep_ms(350)
+        
     #光感手电
     if switch % 3 == 0:
         my_rgb2.fill((0,0,0))
@@ -236,68 +233,6 @@ def common():
         my_rgb2.fill( (255, 255, 255) )
         my_rgb1.write()
         my_rgb2.write()
-
-
-# 倒地10s短信通知
-def message():
-    # global msg
-    pass
-    # if msg == 0:
-        #TEXT中文模式
-        # uart2.write('AT+CMGF=1')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSMP=17,167,2,25')
-        # # uart2.write('AT+CSMP=17,167,0,8')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSCS="UCS2"')
-        # time.sleep(1.5)
-        # uart2.write('AT+CMGS="18126281060"')
-        # time.sleep(1)
-        # uart2.write(fall_msg)
-        # time.sleep(1)
-
-        #TEXT英文模式
-        # uart2.write('AT+CMGF=1')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSCS="GSM"')
-        # time.sleep(1.5)
-        # uart2.write('AT+CMGS="18126281060"')
-        # uart2.write(1)
-        # uart2.write(en_msg)
-        # time.sleep(1)
-
-        # msg = 1
-
-
-# 倒地30s短信通知
-def sec_message():
-    # global msg
-    pass
-    # if msg == 1:
-        #TEXT中文模式
-        # uart2.write('AT+CMGF=1')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSMP=17,167,2,25')
-        # # uart2.write('AT+CSMP=17,167,0,8')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSCS="UCS2"')
-        # time.sleep(1.5)
-        # uart2.write('AT+CMGS="18126281060"')
-        # time.sleep(1)
-        # uart2.write(fall_msg)
-        # time.sleep(1)
-
-        #TEXT英文模式
-        # uart2.write('AT+CMGF=1')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSMP=17,11,0,0')
-        # time.sleep(1.5)
-        # uart2.write('AT+CSMS="IRA"')
-        # time.sleep(1.5)
-        # uart2.write('AT+CMGS="18126281060">Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!<ctrl-Z>\n')
-        # time.sleep(1)
-
-        # msg = 2
 
 
 
@@ -339,15 +274,13 @@ def fall_det():
     if fall == 1:
         status = 'emergency'
         flashlight()
-        help()
-        # message()
+        music.play(music.JUMP_UP, wait=True, loop=False)
 
 
     if fall == 2:
         status = 'emergency'
         flashlight()
-        help()
-        # sec_message()
+        music.play(music.JUMP_UP, wait=True, loop=False)
         if dial == 0:
 
             # TEST1
@@ -452,11 +385,12 @@ def heartbeat():
 
 # ============ Main ============
 
-sensor.reset()
+sensor.reset(choice=1)
+sensor.reset(choice=2)
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P, rx=Pin.P9)
+uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P9)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)

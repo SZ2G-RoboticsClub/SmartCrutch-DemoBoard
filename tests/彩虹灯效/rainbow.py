@@ -3,8 +3,11 @@ from mpython import *
 
 import neopixel
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P2), n=63, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P4), n=63, bpp=3, timing=1)
+p5 = MPythonPin(5, PinMode.IN)
+p3 = MPythonPin(3, PinMode.ANALOG)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+
 move = 0
 switch = 0
 
@@ -32,6 +35,7 @@ def rainbow():
 while True:
     if p5.read_digital() == 1:      # A键开关灯
         switch += 1
+        time.sleep_ms(350)
     #光感手电
     if switch % 3 == 0:
         my_rgb2.fill((0,0,0))
