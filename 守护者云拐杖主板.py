@@ -12,12 +12,14 @@ import gc
 
 
 # 掌控板引脚：
-# p1tx&p16rx：串口uart2(SIM卡模块)
-# p11tx&p14rx：串口uart1(北斗定位模块)——测试用的是北斗，北斗只输入14tx引脚不输出
-# B键(绿色按钮): "带我回家"按钮+中断导航
-# A键(红色按钮)：照明灯开关
-# p0：光敏电阻（光线传感）
-# p13：灯带1（灯数：63）
+# p16tx&p9rx：串口uart2(SIM卡模块)
+# p13tx&p14rx：串口uart1(北斗定位模块)
+# p0&p1：前（choice=1）后（choice=2）摄像头控制
+# B键(P11)(绿色按钮): "带我回家"按钮+中断导航
+# A键(P5)(红色按钮)：照明灯开关
+# p3：光敏电阻（光线传感）
+# p8：掌控板喇叭
+# p7：灯带1（灯数：63）
 # p15：灯带2（灯数：63）
 
 
@@ -35,9 +37,10 @@ import gc
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-# p2 = MPythonPin(2, PinMode.IN)
-p0 = MPythonPin(0, PinMode.ANALOG)
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
+p5 = MPythonPin(5, PinMode.IN)
+p11 = MPythonPin(11, PinMode.IN)
+p3 = MPythonPin(3, PinMode.ANALOG)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
 
@@ -122,8 +125,8 @@ c2 = 0
 
 
 
-# 全局变量定义       
-switch = 0                            
+# 全局变量定义
+switch = 0                         
 stop = 0        #中断导航变量         
 move = 0        #彩虹灯变量
 down = 0        #0：拐杖没倒；    1：拐杖倒了
@@ -134,11 +137,7 @@ geo_time = None    #获取位置描述初始时间
 dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
-
-oled.fill(0)
-oled.DispChar('网络连接初始化完毕', 0, 0)
-oled.show()
-
+print('网络连接初始化完毕')
 
 # ============ Modules ============
 
@@ -156,10 +155,7 @@ def make_rainbow(_neopixel, _num, _bright, _offset):
 
 #呼叫路人来帮忙(ok)
 def help():
-    # global freq
-    oled.fill(0)
-    oled.DispChar('我摔跤了,请帮帮我！', 15, 20)
-    oled.show()
+    print('我摔跤了,请帮帮我！')
     music.play(music.JUMP_UP, wait=True, loop=False)
 
 
@@ -203,6 +199,7 @@ def flashlight():
         time.sleep_ms(100)
 
 
+
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
@@ -214,21 +211,12 @@ def rainbow():
     move = move - 1
 
 
-# A键开关灯
-def on_button_a_pressed(_):
-    global switch
-    switch += 1
-
-button_a.event_pressed = on_button_a_pressed
-
 
 #平常状态(ok)
 def common():
     global switch
-    oled.fill(0)
-    oled.DispChar('守护者云拐杖', 24, 16)
-    oled.DispChar('开', 56, 32)
-    oled.show()
+    if p5.read_digital() == 1:      # A键开关灯
+        switch += 1
     #光感手电
     if switch % 3 == 0:
         my_rgb2.fill((0,0,0))
@@ -236,12 +224,12 @@ def common():
         my_rgb1.write()
         my_rgb2.write()
     elif switch % 3 == 1:
-        if p0.read_analog() < 100:
+        if p3.read_analog() < 100:
             my_rgb1.fill( (255, 255, 255) )
             my_rgb2.fill( (255, 255, 255) )
             my_rgb1.write()
             my_rgb2.write()
-        elif p0.read_analog() >= 100:
+        elif p3.read_analog() >= 100:
             rainbow()    
     elif switch % 3 == 2:
         my_rgb1.fill( (255, 255, 255) )
@@ -363,13 +351,7 @@ def fall_det():
         if dial == 0:
 
             # TEST1
-            # oled.fill(0)
-            # oled.DispChar('已拨打电话', 0, 0)
-            # oled.show()
             # print('已拨打电话')
-            # time.sleep(1)
-            # oled.fill(0)
-            # oled.show()
 
             # 倒地30s后SIM模块拨打setting中紧急联系人电话
             uart2.write('ATD' + str(user_set.get('settings').get('phone')) + ';')
@@ -389,29 +371,21 @@ def fall_det():
         status = 'ok'
 
 
-# B键带我回家
-def on_button_b_pressed(_):
-    global backhome
-    backhome += 1
-
-button_b.event_pressed = on_button_b_pressed
-
 
 #"带你回家"
 def take_u_home():
     global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
 
+    if p11.read_digital() == 1:
+        backhome += 1
+
     if backhome % 2 == 1:
         stop = 1
         ori_loc = loc_cycle
-        # oled.fill(0)
-        # oled.DispChar('当前位置记录完毕', 0, 16)
-        # oled.DispChar(ori_loc, 0, 32)
-        # oled.show()
-        # time.sleep(3)
-        # oled.fill(0)
-        # oled.show()
+
+        # print('当前位置记录完毕', 0, 16)
         # print(ori_loc)
+
         para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key
         # print(para_nav)
         nav = urequests.get(url=NAV_URL+str(para_nav))
@@ -419,10 +393,6 @@ def take_u_home():
         nav = nav.json()
         # print(nav)
         if nav.get('status') == "1":
-            # oled.fill(0)
-            # oled.DispChar('守护者云拐杖', 24, 16)
-            # oled.DispChar('正在带您回家', 24, 40)
-            # oled.show()
             method = nav.get('route').get('paths')[0].get('steps')[0].get('instruction')
             data_audio = {
                 "API_Key": api_key,
@@ -438,17 +408,11 @@ def take_u_home():
                         break
                     _f.write(dat)
             audio.play(nav_file)
-            # oled.fill(0)
-            # oled.DispChar(method, 0, 0, 1, True)
-            # oled.show()
+            # print(method)
             time.sleep(5)
             audio.stop()
 
             if nav.get('route').get('paths')[0].get('steps')[0].get('assistant_action') == "到达目的地":
-                # oled.fill(0)
-                # oled.DispChar('守护者云拐杖', 24, 16)
-                # oled.DispChar('导航结束', 40, 32)
-                # oled.show()
                 audio.play('nav_end.mp3')
                 time.sleep(3)
                 audio.stop()
@@ -488,22 +452,17 @@ def heartbeat():
 
 # ============ Main ============
 
-# ai = NPLUS_AI()
-# ai.mode_change(1)
+sensor.reset()
 audio.player_init(i2c)
 audio.set_volume(100)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P11, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P1, rx=Pin.P16)
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
+uart2 = machine.UART(2, baudrate=9600, tx=Pin.P, rx=Pin.P9)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 user_set = s.json()
 if user_set.get('code') == 0:
-    oled.DispChar('获取账户连接成功', 0, 0)
-    oled.show()
-    time.sleep(1)
-    oled.fill(0)
-    oled.show()
+    print('获取账户连接成功')
     
     #家庭住址经纬度获取
     home = user_set.get('settings').get('home')
@@ -511,12 +470,8 @@ if user_set.get('code') == 0:
     h = h.json()
 
     home_loc = h.get('geocodes')[0].get('location')
-    oled.DispChar('家庭位置记录完毕', 0, 16)
-    oled.DispChar(home_loc, 0, 32)
-    oled.show()
-    time.sleep(1)
-    oled.fill(0)
-    oled.show()
+    print('家庭位置记录完毕', home_loc)
+
 
     while True:
         gc.collect()
@@ -601,24 +556,14 @@ if user_set.get('code') == 0:
             elif resp.get('code') == 1:
                 print('拐杖未注册')
             else:
-                oled.fill(0)
-                oled.DispChar('心跳包错误', 0, 0, 1)
-                oled.show()
+                print('心跳包错误')
 
                 # TEST3
                 print(resp.get('msg'))
 
-                # time.sleep(1)
-                # oled.fill(0)
-                # oled.DispChar(str(resp.get('msg')), 0, 0, 1, True) #查看是否正常回应
-                # oled.show()
-
 
 else:
-    # print('账户连接失败，请重新启动')
-    oled.fill(0)
-    oled.DispChar('账户连接失败，请重新启动', 0, 0, 1, True)
-    oled.show()
+    print('账户连接失败，请重新启动')
 
 
 #状态：倒地，common()，导航

@@ -3,9 +3,10 @@ from mpython import *
 
 import neopixel
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P13), n=63, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P2), n=63, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P4), n=63, bpp=3, timing=1)
 move = 0
+switch = 0
 
 def make_rainbow(_neopixel, _num, _bright, _offset):          
     _rgb = ((255,0,0), (255,127,0), (255,255,0), (0,255,0), (0,255,255), (0,0,255), (136,0,255), (255,0,0))
@@ -29,4 +30,24 @@ def rainbow():
     
     
 while True:
-    rainbow()
+    if p5.read_digital() == 1:      # A键开关灯
+        switch += 1
+    #光感手电
+    if switch % 3 == 0:
+        my_rgb2.fill((0,0,0))
+        my_rgb1.fill((0,0,0))
+        my_rgb1.write()
+        my_rgb2.write()
+    elif switch % 3 == 1:
+        if p3.read_analog() < 100:
+            my_rgb1.fill( (255, 255, 255) )
+            my_rgb2.fill( (255, 255, 255) )
+            my_rgb1.write()
+            my_rgb2.write()
+        elif p3.read_analog() >= 100:
+            rainbow()    
+    elif switch % 3 == 2:
+        my_rgb1.fill( (255, 255, 255) )
+        my_rgb2.fill( (255, 255, 255) )
+        my_rgb1.write()
+        my_rgb2.write()
