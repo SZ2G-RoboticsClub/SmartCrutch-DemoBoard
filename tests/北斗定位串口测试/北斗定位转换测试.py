@@ -1,10 +1,9 @@
-#mPythonType:0
 from machine import UART
 from mpython import *
-
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P11)
-
 import time
+
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P14, rx=Pin.P13)
+
 i = 0
 lat = 0
 lon = 0
@@ -28,14 +27,7 @@ while True:
                 lon = float(location[3]) * -1
             else:
                 lon = 0
-            oled.fill(0)
-            oled.DispChar((str(location)), 0, 0, 1)
-            oled.DispChar((str(lat)), 0, 16, 1)
-            oled.DispChar((str(lon)), 0, 32, 1)
-            oled.show()
-            time.sleep(1)
+
             print(location)
             print(lat)
             print(lon)
-            print(location[1])
-            print(location[3])

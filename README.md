@@ -4,11 +4,12 @@ SmartCrutch-v4 demoboard Repo
 
 
 ## Hardware required
+以掌控板为核心：
 - 掌控宝 × 1(ESP32模组)
 - 灯带（63颗） × 2
 - 按钮 × 2（AB按键）
 - SIM卡模块 × 1
-- 北斗+GPS定位模块 × 1
+- 北斗定位模块 × 1
 - 行车记录仪摄像头 × 2
 - TF卡模块（存储记录仪视频）
 - 光敏电阻 × 1
@@ -17,7 +18,19 @@ SmartCrutch-v4 demoboard Repo
 - 稳压器
 - 喇叭（接掌控宝扩展板喇叭引脚）
 
-最终将上述模块集成至以ESP32为核心的PCB电路板上
+定做PCB集成模块与特点：
+- ESP32内核
+- 三轴加速度计
+- 北斗定位模块
+- SIM800C通讯模块
+- K210 sipeed 摄像头模块 × 2
+- TF卡存储模块
+
+PCB优点：
+- 功能模块小型化、智能化、模块化
+- 极大提高了电源电压与功能的稳定性
+- 极大解决了先前发热严重导致无法使用的问题
+- 集成多个模块，缩小拐杖模块放置体积，提升美观度
 
 
 ## Functions
@@ -26,16 +39,18 @@ SmartCrutch-v4 demoboard Repo
 ### Fall-detecting 摔倒检测，远端报警
 
 #### Description
-检测老人是否摔倒，若摔倒则向服务端发送报警信息(准备增加发送短信)并亮灯蜂鸣，30s还没起来直接拨打紧急联系人电话
+检测老人是否摔倒，若摔倒则向服务端发送报警信息并亮灯蜂鸣，30s还没起来直接拨打紧急联系人电话
+
+(未来计划：增加发送短信)
 
 #### Sensor and Actuators
 - 三轴加速度计(内置在掌控板中)
-- 灯带
+- 63灯灯带
 - 光敏电阻
-- 按钮
+- 按钮 × 2
 - 蜂鸣器(内置在掌控板中)
 - SIM卡模块
-- 北斗+GPS定位模块
+- 北斗定位模块
 
 #### Method
 - 正常情况
@@ -56,19 +71,10 @@ SmartCrutch-v4 demoboard Repo
     - status：“emergency”
 
 - 拨打电话——SIM卡模块：
-    - uart1.write('AT+SETVOLTE=1')
     - uart1.write('ATD号码')，**中间无'+'号**
 
 - 发送短信——SIM卡模块：
-中文模式
-    - uart2.write('AT+CMGF=1')
-    - uart2.write('AT+CSMP=17,167,0,8')
-    - uart2.write('AT+CMGS="18126281060"\n>**此处填写短信内容**<ctrl-Z>')（16进制格式）
-英文模式
-    - uart2.write('AT+CMGF=1')
-    - uart2.write('AT+CSMP=17,11,0,0')
-    - uart2.write('AT+CSMS="IRA"')
-    - uart2.write('AT+CMGS="18126281060"\n>**HERE WRITE YOUR TEXT**<ctrl-Z>')
+待定
 
 
 ### Video recording 拐杖记录仪
@@ -77,11 +83,18 @@ SmartCrutch-v4 demoboard Repo
 拐杖记录仪，全天拍摄
 
 #### Sensor
-- 行车记录仪摄像头 × 2
+- 行车记录仪摄像头 × 2（原模块）
+- K210 sipeed摄像头模块 × 2（PCB）
 
 #### Method
+行车记录仪摄像头
 - 独立于掌控板，全天摄像，存入内存卡，可通过摔倒时发送的摔倒时间来查看录像，作为老人出行黑匣子
-- 未来将使用数据流实时传输至云端存储
+- 未来将使用程序控制拍摄√
+
+K210 sipeed摄像头模块
+- 由PCB主控板控制，可用程序操控开关与摄像长短，前后交替摄像
+- 未来将实现实时数据流传输至云端
+- 未来还将接入视觉识别模块，通过AI智能判定老人摔倒
 
 
 ### Take you home “带你回家”
@@ -105,7 +118,7 @@ SmartCrutch-v4 demoboard Repo
 - 带你回家：
     - 掌控板屏幕显示
     - 语音（目前）
-    - ……
+    - 未来将突破技术，采用方向感应灯来实现方向指引
 
 
 ## Module request:
@@ -131,7 +144,7 @@ SmartCrutch-v4 demoboard Repo
         - longitude: 摔倒经度
         - info: 实时位置描述
     
-    - 未来可做历史记录【falltime:
+    - 未来可做摔倒记录【falltime:
         - date: 摔倒日期(年月日)
         - time: 摔倒时间(时分秒)】
 
