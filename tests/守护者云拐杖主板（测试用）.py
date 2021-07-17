@@ -19,12 +19,13 @@ import gc
 # A键(P5)(红色按钮)：照明灯开关
 # p3：光敏电阻（光线传感）
 # p8：掌控板喇叭
-# p7：灯带1（灯数：63）
-# p15：灯带2（灯数：63）
+# p7：灯带1（灯数：63/24）
+# p15：灯带2（灯数：63/24）
 
 
 # 摔倒判断：
 # x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
+# PCB：z轴加速度是否小于0.5（垂直于PCB板平面竖直向下为正方向）
 
 
 # 位置获取：
@@ -37,11 +38,17 @@ import gc
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
+
 p5 = MPythonPin(5, PinMode.IN)
 p11 = MPythonPin(11, PinMode.IN)
 p3 = MPythonPin(3, PinMode.ANALOG)
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+
+# my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
+# my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=24, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
+
 
 
 #心跳包数据初始化
@@ -208,6 +215,8 @@ def common():
     global switch
     if p5.read_digital() == 1:      # A键开关灯
         switch += 1
+        time.sleep_ms(350)
+        
     #光感手电
     if switch % 3 == 0:
         my_rgb2.fill((0,0,0))
@@ -237,9 +246,9 @@ def common():
 def fall_det():
     global loc_cycle, loc_info, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
 
-    x = accelerometer.get_x()
+    z = accelerometer.get_z()
     #拐杖倒地判定
-    if x <= 0.5:            #究其根本
+    if z <= 0.6:            #究其根本
         down = 1
     else:
         down = 0
@@ -306,6 +315,7 @@ def take_u_home():
 
     if p11.read_digital() == 1:
         backhome += 1
+        time.sleep_ms(350)
 
     if backhome % 2 == 1:
         stop = 1

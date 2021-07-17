@@ -25,7 +25,7 @@ import gc
 
 # 摔倒判断：
 # 掌控板：x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
-# PCB：z轴加速度是否大于-0.5（垂直于PCB板平面竖直向上为正方向）
+# PCB：z轴加速度是否小于0.5（垂直于PCB板平面竖直向下为正方向）
 
 
 # 位置获取：
@@ -37,6 +37,7 @@ import gc
 
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
+
 
 p5 = MPythonPin(5, PinMode.IN)
 p11 = MPythonPin(11, PinMode.IN)
@@ -245,7 +246,7 @@ def fall_det():
 
     z = accelerometer.get_z()
     #拐杖倒地判定
-    if z <= 0.5:            #究其根本
+    if z >= -0.5:            #究其根本
         down = 1
     else:
         down = 0
@@ -312,6 +313,7 @@ def take_u_home():
 
     if p11.read_digital() == 1:
         backhome += 1
+        time.sleep_ms(350)
 
     if backhome % 2 == 1:
         stop = 1
