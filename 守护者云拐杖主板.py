@@ -24,7 +24,8 @@ import gc
 
 
 # 摔倒判断：
-# x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
+# 掌控板：x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
+# PCB：z轴加速度是否大于-0.5（垂直于PCB板平面竖直向上为正方向）
 
 
 # 位置获取：
@@ -240,11 +241,11 @@ def common():
 
 #摔倒检测(ok)
 def fall_det():
-    global loc_cycle, loc_info, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, x, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
+    global loc_cycle, loc_info, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, z, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
 
-    x = accelerometer.get_x()
+    z = accelerometer.get_z()
     #拐杖倒地判定
-    if x <= 0.5:            #究其根本
+    if z <= 0.5:            #究其根本
         down = 1
     else:
         down = 0

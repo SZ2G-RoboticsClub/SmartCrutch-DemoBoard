@@ -1,6 +1,7 @@
 from mpython import *
 import network
 import urequests
+import ubinascii
 import time
 
 my_wifi = wifi()
@@ -57,6 +58,11 @@ oled.show()
 while True:
     if time_set == None:
         time_set = time.time()
+    
+    loc_info = '广东省深圳市南山区创科路3号深圳市第二高级中学'
+        
+    tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+    tran = tran.decode()
 
     if button_a.is_pressed():
         rgb.fill((255, 255, 255))
@@ -66,14 +72,14 @@ while True:
         heartbeat_Loc = {
             "latitude": 22.5734267,
             "longitude": 114.1235464,
-            "info": 'e6b7b1e59cb3e5b882e7acace4ba8ce9ab98e7baa7e4b8ade5ada6'
+            "info": tran
         }
     else:
         status = 'ok'
         heartbeat_Loc = {
             "latitude": 22.5734267,
             "longitude": 114.1235464,
-            "info": 'e6b7b1e59cb3e5b882e7acace4ba8ce9ab98e7baa7e4b8ade5ada6'
+            "info": tran
         }
         rgb.fill((0, 0, 0))
         rgb.write()
