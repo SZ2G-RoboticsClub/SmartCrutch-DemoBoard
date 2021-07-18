@@ -25,7 +25,6 @@ import gc
 
 # 摔倒判断：
 # x轴加速度是否小于0.5（平行于屏幕方向向下为正方向）
-# PCB：z轴加速度是否小于0.5（垂直于PCB板平面竖直向下为正方向）
 
 
 # 位置获取：
@@ -37,7 +36,6 @@ import gc
 
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
-
 
 p5 = MPythonPin(5, PinMode.IN)
 p11 = MPythonPin(11, PinMode.IN)
@@ -201,6 +199,9 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
+    make_rainbow(my_rgb1, 63, 80, move)
+    make_rainbow(my_rgb2, 63, 80, move)
+    
     make_rainbow(my_rgb1, 24, 80, move)
     make_rainbow(my_rgb2, 24, 80, move)
     my_rgb1.write()
@@ -237,6 +238,103 @@ def common():
         my_rgb1.write()
         my_rgb2.write()
 
+
+
+# 实时位置获取
+def getLoc_now():
+    global r_geo, geo_time, loc_get1, location1, a1, b1, c1, a2, b2, c2, lat_now, lon_now, loc_cycle, loc_info, tran
+    if geo_time == None:
+        geo_time = time.time()
+        
+    if time.time() - geo_time >= 4:
+        # while True:
+        #     loc_get1 = uart1.readline()
+        #     if loc_get1:
+        #         break
+        # location1 = (str(loc_get1).split(','))
+
+        m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+        location1 = m.split(',')
+
+        if location1[2] == 'N':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+        elif location1[2] == 'S':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+        else:
+            lat_now = 0
+
+        if location1[4] == 'E':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+        elif location1[4] == 'W':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+        else:
+            lon_now = 0
+
+        # TEST2
+        # lon_now = 113.937507
+        # lat_now = 22.570334
+        
+        # TEST9
+        # lon_now = 114.095582
+        # lat_now = 22.565531
+
+        loc_cycle = str(lon_now) + ',' + str(lat_now)
+        
+        # debug11
+        # print(R_GEO_URL+loc_cycle+'&key='+key_zhs)
+                
+        # r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_zhs)
+        # r_geo = r_geo.json()
+
+        # debug9
+        # print(r_geo)
+        
+        # country_ = r_geo.get('regeocode').get('addressComponent').get('country')
+        # province_ = r_geo.get('regeocode').get('addressComponent').get('province')
+        # city_ = r_geo.get('regeocode').get('addressComponent').get('city')
+        # loc_info = r_geo.get('regeocode').get('formatted_address')
+        # loc_info = loc_info.replace(country_, '').replace(province_, '').replace(city_, '')
+        
+        # debug10
+        # print(loc_info)
+        
+        # TEST8
+        loc_info = '南山区西丽街道南山垃圾分类科普体验馆西丽生态公园'
+    
+        tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+        tran = tran.decode()
+        geo_time = None
+        
+        # debug12
+        # print(tran)
+        # print(type(tran))
+
+
+
+# 摄像头切换摄像
+def recordVideo():
+    global video_time, choice
+
+    if video_time == None:
+        video_time = time.time()
+        ai.AI_WaitForARP(0x34,[choice])
+        ai.video_capture(10)
+        choice = (choice + 1) % 2
+
+    if time.time() - video_time >= 12:              # 缓冲开始摄像时间2s
+        video_time = None
 
 
 
@@ -437,83 +535,8 @@ if user_set.get('code') == 0:
     while True:
         gc.collect()
         
-        if geo_time == None:
-            geo_time = time.time()
-            
-        if time.time() - geo_time >= 4:
-            # while True:
-            #     loc_get1 = uart1.readline()
-            #     if loc_get1:
-            #         break
-            # location1 = (str(loc_get1).split(','))
-
-            m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
-            location1 = m.split(',')
-            
-            if location1[2] == 'N':
-                a1 = list(str(location1[1]))
-                b1 = float(''.join(a1[2:]))
-                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-            elif location1[2] == 'S':
-                a1 = list(str(location1[1]))
-                b1 = float(''.join(a1[2:]))
-                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-            else:
-                lat_now = 0
-    
-            if location1[4] == 'E':
-                a2 = list(str(location1[3]))
-                b2 = float(''.join(a2[3:]))
-                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-            elif location1[4] == 'W':
-                a2 = list(str(location1[3]))
-                b2 = float(''.join(a2[3:]))
-                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-            else:
-                lon_now = 0
-
-            # TEST2
-            # lon_now = 113.937507
-            # lat_now = 22.570334
-            
-            # TEST9
-            # lon_now = 114.095582
-            # lat_now = 22.565531
-    
-            loc_cycle = str(lon_now) + ',' + str(lat_now)
-            
-            # debug11
-            # print(R_GEO_URL+loc_cycle+'&key='+key_zhs)
-                    
-            # r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_zhs)
-            # r_geo = r_geo.json()
-    
-            # debug9
-            # print(r_geo)
-            
-            # country_ = r_geo.get('regeocode').get('addressComponent').get('country')
-            # province_ = r_geo.get('regeocode').get('addressComponent').get('province')
-            # city_ = r_geo.get('regeocode').get('addressComponent').get('city')
-            # loc_info = r_geo.get('regeocode').get('formatted_address')
-            # loc_info = loc_info.replace(country_, '').replace(province_, '').replace(city_, '')
-            
-            # debug10
-            # print(loc_info)
-            
-            # TEST8
-            loc_info = '南山区西丽街道南山垃圾分类科普体验馆西丽生态公园'
-        
-            tran = ubinascii.hexlify(loc_info.encode('utf-8'))
-            tran = tran.decode()
-            geo_time = None
-            
-            # debug12
-            # print(tran)
-            # print(type(tran))
+        getLoc_now()
+        recordVideo()        
         
         heartbeat_Loc = {
             "longitude": lon_now, 

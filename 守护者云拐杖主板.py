@@ -1,5 +1,6 @@
 from machine import UART
 from mpython import *
+from ai import *
 import math
 import network
 import music
@@ -136,6 +137,8 @@ fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔�
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
 geo_time = None    #获取位置描述初始时间
+video_time = None  #每个摄像头开始摄像的时间
+choice = 0         #前后摄像头标号    0：前摄像头；    1：后摄像头
 dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 
 
@@ -238,9 +241,90 @@ def common():
 
 
 
+# 实时位置获取
+def getLoc_now():
+    global r_geo, geo_time, loc_get1, location1, a1, b1, c1, a2, b2, c2, lat_now, lon_now, loc_cycle, loc_info, tran
+    if geo_time == None:
+        geo_time = time.time()
+        
+    if time.time() - geo_time >= 4:
+        while True:
+            loc_get1 = uart1.readline()
+            if loc_get1:
+                break
+        location1 = (str(loc_get1).split(','))
+
+        if location1[2] == 'N':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
+        elif location1[2] == 'S':
+            a1 = list(str(location1[1]))
+            b1 = float(''.join(a1[2:]))
+            c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
+            lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
+        else:
+            lat_now = 0
+
+        if location1[4] == 'E':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
+        elif location1[4] == 'W':
+            a2 = list(str(location1[3]))
+            b2 = float(''.join(a2[3:]))
+            c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
+            lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
+        else:
+            lon_now = 0
+
+        # TEST2
+        # lon_now = 113.937507
+        # lat_now = 22.570334
+
+        loc_cycle = str(lon_now) + ',' + str(lat_now)
+
+        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
+        r_geo = r_geo.json()
+
+        # debug9
+        # print(r_geo)
+
+        loc_info = r_geo.get('regeocode').get('formatted_address')
+
+        # debug10
+        # print(loc_info)
+        
+        tran = ubinascii.hexlify(loc_info.encode('utf-8'))
+        tran = tran.decode()
+        geo_time = None
+        
+        # debug12
+        # print(tran)
+        # print(type(tran))
+
+
+
+# 摄像头切换摄像
+def recordVideo():
+    global video_time, choice
+
+    if video_time == None:
+        video_time = time.time()
+        ai.AI_WaitForARP(0x34,[choice])
+        ai.video_capture(10)
+        choice = (choice + 1) % 2
+
+    if time.time() - video_time >= 12:              # 缓冲开始摄像时间2s
+        video_time = None
+
+
+
 # ============ Functions ============
 
-#摔倒检测(ok)
+# 摔倒检测(ok)
 def fall_det():
     global loc_cycle, loc_info, dial, loc_get1, location1, a1, a2, b1, b2, c1, c2, z, time_on, down, fall, lat_now, lon_now, status, heartbeat_Loc
 
@@ -390,6 +474,7 @@ def heartbeat():
 
 sensor.reset(choice=1)
 sensor.reset(choice=2)
+ai = NPLUS_AI()
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
@@ -413,75 +498,17 @@ if user_set.get('code') == 0:
     while True:
         gc.collect()
 
-        if geo_time == None:
-            geo_time = time.time()
-            
-        if time.time() - geo_time >= 4:
-            while True:
-                loc_get1 = uart1.readline()
-                if loc_get1:
-                    break
-            location1 = (str(loc_get1).split(','))
+        if time_set == None:
+            time_set = time.time()
 
-            if location1[2] == 'N':
-                a1 = list(str(location1[1]))
-                b1 = float(''.join(a1[2:]))
-                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                lat_now = math.floor(float(location1[1]) * 0.01) + c1 * 0.01
-            elif location1[2] == 'S':
-                a1 = list(str(location1[1]))
-                b1 = float(''.join(a1[2:]))
-                c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
-                lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
-            else:
-                lat_now = 0
-
-            if location1[4] == 'E':
-                a2 = list(str(location1[3]))
-                b2 = float(''.join(a2[3:]))
-                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                lon_now = math.floor(float(location1[3]) * 0.01) + c2 * 0.01
-            elif location1[4] == 'W':
-                a2 = list(str(location1[3]))
-                b2 = float(''.join(a2[3:]))
-                c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
-                lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
-            else:
-                lon_now = 0
-
-            # TEST2
-            # lon_now = 113.937507
-            # lat_now = 22.570334
-
-            loc_cycle = str(lon_now) + ',' + str(lat_now)
-
-            r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
-            r_geo = r_geo.json()
-
-            # debug9
-            # print(r_geo)
-
-            loc_info = r_geo.get('regeocode').get('formatted_address')
-
-            # debug10
-            # print(loc_info)
-            
-            tran = ubinascii.hexlify(loc_info.encode('utf-8'))
-            tran = tran.decode()
-            geo_time = None
-            
-            # debug12
-            # print(tran)
-            # print(type(tran))
+        getLoc_now()
+        recordVideo()
 
         heartbeat_Loc = {
             "latitude": lat_now,
             "longitude": lon_now,
             "info": tran
             }
-
-        if time_set == None:
-            time_set = time.time()
 
         take_u_home()
 
@@ -494,8 +521,6 @@ if user_set.get('code') == 0:
                 print('拐杖未注册')
             else:
                 print('心跳包错误')
-
-                # TEST3
                 print(resp.get('msg'))
 
 

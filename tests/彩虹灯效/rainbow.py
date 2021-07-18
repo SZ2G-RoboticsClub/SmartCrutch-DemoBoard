@@ -5,8 +5,13 @@ import neopixel
 
 p5 = MPythonPin(5, PinMode.IN)
 p3 = MPythonPin(3, PinMode.ANALOG)
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+
+# my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
+# my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=24, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
+
 
 move = 0
 switch = 0
@@ -24,8 +29,12 @@ def make_rainbow(_neopixel, _num, _bright, _offset):
         
 def rainbow():
     global move
-    make_rainbow(my_rgb1, 63, 80, move)
-    make_rainbow(my_rgb2, 63, 80, move)
+    # make_rainbow(my_rgb1, 63, 80, move)
+    # make_rainbow(my_rgb2, 63, 80, move)
+    
+    make_rainbow(my_rgb1, 24, 80, move)
+    make_rainbow(my_rgb2, 24, 80, move)
+    
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  
@@ -33,6 +42,9 @@ def rainbow():
     
     
 while True:
+    # debug1
+    print(p3.read_analog())
+    
     if p5.read_digital() == 1:      # A键开关灯
         switch += 1
         time.sleep_ms(350)
@@ -43,12 +55,12 @@ while True:
         my_rgb1.write()
         my_rgb2.write()
     elif switch % 3 == 1:
-        if p3.read_analog() < 100:
+        if p3.read_analog() < 2000:
             my_rgb1.fill( (255, 255, 255) )
             my_rgb2.fill( (255, 255, 255) )
             my_rgb1.write()
             my_rgb2.write()
-        elif p3.read_analog() >= 100:
+        elif p3.read_analog() >= 2000:
             rainbow()    
     elif switch % 3 == 2:
         my_rgb1.fill( (255, 255, 255) )
