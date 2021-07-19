@@ -13,7 +13,7 @@ i = 0
 
 # uart1.write('AT+CGMI')
 while True:
-    uart1.write('AT+CPIN\n')
+    uart1.write('ATD18126281060;\n')
     if uart1.any():
         m = uart1.read()
         print(m)    

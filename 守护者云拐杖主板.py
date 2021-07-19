@@ -231,6 +231,7 @@ def common():
             my_rgb2.fill( (255, 255, 255) )
             my_rgb1.write()
             my_rgb2.write()
+            time.sleep_ms(500)
         elif p3.read_analog() >= 100:
             rainbow()    
     elif switch % 3 == 2:
@@ -472,9 +473,10 @@ def heartbeat():
 
 # ============ Main ============
 
-sensor.reset(choice=1)
-sensor.reset(choice=2)
 ai = NPLUS_AI()
+
+print('camera ok')
+
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
