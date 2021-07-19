@@ -55,12 +55,13 @@ while True:
         my_rgb1.write()
         my_rgb2.write()
     elif switch % 3 == 1:
-        if p3.read_analog() < 1000:
+        if p3.read_analog() < 1300:
             my_rgb1.fill( (255, 255, 255) )
             my_rgb2.fill( (255, 255, 255) )
             my_rgb1.write()
             my_rgb2.write()
-        elif p3.read_analog() >= 1000:
+            time.sleep_ms(500)
+        elif p3.read_analog() >= 1300:
             rainbow()    
     elif switch % 3 == 2:
         my_rgb1.fill( (255, 255, 255) )
