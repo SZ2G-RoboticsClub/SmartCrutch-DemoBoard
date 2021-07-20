@@ -334,15 +334,15 @@ def recordVideo():
     global video_time, choice, p
 
     if video_time == None:
-        p += 1
+        # p += 1
         video_time = time.time()
-        time.sleep(3)
-        print('ok000')
+        # time.sleep(3)
+        # print('ok000')
         # ai.AI_WaitForARP(0x34,[1])
         ai.AI_WaitForARP(0x34,[choice])
-        print('ok', p)
+        # print('ok', p)
         ai.video_capture(4)
-        print('okk', p)
+        # print('okk', p)
         choice = (choice + 1) % 2
 
     if time.time() - video_time >= 5:              # 缓冲开始摄像时间2s
@@ -388,7 +388,7 @@ def fall_det():
     if fall == 1:
         status = 'emergency'
         flashlight()
-        music.play(music.JUMP_UP, wait=True, loop=False)
+        music.play(music.JUMP_UP, pin=Pin.P8, wait=True, loop=False)
 
 
     if fall == 2:
@@ -429,15 +429,17 @@ def take_u_home():
 
     if backhome % 2 == 1:
         stop = 1
+        
         # debug3
-        # print('开始导航')
+        print('开始导航')
+        
         if st == 0:
             ori_loc = loc_cycle
             st = 1
         elif st == 1:
             ori_loc = '113.937507,22.570334'
             st = 0
-        # print('当前位置记录完毕', ori_loc)
+        print('当前位置记录完毕', ori_loc)
         para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key_dy
         print(NAV_URL+str(para_nav))
         nav = urequests.get(url=NAV_URL+str(para_nav))
@@ -510,12 +512,12 @@ def heartbeat():
 
 ai = NPLUS_AI()
 
-print('camera ok')
+print('camera init')
 
 audio.player_init(i2c)
-audio.set_volume(100)
+audio.set_volume(40)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
-# uart2 = machine.UART(2, baudrate=115200, tx=Pin.P1, rx=Pin.P0)
+uart2 = machine.UART(2, baudrate=115200, tx=Pin.P1, rx=Pin.P0)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
@@ -524,10 +526,27 @@ user_set = s.json()
 if user_set.get('code') == 0:
     print('获取账户连接成功')
     
-    uart2.write('AT+CPIN?')
+    ai.AI_WaitForARP(0x34,[1])
+    ai.video_capture(2)
+    print('camera ok')
+    
+    time.sleep(1)
+    ai.AI_WaitForARP(0x34,[1])
+    ai.video_capture(2)
+    print('camera actually ok')
+    
+    uart2.write('ATH\n')
+    time.sleep(1)
+    print('ready to go on')
+    
+    uart2.write('ATD13724285352;\n')
+    print('has called it up')
+    
     while True:
         if uart2.any():
-            print(uart1.read())
+            print(str(uart2.read()))
+        if p5.read_digital() == 1:
+            break
 
     
     # 家庭住址经纬度获取

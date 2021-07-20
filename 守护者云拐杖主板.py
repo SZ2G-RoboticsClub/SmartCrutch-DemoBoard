@@ -362,13 +362,13 @@ def fall_det():
     if fall == 1:
         status = 'emergency'
         flashlight()
-        music.play(music.JUMP_UP, wait=True, loop=False)
+        music.play(music.JUMP_UP, pin=Pin.P8, wait=True, loop=False)
 
 
     if fall == 2:
         status = 'emergency'
         flashlight()
-        music.play(music.JUMP_UP, wait=True, loop=False)
+        music.play(music.JUMP_UP, pin=Pin.P8, wait=True, loop=False)
         if dial == 0:
 
             # TEST1
