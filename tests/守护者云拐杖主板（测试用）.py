@@ -12,6 +12,10 @@ import audio
 import gc
 
 
+uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
+
+
+
 # 掌控板引脚：
 # p16tx&p9rx：串口uart2(SIM卡模块)
 # p13tx&p14rx：串口uart1(北斗定位模块)
@@ -48,7 +52,13 @@ p3 = MPythonPin(3, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=24, bpp=3, timing=1)
 my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
 
-
+uart1.write('switch on\r\n')
+my_rgb1.fill((255, 255, 255))
+my_rgb1.write()
+time.sleep(1)
+my_rgb1.fill((0,0,0))
+my_rgb1.write()
+uart1.write('switch success\r\n')
 
 #心跳包数据初始化
 uuid = 'fbb72bd8'        #拐杖身份证
@@ -65,7 +75,8 @@ heartbeat_Loc = None             #location
 # BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 # BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
-BASE_URL = 'http://192.168.3.239:8000/demoboard'     #NPlus
+# BASE_URL = 'http://192.168.3.239:8000/demoboard'     #NPlus
+BASE_URL = 'http://192.168.103.87:8000/demoboard'    #啊哈
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -74,8 +85,15 @@ BASE_URL = 'http://192.168.3.239:8000/demoboard'     #NPlus
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("NPlus","taoli2019.")
+my_wifi.connectWiFi("啊哈","dy666821")
 
+uart1.write('connectWiFi\r\n')
+my_rgb2.fill((255, 255, 255))
+my_rgb2.write()
+time.sleep(1)
+my_rgb2.fill((0,0,0))
+my_rgb2.write()
+uart1.write('connected\r\n')
 
 
 #路径规划初始化
@@ -142,8 +160,19 @@ dial = 0         #拨号：      1：已拨号一次         0：未拨过号
 choice = 0
 
 
-print('网络连接初始化完毕')
+# print('网络连接初始化完毕')
 
+uart1.write('network\r\n')
+my_rgb1.fill((255,255,255))
+my_rgb1.write()
+my_rgb2.fill((255,255,255))
+my_rgb2.write()
+time.sleep(1)
+my_rgb1.fill((0,0,0))
+my_rgb1.write()
+my_rgb2.fill((0,0,0))
+my_rgb2.write()
+uart1.write('network ok\r\n')
 
 # ============ Modules ============
 
@@ -219,7 +248,7 @@ def rainbow():
 #平常状态(ok)
 def common():
     global switch
-    if p5.read_digital() == 1:      # A键开关灯
+    if p5.read_digital() == 0:      # A键开关灯
         switch += 1
         time.sleep_ms(350)
         
@@ -394,15 +423,16 @@ def fall_det():
     if fall == 2:
         status = 'emergency'
         flashlight()
-        music.play(music.JUMP_UP, wait=True, loop=False)
-        print('the second alarm!!!')
+        music.play(music.JUMP_UP, pin=Pin.P8, wait=True, loop=False)
+        # print('')
+        uart1.write('the second alarm!!!\r\n')
         if dial == 0:
 
             # TEST1
             # print('已拨打电话')
 
             # 倒地30s后SIM模块拨打setting中紧急联系人电话
-            uart2.write('ATD' + str(user_set.get('settings').get('phone')) + ';')
+            uart2.write('ATD' + str(user_set.get('settings').get('phone')) + ';\r\n')
             time.sleep(3)
 
             dial = 1
@@ -410,7 +440,7 @@ def fall_det():
     if fall == 0:
 
         if dial == 1:
-            uart2.write('ATH') #(挂断所有通话)
+            uart2.write('ATH\r\n') #(挂断所有通话)
             dial = 0
 
         music.stop()
@@ -431,7 +461,13 @@ def take_u_home():
         stop = 1
         
         # debug3
-        print('开始导航')
+        # print('开始导航')
+        uart1.write('navigation\r\n')
+        my_rgb1.fill((0,0,255))
+        my_rgb1.write()
+        time.sleep(1)
+        my_rgb1.fill((0,0,0))
+        my_rgb1.write()
         
         if st == 0:
             ori_loc = loc_cycle
@@ -439,13 +475,22 @@ def take_u_home():
         elif st == 1:
             ori_loc = '113.937507,22.570334'
             st = 0
-        print('当前位置记录完毕', ori_loc)
+        # print('当前位置记录完毕', ori_loc)
         para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key_dy
-        print(NAV_URL+str(para_nav))
+        # print(NAV_URL+str(para_nav))
         nav = urequests.get(url=NAV_URL+str(para_nav))
         # print(nav)
         nav = nav.json()
         # print(nav)
+        
+        uart1.write('navigation prepared\r\n')
+        my_rgb2.fill((0,0,255))
+        my_rgb2.write()
+        time.sleep(1)
+        my_rgb2.fill((0,0,0))
+        my_rgb2.write()
+                
+        
         if nav.get('status') == "1":
             # print('守护者云拐杖正在带您回家')
             method = nav.get('route').get('paths')[0].get('steps')[0].get('instruction')
@@ -464,29 +509,56 @@ def take_u_home():
                     _f.write(dat)
             audio.play(nav_file)
             
+            uart1.write('navigation spoken out\r\n')
+            my_rgb2.fill((0,0,255))
+            my_rgb2.write()
+            my_rgb1.fill((0,0,255))
+            my_rgb1.write()
+            time.sleep(1)
+            my_rgb2.fill((0,0,0))
+            my_rgb2.write()
+            my_rgb1.fill((0,0,0))
+            my_rgb1.write()
+            
+            
             # debug4
             # print(method)
             
             time.sleep(5)
             audio.stop()
+            
 
             if nav.get('route').get('paths')[0].get('steps')[0].get('assistant_action') == "到达目的地":
                 
                 # TEST7
                 # print('导航结束')
+                uart1.write('navigation end\r\n')
+                for o in range(2):
+                    time.sleep(0.5)
+                    my_rgb1.fill((0,0,255))
+                    my_rgb1.write()
+                    my_rgb2.fill((0,0,255))
+                    my_rgb2.write()
+                    time.sleep(0.5)
+                    my_rgb2.fill((0,0,0))
+                    my_rgb2.write()
+                    my_rgb1.fill((0,0,0))
+                    my_rgb1.write()
 
                 audio.play('nav_end.mp3')
-                time.sleep(3)
+                time.sleep(1)
                 audio.stop()
                 
                 backhome = 0
+                stop = 0
     elif backhome % 2 == 0:
-        print('停了')
+        # print('停了')
         if stop == 1:
-            print('已中断')
+            # print('已中断')
+            uart1.write('navigation interupted\r\n')
             stop = 0
-        elif stop == 0:
-            fall_det()
+
+        fall_det()
             
 
 
@@ -512,42 +584,78 @@ def heartbeat():
 
 ai = NPLUS_AI()
 
-print('camera init')
+uart1.write('camera init\r\n')
+my_rgb1.fill((0,255,0))
+my_rgb1.write()
+time.sleep(1)
+my_rgb1.fill((0,0,0))
+my_rgb1.write()
+uart1.write('camera ok\r\n')
 
 audio.player_init(i2c)
-audio.set_volume(40)
-uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
+audio.set_volume(100)
+# uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
 uart2 = machine.UART(2, baudrate=115200, tx=Pin.P1, rx=Pin.P0)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 user_set = s.json()
 
+uart1.write('urequests\r\n')
+my_rgb2.fill((0,255,0))
+my_rgb2.write()
+time.sleep(1)
+my_rgb2.fill((0,0,0))
+my_rgb2.write()
+uart1.write('urequests ok\r\n')
+
 if user_set.get('code') == 0:
-    print('获取账户连接成功')
+    # print('获取账户连接成功')
     
+    # 开机测试
+    uart1.write('camera tests\r\n')
     ai.AI_WaitForARP(0x34,[1])
     ai.video_capture(2)
-    print('camera ok')
+    # print('camera ok')
     
     time.sleep(1)
     ai.AI_WaitForARP(0x34,[1])
     ai.video_capture(2)
-    print('camera actually ok')
-    
-    uart2.write('ATH\n')
+    # print('camera actually ok')   
+    uart1.write('camera done\r\n')
     time.sleep(1)
-    print('ready to go on')
     
-    uart2.write('ATD13724285352;\n')
-    print('has called it up')
+    uart1.write('SIM tests\r\n')                                                                            
+    
+    k = uart2.read()
+    uart2.write('ATH\r\n')
+    time.sleep(1)
+    # print('ready to go on')
+    
+    uart2.write('ATD18129922583;\r\n')
+    # print('has called it up')
     
     while True:
         if uart2.any():
-            print(str(uart2.read()))
-        if p5.read_digital() == 1:
+            uart1.write(uart2.read())
+            # print(uart2.read())
+            # print(bytes.decode(uart2.read()))
+        if p5.read_digital() == 0:
+            uart2.write('ATH\r\n')
+            uart1.write('SIM done\r\n')
             break
-
+    
+    uart1.write('final success\r\n')
+    my_rgb1.fill((0,255,0))
+    my_rgb1.write()
+    my_rgb2.fill((0,255,0))
+    my_rgb2.write()
+    time.sleep(1)
+    my_rgb2.fill((0,0,0))
+    my_rgb2.write()
+    my_rgb1.fill((0,0,0))
+    my_rgb1.write()
+    
     
     # 家庭住址经纬度获取
     home = user_set.get('settings').get('home')
@@ -567,7 +675,20 @@ if user_set.get('code') == 0:
     # debug5
     # print(home_loc)
     
-    print('家庭位置记录完毕', home_loc)
+    # print('家庭位置记录完毕', home_loc)
+    
+    time.sleep(2)
+    for o in range(2):
+        time.sleep(0.5)
+        my_rgb1.fill((0,255,0))
+        my_rgb1.write()
+        my_rgb2.fill((0,255,0))
+        my_rgb2.write()
+        time.sleep(0.5)
+        my_rgb2.fill((0,0,0))
+        my_rgb2.write()
+        my_rgb1.fill((0,0,0))
+        my_rgb1.write()
 
 
     while True:
@@ -590,8 +711,8 @@ if user_set.get('code') == 0:
         if time_set == None:
             time_set = time.time()
         
-        # take_u_home()
-        fall_det()
+        take_u_home()
+        # fall_det()
     
         if time.time() - time_set >= 5:
             
