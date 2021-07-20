@@ -5,6 +5,9 @@ import time
 p5 = MPythonPin(5, PinMode.IN)
 i = 0
 
+print("开始")
+
+# ai = NPLUS_AI()
 while True:
     i += 1
     print('no', i)
@@ -28,6 +31,6 @@ while True:
         ai.video_capture(5)
         print('后摄像头已录制')
         
-        i = 0
+        break
         
         

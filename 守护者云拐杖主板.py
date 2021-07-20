@@ -60,9 +60,10 @@ heartbeat_Loc = None             #location
 # 本地
 # BASE_URL = 'http://192.168.1.105:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
-BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
+# BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 # BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
+BASE_URL = 'http://192.168.3.239:8000/demoboard'     #Nplus
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'

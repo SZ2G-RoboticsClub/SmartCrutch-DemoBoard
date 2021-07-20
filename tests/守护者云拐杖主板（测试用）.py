@@ -62,9 +62,10 @@ heartbeat_Loc = None             #location
 # 本地
 # BASE_URL = 'http://192.168.1.104:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
-BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
+# BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 # BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
+BASE_URL = 'http://192.168.3.239:8000/demoboard'     #NPlus
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -73,7 +74,7 @@ BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
 
 #搭建WiFi，连接app用户手机数据
 my_wifi = wifi()
-my_wifi.connectWiFi("QFCS-MI","999999999")
+my_wifi.connectWiFi("NPlus","taoli2019.")
 
 
 
@@ -127,6 +128,7 @@ c2 = 0
 
 
 #全局变量定义       
+p = 0
 switch = 0                    
 stop = 0        #中断导航变量
 move = 0        #彩虹灯变量
@@ -135,7 +137,9 @@ fall = 0        #0：没摔倒；   1：摔倒了且已过了10s；    2：摔�
 time_on = None     #摔倒初始时间
 time_set = None    #心跳包发送初始时间
 geo_time = None
+video_time = None
 dial = 0         #拨号：      1：已拨号一次         0：未拨过号
+choice = 0
 
 
 print('网络连接初始化完毕')
@@ -200,8 +204,8 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    make_rainbow(my_rgb1, 63, 80, move)
-    make_rainbow(my_rgb2, 63, 80, move)
+    # make_rainbow(my_rgb1, 63, 80, move)
+    # make_rainbow(my_rgb2, 63, 80, move)
     
     make_rainbow(my_rgb1, 24, 80, move)
     make_rainbow(my_rgb2, 24, 80, move)
@@ -327,15 +331,21 @@ def getLoc_now():
 
 # 摄像头切换摄像
 def recordVideo():
-    global video_time, choice
+    global video_time, choice, p
 
     if video_time == None:
+        p += 1
         video_time = time.time()
+        time.sleep(3)
+        print('ok000')
+        # ai.AI_WaitForARP(0x34,[1])
         ai.AI_WaitForARP(0x34,[choice])
-        ai.video_capture(10)
+        print('ok', p)
+        ai.video_capture(4)
+        print('okk', p)
         choice = (choice + 1) % 2
 
-    if time.time() - video_time >= 12:              # 缓冲开始摄像时间2s
+    if time.time() - video_time >= 5:              # 缓冲开始摄像时间2s
         video_time = None
 
 
@@ -505,7 +515,7 @@ print('camera ok')
 audio.player_init(i2c)
 audio.set_volume(100)
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
-uart2 = machine.UART(2, baudrate=9600, tx=Pin.P16, rx=Pin.P9)
+# uart2 = machine.UART(2, baudrate=115200, tx=Pin.P1, rx=Pin.P0)
 
 #获得settingdata拐杖状态
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
@@ -513,9 +523,14 @@ user_set = s.json()
 
 if user_set.get('code') == 0:
     print('获取账户连接成功')
+    
+    uart2.write('AT+CPIN?')
+    while True:
+        if uart2.any():
+            print(uart1.read())
 
     
-    #家庭住址经纬度获取
+    # 家庭住址经纬度获取
     home = user_set.get('settings').get('home')
 
     # debug1
@@ -540,7 +555,10 @@ if user_set.get('code') == 0:
         gc.collect()
         
         getLoc_now()
-        recordVideo()        
+        recordVideo()     
+        
+        # if p5.read_digital() == 1:
+        #     break
         
         heartbeat_Loc = {
             "longitude": lon_now, 
@@ -549,13 +567,13 @@ if user_set.get('code') == 0:
             }
             
         # heartbeat_Loc = None
-
+    
         if time_set == None:
             time_set = time.time()
         
         # take_u_home()
         fall_det()
-
+    
         if time.time() - time_set >= 5:
             
             # debug6
@@ -575,6 +593,7 @@ if user_set.get('code') == 0:
 
 else:
     print('账户连接失败，请重新启动')
+
 
 
 #状态：倒地，common()，导航
