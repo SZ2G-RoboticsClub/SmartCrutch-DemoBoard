@@ -271,7 +271,7 @@ def rainbow():
 #平常状态(ok)
 def common():
     global switch
-    if p2.read_digital() == 2:      # A键开关灯
+    if p2.read_digital() == 1:      # A键开关灯
         switch += 1
         time.sleep_ms(350)
         
@@ -660,8 +660,8 @@ if user_set.get('code') == 0:
     
     # uart2.write('ATD13724285352;\r\n')
     k = uart2.read()
-    #uart2.write('ATD18129922583;\r\n')
-    uart2.write('ATD15302678343;\r\n')
+    uart2.write('ATD18129922583;\r\n')
+    # uart2.write('ATD15302678343;\r\n')
     time.sleep(5)
     uart1.write(str(uart2.read())+'\r\n')
     # print('has called it up')
@@ -681,18 +681,18 @@ if user_set.get('code') == 0:
             
             k = uart2.read()
             # uart2.write('ATD13724285352;\r\n')
-            #uart2.write('ATD18129922583;\r\n')
-            uart2.write('ATD15302678343;\r\n')
+            uart2.write('ATD18129922583;\r\n')
+            # uart2.write('ATD15302678343;\r\n')
             uart1.write('retry'+str(q)+'\r\n')
             time.sleep(2)
-            uart1.write(str(uart2.write()))
+            uart1.write(str(uart2.read()))
         # print('has called it up')
             
         if uart2.any():
             uart1.write(uart2.read() + '\r\n')
             # print(uart2.read())
             # print(bytes.decode(uart2.read()))
-        if p2.read_digital() == 0:
+        if p2.read_digital() == 1:
             uart2.write('ATH\r\n')
             uart1.write('SIM done\r\n')
             break
