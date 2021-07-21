@@ -16,16 +16,25 @@ uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
 
 
 
-# 掌控板引脚：
+# 主控板引脚：
 # p16tx&p9rx：串口uart2(SIM卡模块)
 # p13tx&p14rx：串口uart1(北斗定位模块)
 # p0&p1：前（choice=1）后（choice=2）摄像头控制
 # B键(P11)(绿色按钮): "带我回家"按钮+中断导航
-# A键(P5)(红色按钮)：照明灯开关
+# p2(红色按钮)：照明灯开关
 # p3：光敏电阻（光线传感）
 # p8：掌控板喇叭
 # p7：灯带1（灯数：63/24）
 # p15：灯带2（灯数：63/24）
+
+# PCB接线特殊处：
+# 上下两板0,1连通但要0对1、1对0
+# 上板SIM卡模块的TXD与p0相连，RXD与p1相连————SIM卡与摄像头模块共用串口uart2
+# 上板PWR与GND均要与下板相连
+# 上板中摄像头的VCC正极无需接线，但必须接GND
+# 上下两板的p8要连通，上板P8旁GND非必须连接
+# 上板一定要有天线
+# 上板调试串口直连USB时，PWR需连接5V接口
 
 
 # 摔倒判断：
@@ -42,7 +51,19 @@ uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
 # 实时定位位置：
 # loc_get1, location1, a/b/c:1&2
 
-p5 = MPythonPin(5, PinMode.IN)
+# 开机流程
+# 灯带1亮白灯1s：程序启动成功
+# 灯带2亮白灯1s: wifi连接成功
+# 灯带1与2均亮白灯1s：网络初始化完毕
+
+# 灯带1亮绿灯1s：摄像头初始化成功
+# 灯带2亮绿灯1s：urequests成功
+# 灯带1与2均亮绿灯1s：摄像头与SIM测试完成
+
+# 灯带1与2均亮绿灯闪烁一次（亮灭亮）：开始进入主循环
+
+
+p2 = MPythonPin(2, PinMode.IN)
 p11 = MPythonPin(11, PinMode.IN)
 p3 = MPythonPin(3, PinMode.ANALOG)
 
@@ -84,10 +105,12 @@ BASE_URL = 'http://192.168.103.87:8000/demoboard'    #啊哈
 
 
 #搭建WiFi，连接app用户手机数据
+uart1.write('connectWiFi\r\n')
+
 my_wifi = wifi()
 my_wifi.connectWiFi("啊哈","dy666821")
 
-uart1.write('connectWiFi\r\n')
+
 my_rgb2.fill((255, 255, 255))
 my_rgb2.write()
 time.sleep(1)
@@ -162,7 +185,7 @@ choice = 0
 
 # print('网络连接初始化完毕')
 
-uart1.write('network\r\n')
+uart1.write('network and variables definition\r\n')
 my_rgb1.fill((255,255,255))
 my_rgb1.write()
 my_rgb2.fill((255,255,255))
@@ -172,7 +195,7 @@ my_rgb1.fill((0,0,0))
 my_rgb1.write()
 my_rgb2.fill((0,0,0))
 my_rgb2.write()
-uart1.write('network ok\r\n')
+uart1.write('network and variables definition ok\r\n')
 
 # ============ Modules ============
 
@@ -248,7 +271,7 @@ def rainbow():
 #平常状态(ok)
 def common():
     global switch
-    if p5.read_digital() == 0:      # A键开关灯
+    if p2.read_digital() == 2:      # A键开关灯
         switch += 1
         time.sleep_ms(350)
         
@@ -370,7 +393,7 @@ def recordVideo():
         # ai.AI_WaitForARP(0x34,[1])
         ai.AI_WaitForARP(0x34,[choice])
         # print('ok', p)
-        ai.video_capture(4)
+        ai.AI_Uart_CMD(0x3B,[int(4/2),0,0,0])
         # print('okk', p)
         choice = (choice + 1) % 2
 
@@ -582,26 +605,27 @@ def heartbeat():
 
 # ============ Main ============
 
+uart1.write('camera init\r\n')
 ai = NPLUS_AI()
 
-uart1.write('camera init\r\n')
 my_rgb1.fill((0,255,0))
 my_rgb1.write()
 time.sleep(1)
 my_rgb1.fill((0,0,0))
 my_rgb1.write()
-uart1.write('camera ok\r\n')
+uart1.write('camera init ok\r\n')
 
 audio.player_init(i2c)
 audio.set_volume(100)
 # uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
 uart2 = machine.UART(2, baudrate=115200, tx=Pin.P1, rx=Pin.P0)
 
+
 #获得settingdata拐杖状态
+uart1.write('urequests\r\n')
 s = urequests.get(url=BASE_URL+'/get_settings/'+uuid)
 user_set = s.json()
 
-uart1.write('urequests\r\n')
 my_rgb2.fill((0,255,0))
 my_rgb2.write()
 time.sleep(1)
@@ -611,18 +635,20 @@ uart1.write('urequests ok\r\n')
 
 if user_set.get('code') == 0:
     # print('获取账户连接成功')
+    q = 0
     
     # 开机测试
     uart1.write('camera tests\r\n')
     ai.AI_WaitForARP(0x34,[1])
-    ai.video_capture(2)
+    ai.AI_Uart_CMD(0x3B,[int(2/2),0,0,0])
     # print('camera ok')
+    uart1.write('camera0 done\r\n')
     
     time.sleep(1)
     ai.AI_WaitForARP(0x34,[1])
-    ai.video_capture(2)
+    ai.AI_Uart_CMD(0x3B,[int(2/2),0,0,0])
     # print('camera actually ok')   
-    uart1.write('camera done\r\n')
+    uart1.write('camera1 done\r\n')
     time.sleep(1)
     
     uart1.write('SIM tests\r\n')                                                                            
@@ -632,15 +658,41 @@ if user_set.get('code') == 0:
     time.sleep(1)
     # print('ready to go on')
     
-    uart2.write('ATD18129922583;\r\n')
+    # uart2.write('ATD13724285352;\r\n')
+    k = uart2.read()
+    #uart2.write('ATD18129922583;\r\n')
+    uart2.write('ATD15302678343;\r\n')
+    time.sleep(5)
+    uart1.write(str(uart2.read())+'\r\n')
     # print('has called it up')
     
+    # time.sleep(15)
+    # uart2.write('ATD18129922583;\r\n')
+    # uart1.write('another')
+    
     while True:
+        if p11.read_digital() == 1:
+            q += 1
+            
+            k = uart2.read()
+            uart2.write('ATH\r\n')
+            uart1.write('hang up\r\n')
+            time.sleep(1)
+            
+            k = uart2.read()
+            # uart2.write('ATD13724285352;\r\n')
+            #uart2.write('ATD18129922583;\r\n')
+            uart2.write('ATD15302678343;\r\n')
+            uart1.write('retry'+str(q)+'\r\n')
+            time.sleep(2)
+            uart1.write(str(uart2.write()))
+        # print('has called it up')
+            
         if uart2.any():
-            uart1.write(uart2.read())
+            uart1.write(uart2.read() + '\r\n')
             # print(uart2.read())
             # print(bytes.decode(uart2.read()))
-        if p5.read_digital() == 0:
+        if p2.read_digital() == 0:
             uart2.write('ATH\r\n')
             uart1.write('SIM done\r\n')
             break
@@ -678,6 +730,7 @@ if user_set.get('code') == 0:
     # print('家庭位置记录完毕', home_loc)
     
     time.sleep(2)
+    uart1.write('main loop start')
     for o in range(2):
         time.sleep(0.5)
         my_rgb1.fill((0,255,0))
@@ -697,7 +750,7 @@ if user_set.get('code') == 0:
         getLoc_now()
         recordVideo()     
         
-        # if p5.read_digital() == 1:
+        # if p2.read_digital() == 1:
         #     break
         
         heartbeat_Loc = {
