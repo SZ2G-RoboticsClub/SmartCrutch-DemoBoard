@@ -70,7 +70,7 @@ import gc
 uart1 = machine.UART(1, baudrate=9600, tx=Pin.P13, rx=Pin.P14)
 
 
-p2 = MPythonPin(5, PinMode.IN)
+p2 = MPythonPin(2, PinMode.IN)
 p11 = MPythonPin(11, PinMode.IN)
 p3 = MPythonPin(3, PinMode.ANALOG)
 my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
