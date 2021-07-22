@@ -5,6 +5,7 @@ import ubinascii
 import time
 
 my_wifi = wifi()
+# my_wifi.connectWiFi('啊哈', 'dy666821')
 my_wifi.connectWiFi('QFCS-MI', '999999999')
 
 oled.fill(0)
@@ -24,6 +25,7 @@ oled.show()
 BASE_URL = 'http://192.168.31.132:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 # BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
+# BASE_URL = 'http://192.168.103.87:8000/demoboard'    #啊哈
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -59,7 +61,7 @@ while True:
     if time_set == None:
         time_set = time.time()
     
-    loc_info = '广东省深圳市南山区创科路3号深圳市第二高级中学'
+    loc_info = '深圳市第二高级中学'
         
     tran = ubinascii.hexlify(loc_info.encode('utf-8'))
     tran = tran.decode()
@@ -70,15 +72,15 @@ while True:
         time.sleep_ms(1)
         status = 'emergency'
         heartbeat_Loc = {
-            "latitude": 22.5734267,
-            "longitude": 114.1235464,
+            "latitude": 22.570334,
+            "longitude": 113.937507,
             "info": tran
         }
     else:
         status = 'ok'
         heartbeat_Loc = {
-            "latitude": 22.5734267,
-            "longitude": 114.1235464,
+            "latitude": 22.570334,
+            "longitude": 113.937507,
             "info": tran
         }
         rgb.fill((0, 0, 0))

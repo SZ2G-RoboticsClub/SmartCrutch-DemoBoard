@@ -649,13 +649,13 @@ if user_set.get('code') == 0:
         getLoc_now()
         recordVideo()
 
+        take_u_home()
+
         heartbeat_Loc = {
             "latitude": lat_now,
             "longitude": lon_now,
             "info": tran
             }
-
-        take_u_home()
 
         if time.time() - time_set >= 5:
             heartbeat()

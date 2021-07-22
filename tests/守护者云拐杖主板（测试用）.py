@@ -67,11 +67,11 @@ p2 = MPythonPin(2, PinMode.IN)
 p11 = MPythonPin(11, PinMode.IN)
 p3 = MPythonPin(3, PinMode.ANALOG)
 
-# my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
-# my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
+my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=63, bpp=3, timing=1)
+my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=63, bpp=3, timing=1)
 
-my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=24, bpp=3, timing=1)
-my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
+# my_rgb1 = neopixel.NeoPixel(Pin(Pin.P7), n=24, bpp=3, timing=1)
+# my_rgb2 = neopixel.NeoPixel(Pin(Pin.P15), n=24, bpp=3, timing=1)
 
 uart1.write('switch on\r\n')
 my_rgb1.fill((255, 255, 255))
@@ -256,11 +256,11 @@ def flashlight():
 #平常状态之流水彩虹灯(ok)
 def rainbow():
     global move
-    # make_rainbow(my_rgb1, 63, 80, move)
-    # make_rainbow(my_rgb2, 63, 80, move)
+    make_rainbow(my_rgb1, 63, 80, move)
+    make_rainbow(my_rgb2, 63, 80, move)
     
-    make_rainbow(my_rgb1, 24, 80, move)
-    make_rainbow(my_rgb2, 24, 80, move)
+    # make_rainbow(my_rgb1, 24, 80, move)
+    # make_rainbow(my_rgb2, 24, 80, move)
     my_rgb1.write()
     my_rgb2.write()
     # time.sleep(0.25)  
@@ -271,7 +271,7 @@ def rainbow():
 #平常状态(ok)
 def common():
     global switch
-    if p2.read_digital() == 1:      # A键开关灯
+    if p2.read_digital() == 1:      # 开关灯
         switch += 1
         time.sleep_ms(350)
         
@@ -369,7 +369,7 @@ def getLoc_now():
         # print(loc_info)
         
         # TEST8
-        loc_info = '南山区西丽街道南山垃圾分类科普体验馆西丽生态公园'
+        loc_info = '深圳市第二高级中学'
     
         tran = ubinascii.hexlify(loc_info.encode('utf-8'))
         tran = tran.decode()
@@ -426,10 +426,10 @@ def fall_det():
         my_rgb2.write()
 
         #10s内没起来
-        if time.time() - time_on > 10 and time.time() - time_on <= 30:
+        if time.time() - time_on > 2 and time.time() - time_on <= 5:
             fall = 1
         #30s内没起来
-        if time.time() - time_on > 30:
+        if time.time() - time_on > 5:
             fall = 2
 
     elif down == 0:
@@ -439,30 +439,37 @@ def fall_det():
 
     if fall == 1:
         status = 'emergency'
+        lon_now = 113.937507
+        lat_now = 22.570334
         flashlight()
         music.play(music.JUMP_UP, pin=Pin.P8, wait=True, loop=False)
 
 
     if fall == 2:
+        uart1.write('the second alarm!!!\r\n')
+        if dial == 0:
+            k = uart2.read()
+            
+            uart2.write('ATH\r\n')
+            time.sleep(1)
+            
+            # 倒地30s后SIM模块拨打setting中紧急联系人电话
+            # uart2.write('ATD' + str(user_set.get('settings').get('phone')) + ';\r\n')
+            uart2.write('ATD18129922583;\r\n')
+            time.sleep(2)
+
+            dial = 1
         status = 'emergency'
+        lon_now = 113.937507
+        lat_now = 22.570334
         flashlight()
         music.play(music.JUMP_UP, pin=Pin.P8, wait=True, loop=False)
         # print('')
-        uart1.write('the second alarm!!!\r\n')
-        if dial == 0:
-
-            # TEST1
-            # print('已拨打电话')
-
-            # 倒地30s后SIM模块拨打setting中紧急联系人电话
-            uart2.write('ATD' + str(user_set.get('settings').get('phone')) + ';\r\n')
-            time.sleep(3)
-
-            dial = 1
        
     if fall == 0:
 
         if dial == 1:
+            k = uart2.read()
             uart2.write('ATH\r\n') #(挂断所有通话)
             dial = 0
 
@@ -750,8 +757,8 @@ if user_set.get('code') == 0:
         getLoc_now()
         recordVideo()     
         
-        # if p2.read_digital() == 1:
-        #     break
+        take_u_home()
+        # fall_det()
         
         heartbeat_Loc = {
             "longitude": lon_now, 
@@ -763,9 +770,6 @@ if user_set.get('code') == 0:
     
         if time_set == None:
             time_set = time.time()
-        
-        take_u_home()
-        # fall_det()
     
         if time.time() - time_set >= 5:
             

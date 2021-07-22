@@ -4,7 +4,7 @@ import requests
 GEO_URL = 'https://restapi.amap.com/v3/geocode/geo?address='
 key = '10d4ac81004a9581c1d9de89eac4035b'
 
-home = '广东省深圳市罗湖区泥岗西路1068号'
+home = '深圳市第二高级中学'
 h = requests.get(url=GEO_URL+home+'&output=json&key='+key)
 
 h = h.json()
