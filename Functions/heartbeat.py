@@ -66,7 +66,7 @@ while True:
     tran = ubinascii.hexlify(loc_info.encode('utf-8'))
     tran = tran.decode()
 
-    if button_a.is_pressed():
+    if button_b.is_pressed():
         rgb.fill((255, 255, 255))
         rgb.write()
         time.sleep_ms(1)

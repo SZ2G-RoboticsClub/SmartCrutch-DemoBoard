@@ -317,6 +317,11 @@ def getLoc_now():
                 break
         location1 = (str(loc_get1).split(','))
 
+        DET = location1[2]
+        if not DET:
+            m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+            location1 = m.split(',')
+
         if location1[2] == 'N':
             a1 = list(str(location1[1]))
             b1 = float(''.join(a1[2:]))
