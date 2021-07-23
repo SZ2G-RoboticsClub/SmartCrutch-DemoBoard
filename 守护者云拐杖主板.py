@@ -98,11 +98,11 @@ heartbeat_Loc = None             #location
 # 本地
 # BASE_URL = 'http://192.168.1.105:8000/demoboard'     #QFCS1
 # BASE_URL = 'http://192.168.1.107:8000/demoboard'     #QFCS2
-BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
+# BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
 # BASE_URL = 'http://192.168.43.199:8000/demoboard'    #idk
 # BASE_URL = 'http://192.168.0.110:8000/demoboard'     #Tenda_7C8540
 # BASE_URL = 'http://192.168.3.239:8000/demoboard'     #Nplus
-# BASE_URL = 'http://192.168.103.87:8000/demoboard'    #啊哈
+BASE_URL = 'http://192.168.103.87:8000/demoboard'    #啊哈
 
 # 公网服务器
 # BASE_URL = 'http://39.103.138.199:8000/demoboard'
@@ -113,7 +113,7 @@ BASE_URL = 'http://192.168.31.131:8000/demoboard'    #QFCS-MI
 uart1.write('connectWiFi\r\n')
 
 my_wifi = wifi()
-my_wifi.connectWiFi("QFCS-MI","999999999")
+my_wifi.connectWiFi("啊哈","dy666821")
 
 
 my_rgb2.fill((255, 255, 255))
@@ -141,13 +141,6 @@ api_key = 'Lcr1un815AuFGa7DZDQv1sqx'
 secret_key = 'ujfZqO3mgcQZ52nXsfC9je02IiRDjaFb'
 method = ''
 nav_file = 'nav_file.mp3'
-
-
-
-# 短信发送
-fall_msg = '60a85bb680014eba73b05728645450124e86ff01ff018bf762535f005b8862a480054e9162d067560061007000704ee567e58be280014eba4f4d7f6eff01'
-msg = 0
-en_msg = 'Your deer senior citizen FELL DOWN to the ground now!!Please open the app "smartcrutch" to know his/her status and location!'
 
 
 
@@ -316,12 +309,20 @@ def getLoc_now():
             if loc_get1:
                 break
         location1 = (str(loc_get1).split(','))
-
-        DET = location1[2]
-        if not DET:
-            m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
-            location1 = m.split(',')
-
+        
+        # try:
+        #     DET1 = location1[2]
+        #     DET2 = location1[0]
+        #     print(DET1)
+        #     print(DET2)
+        #     if location1[0] != "b'$GNGLL" and location1[2] != "b'$GNGLL":
+        #         m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+        #         location1 = m.split(',')        
+        # except:
+        #     print('北斗数据不对')
+        #     m = '$GNGLL,2234.41586,N,11356.00044,E,051136.000,A,A*4E'
+        #     location1 = m.split(',')
+        
         if location1[2] == 'N':
             a1 = list(str(location1[1]))
             b1 = float(''.join(a1[2:]))
@@ -333,6 +334,7 @@ def getLoc_now():
             c1 = ((100 - 0) / (60 - 0)) * (b1 - 0) + 0
             lat_now = math.floor(float(location1[1]) * 0.01 * -1) + c1 * 0.01
         else:
+            print(location1[2])
             lat_now = 0
 
         if location1[4] == 'E':
@@ -346,6 +348,7 @@ def getLoc_now():
             c2 = ((100 - 0) / (60 - 0)) * (b2 - 0) + 0
             lon_now = math.floor(float(location1[3]) * 0.01 * -1) + c2 * 0.01
         else:
+            print(location1[4])
             lon_now = 0
 
         # TEST2
@@ -354,7 +357,12 @@ def getLoc_now():
 
         loc_cycle = str(lon_now) + ',' + str(lat_now)
 
-        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key)
+        r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_dy)
+        # r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_hg)
+        # r_geo = urequests.get(url=R_GEO_URL+loc_cycle+'&key='+key_zhs)
+        
+        print(R_GEO_URL+loc_cycle+'&key='+key_dy)
+        print(r_geo)
         r_geo = r_geo.json()
 
         # debug9
@@ -368,7 +376,7 @@ def getLoc_now():
         tran = ubinascii.hexlify(loc_info.encode('utf-8'))
         tran = tran.decode()
         geo_time = None
-        
+
         # debug12
         # uart1.write(tran)
         # uart1.write(type(tran))
@@ -398,7 +406,7 @@ def fall_det():
 
     z = accelerometer.get_z()
     #拐杖倒地判定
-    if z >= -0.5:            #究其根本
+    if z <= 0.5:            #究其根本
         down = 1
     else:
         down = 0
@@ -463,7 +471,7 @@ def fall_det():
 
 #"带你回家"
 def take_u_home():
-    global backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
+    global stop, backhome, loc_cycle, method, _f, para_nav, nav, NAV_URL, lat_now, lon_now, ori_loc, data_audio, nav_file, r_audio 
 
     if p11.read_digital() == 1:
         backhome += 1
@@ -484,7 +492,11 @@ def take_u_home():
         # uart1.write('loc recorded')
         # uart1.write(ori_loc)
 
-        para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key
+        para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key_dy
+        # para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key_zhs
+        # para_nav = 'origin='+ori_loc+'&destination='+home_loc+'&key='+key_hg
+
+
         # uart1.write(para_nav)
         nav = urequests.get(url=NAV_URL+str(para_nav))
         # uart1.write(nav)
@@ -612,7 +624,10 @@ if user_set.get('code') == 0:
     
     #家庭住址经纬度获取
     home = user_set.get('settings').get('home')
-    h = urequests.get(url=GEO_URL+home+'&output=json&key='+key)
+    h = urequests.get(url=GEO_URL+home+'&output=json&key='+key_dy)
+    # h = urequests.get(url=GEO_URL+home+'&output=json&key='+key_hg)
+    # h = urequests.get(url=GEO_URL+home+'&output=json&key='+key_zhs)
+    
     h = h.json()
 
     home_loc = h.get('geocodes')[0].get('location')
